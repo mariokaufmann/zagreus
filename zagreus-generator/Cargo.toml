@@ -1,0 +1,23 @@
+[package]
+name = "zagreus-generator"
+version = "0.0.1"
+authors = ["Mario Kaufmann <mario.kaufmann@bluemail.ch>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = "0.4.11"
+reqwest = { version = "0.10.9", features = ["blocking"] }
+serde = "1.0.117"
+serde_derive = "1.0.117"
+serde_json = "1.0.59"
+serde_yaml = "0.8.14"
+xml-rs = "0.8.3"
+zip = "0.5.8"
+walkdir = "2.3.1"
+
+[dependencies.log4rs]
+version = "0.13.0"
+default-features = false
+features = ["console_appender"]

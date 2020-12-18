@@ -1,0 +1,23 @@
+{
+  "name": "zagreus-runtime",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "serve": "webpack serve",
+    "copyScript" : "cpy dist/zagreus-runtime.js ../zagreus-server/",
+    "build": "webpack && npm run copyScript",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mario Kaufmann <mario.kaufmann@bluemail.ch>",
+  "license": "ISC",
+  "devDependencies": {
+    "cpy-cli": "3.1.1",
+    "eslint": "7.14.0",
+    "ts-loader": "8.0.11",
+    "typescript": "4.1.2",
+    "webpack": "5.6.0",
+    "webpack-cli": "4.2.0",
+    "webpack-dev-server": "3.10.3"
+  }
+}
