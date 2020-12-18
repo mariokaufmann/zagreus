@@ -1,0 +1,13 @@
+name: build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: cd zagreus-runtime && npm ci --no-optional && npm run build
+      - run: cd zagreus-generator && cargo build --release
+      - run: cd zagreus-generator && cargo test
+      - run: cd zagreus-server && cargo build --release
+      - run: cd zagreus-server && cargo test
