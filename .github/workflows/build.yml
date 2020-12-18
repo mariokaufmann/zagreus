@@ -8,6 +8,9 @@ jobs:
       - uses: actions/setup-node@v1
       - run: cd zagreus-runtime && npm ci --no-optional && npm run build
       - run: cd zagreus-generator && cargo build --release
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - run: cd zagreus-generator && cargo test
       - run: cd zagreus-server && cargo build --release
       - run: cd zagreus-server && cargo test
