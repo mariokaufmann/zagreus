@@ -20,9 +20,19 @@ jobs:
       - name: Test zagreus generator
         run: cargo test
         working-directory: ./zagreus-generator
+      - name: Lint zagreus generator
+        run: |
+          rustup component add clippy
+          cargo clippy -- -D warnings
+        working-directory: ./zagreus-generator
       - name: Build zagreus server
         run: cargo build --release
         working-directory: ./zagreus-server
       - name: Test zagreus server
         run: cargo test
+        working-directory: ./zagreus-server
+      - name: Lint zagreus server
+        run: |
+          rustup component add clippy
+          cargo clippy -- -D warnings
         working-directory: ./zagreus-server

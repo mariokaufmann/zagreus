@@ -13,7 +13,8 @@ impl ConfigValidate for AnimationConfig {
             for step in &sequence.steps {
                 // check for duplicate animations on the same element
                 let duplicate_elements = get_duplicate_elements(&step.animations, |animation| &animation.id);
-                for duplicate_element in duplicate_elements {
+
+                if let Some(duplicate_element) = duplicate_elements.get(0) {
                     return Err(ZagreusError::from(
                         format!("Animation sequence {} contains multiple animations for element {} in the same step.", &sequence.name, duplicate_element)));
                 }

@@ -1,6 +1,3 @@
-use std::fs::DirEntry;
-use std::path::PathBuf;
-
 use crate::error::ZagreusError;
 
 pub const ASSETS_FOLDER_NAME: &str = "assets";

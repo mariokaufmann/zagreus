@@ -10,7 +10,7 @@ pub fn prepare_temp_folder() -> Result<PathBuf, ZagreusError> {
     let folder_name = format!("{}{}", TEMP_FOLDER_NAME, folder_suffix);
     temp_dir.push(folder_name);
     if temp_dir.exists() {
-        return Err(ZagreusError::new("The path already exists."));
+        return Err(ZagreusError::from("The path already exists.".to_owned()));
     }
     std::fs::create_dir(&temp_dir)?;
     Ok(temp_dir)

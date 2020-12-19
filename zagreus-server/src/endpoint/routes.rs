@@ -43,7 +43,7 @@ pub fn get_routes(server_controller: Arc<ServerController>, ws_server: Arc<Webso
         .and(warp::path("template"))
         .and(warp::path::param())
         .and(warp::ws())
-        .and(server_controller_server_data.clone())
+        .and(server_controller_server_data)
         .map(|template_name: String, ws: warp::ws::Ws, server_controller: Arc<ServerController>| {
             ws.on_upgrade(|socket| async move {
                 server_controller.add_websocket_client(socket, &template_name).await;
@@ -119,7 +119,7 @@ pub fn get_routes(server_controller: Arc<ServerController>, ws_server: Arc<Webso
 
     let image_filter = data_filter
         .and(warp::path("image"))
-        .and(websocket_server_data.clone())
+        .and(websocket_server_data)
         .and(warp::body::json());
     let set_image_source_filter = image_filter
         .and(warp::post())
@@ -132,7 +132,7 @@ pub fn get_routes(server_controller: Arc<ServerController>, ws_server: Arc<Webso
         .and(warp::path::param())
         .and(warp::path::end())
         .and(warp::post())
-        .and(template_registry_server_data.clone())
+        .and(template_registry_server_data)
         .and(warp::multipart::form())
         .and_then(|template_name: String, template_registry: ServerTemplateRegistry, form: warp::multipart::FormData| {
             upload_template(template_name, template_registry, form)

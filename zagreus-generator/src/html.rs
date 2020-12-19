@@ -8,7 +8,7 @@ const HTML_PART_1: &str = "<html><head><meta charset=\"UTF-8\" />";
 const HTML_PART_2: &str = "</head><body><div id=\"zagreus-svg-container\" class=\"zagreus-hidden\">";
 const HTML_PART_3: &str = "</div><script src=\"/static/zagreus-runtime.js\"></script></body></html>";
 
-pub fn write_raw_html(processed_template_path: &PathBuf, raw_html_path: &PathBuf, template_name: &str, stylesheets: &Vec<String>) {
+pub fn write_raw_html(processed_template_path: &PathBuf, raw_html_path: &PathBuf, template_name: &str, stylesheets: &[String]) {
     let mut raw_html_file = File::create(raw_html_path).unwrap();
     let processed_template_data = std::fs::read(processed_template_path).unwrap();
 

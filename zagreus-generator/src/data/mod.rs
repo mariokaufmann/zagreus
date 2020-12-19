@@ -52,7 +52,7 @@ impl DataElements {
     }
 
     pub fn has_data_element(&self, element_name: &str) -> bool {
-        self.elements.iter().find(|element| (*element).eq(element_name)).is_some()
+        self.elements.iter().any(|element| (*element).eq(element_name))
     }
 }
 

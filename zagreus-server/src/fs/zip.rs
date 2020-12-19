@@ -19,7 +19,7 @@ pub fn unpack_template_files(template_name: &str, file_buffer: Vec<u8>, data_fol
         let file_path = PathBuf::from(file.name());
         output_file_path.push(file_path);
 
-        if file.name().ends_with("/") {
+        if file.name().ends_with('/') {
             debug!("Creating directory: {:?}.", output_file_path);
             if !output_file_path.exists() {
                 std::fs::create_dir_all(output_file_path)?;

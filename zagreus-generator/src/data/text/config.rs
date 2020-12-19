@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::data::ConfigValidate;
 use crate::data::validation::{get_duplicate_elements, ValidationData};
 use crate::error::ZagreusError;
@@ -17,23 +15,19 @@ impl ConfigValidate for TextConfig {
             }
 
             // check alignment
-            if text_element_config.align == TextAlignment::Center {
-                if text_element_config.align_with.is_empty() {
-                    return Err(ZagreusError::from(format!("Text element {} is center-aligned but no alignWith is configured.", &text_element_config.id)));
-                }
+            if text_element_config.align == TextAlignment::Center && text_element_config.align_with.is_empty() {
+                return Err(ZagreusError::from(format!("Text element {} is center-aligned but no alignWith is configured.", &text_element_config.id)));
             }
 
-            if !text_element_config.align_with.is_empty() {
-                if !validation_data.data_elements.has_data_element(&text_element_config.align_with) {
-                    return Err(ZagreusError::from(
-                        format!("Text element {} is configured to be aligned with unknown element {}.", &text_element_config.id, &text_element_config.align_with)));
-                }
+            if !text_element_config.align_with.is_empty() && !validation_data.data_elements.has_data_element(&text_element_config.align_with) {
+                return Err(ZagreusError::from(
+                    format!("Text element {} is configured to be aligned with unknown element {}.", &text_element_config.id, &text_element_config.align_with)));
             }
         }
 
         // check for duplicate elements
         let duplicate_elements = get_duplicate_elements(&self.elements, |element| &element.id);
-        for duplicate_element in duplicate_elements {
+        if let Some(duplicate_element) = duplicate_elements.get(0) {
             return Err(ZagreusError::from(
                 format!("Text element {} is configured more than once.", duplicate_element)));
         }
