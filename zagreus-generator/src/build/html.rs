@@ -27,8 +27,8 @@ pub fn write_raw_html(processed_template_path: &PathBuf, raw_html_path: &PathBuf
 }
 
 pub fn process_raw_html(raw_html_path: &PathBuf, processed_html_path: &PathBuf) {
-    let html_reader = crate::transform::create_xml_reader(&raw_html_path);
-    let mut html_writer = crate::transform::create_xml_writer(&processed_html_path);
+    let html_reader = crate::build::transform::create_xml_reader(&raw_html_path);
+    let mut html_writer = crate::build::transform::create_xml_writer(&processed_html_path);
 
     for evt in html_reader {
         let reader_event = evt.unwrap();

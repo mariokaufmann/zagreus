@@ -1,11 +1,10 @@
 use std::path::Path;
 
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 
 use crate::data::validation::{ConfigValidate, ValidationData};
 use crate::error::ZagreusError;
-use crate::get_path_in_build_folder;
 
 pub mod animation;
 pub mod text;
@@ -56,11 +55,10 @@ impl DataElements {
     }
 }
 
-pub fn convert_config<T>(config_file_path: &Path, output_file_name: &str, validation_data: &ValidationData) -> Result<(), ZagreusError> where T: DeserializeOwned + Serialize + ConfigValidate {
-    let config: T = load_config(config_file_path)?;
+pub fn convert_config<T>(input_file_path: &Path, output_file_path: &Path, validation_data: &ValidationData) -> Result<(), ZagreusError> where T: DeserializeOwned + Serialize + ConfigValidate {
+    let config: T = load_config(input_file_path)?;
     config.validate(validation_data)?;
-    let converted_file_path = get_path_in_build_folder(output_file_name);
-    let output_file = std::fs::File::create(&converted_file_path)?;
+    let output_file = std::fs::File::create(&output_file_path)?;
     serde_json::to_writer_pretty(output_file, &config)?;
     Ok(())
 }
