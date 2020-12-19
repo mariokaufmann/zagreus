@@ -71,10 +71,12 @@ struct Opt {
 }
 
 impl Opt {
+    #[allow(dead_code)]
     pub fn sub_command(&self) -> &str {
         &self.sub_command
     }
 
+    #[allow(dead_code)]
     pub fn absolute_template_root(&self) -> Result<PathBuf, Error> {
         if self.template_root.is_absolute() {
             return Ok(PathBuf::from(&self.template_root));
@@ -82,6 +84,7 @@ impl Opt {
         fs::canonicalize(&self.template_root)
     }
 
+    #[allow(dead_code)]
     pub fn is_debug(&self) -> bool {
         self.debug
     }
