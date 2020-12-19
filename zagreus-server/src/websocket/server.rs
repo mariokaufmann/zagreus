@@ -59,10 +59,8 @@ impl WebsocketServer {
                         Ok(message) => {
                             match serde_json::from_slice::<TemplateMessage>(message.as_bytes()) {
                                 Ok(parsed_message) => {
-                                    match parsed_message {
-                                        TemplateMessage::LogError { message, stack } =>
-                                            error!("Template error occurred: {}\n{}", message, stack),
-                                        _ => (),
+                                    if let TemplateMessage::LogError { message, stack } = parsed_message {
+                                        error!("Template error occurred: {}\n{}", message, stack)
                                     }
                                 }
                                 Err(err) => error!("Could not parse message on websocket: {}.", err),

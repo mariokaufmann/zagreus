@@ -11,7 +11,7 @@ pub struct ValidationData<'a> {
     pub data_elements: &'a DataElements,
 }
 
-fn count_elements_grouped<'a, T, F>(elements: &'a Vec<T>, mapping_function: F)
+fn count_elements_grouped<'a, T, F>(elements: &'a [T], mapping_function: F)
                                     -> HashMap<&str, u16> where F: Fn(&'a T) -> &'a str {
     let mut result = HashMap::new();
     for element in elements {
@@ -25,13 +25,13 @@ fn count_elements_grouped<'a, T, F>(elements: &'a Vec<T>, mapping_function: F)
     result
 }
 
-pub fn get_duplicate_elements<'a, T, F>(elements: &'a Vec<T>, mapping_function: F)
+pub fn get_duplicate_elements<'a, T, F>(elements: &'a [T], mapping_function: F)
                                         -> Vec<&'a str> where F: Fn(&'a T) -> &'a str {
     let mut element_counts = count_elements_grouped(elements, mapping_function);
     element_counts.drain()
-        .filter(|(key, value)| {
+        .filter(|(_, value)| {
             *value > 1
         })
-        .map(|(key, value)| key)
+        .map(|(key, _)| key)
         .collect()
 }

@@ -7,6 +7,8 @@ use crate::fs::get_templates_data_folder;
 use crate::template::event::TemplateEvent;
 use crate::template::Template;
 
+// TODO send event when template is updated
+#[allow(dead_code)]
 pub struct TemplateRegistry {
     data_folder: PathBuf,
     templates: HashMap<String, Template>,

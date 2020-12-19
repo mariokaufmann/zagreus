@@ -2,7 +2,6 @@ use std::path::{Path, PathBuf};
 
 use crate::error::ZagreusError;
 
-pub mod temp;
 pub mod zip;
 
 pub const TEMPLATES_DATA_SUBFOLDER_NAME: &str = "templates";
@@ -26,12 +25,6 @@ pub fn get_application_folder(application_name: &str) -> Result<PathBuf, Zagreus
     Ok(folder)
 }
 
-pub fn get_data_folder(data_folder_path: &Path) -> Result<PathBuf, ZagreusError> {
-    let folder = data_folder_path.to_path_buf();
-    create_if_necessary(&folder)?;
-    Ok(folder)
-}
-
 pub fn get_templates_data_folder(data_folder_path: &Path) -> Result<PathBuf, ZagreusError> {
     let folder = data_folder_path.join(TEMPLATES_DATA_SUBFOLDER_NAME);
     create_if_necessary(&folder)?;
@@ -43,12 +36,6 @@ pub fn get_template_folder(data_folder_path: &Path, template_name: &str) -> Resu
     folder.push(template_name);
     create_if_necessary(&folder)?;
     Ok(folder)
-}
-
-pub fn get_file_in_template_folder(data_folder_path: &PathBuf, file_name: &str, template_name: &str) -> Result<PathBuf, ZagreusError> {
-    let mut file = get_template_folder(data_folder_path, template_name)?;
-    file.push(file_name);
-    Ok(file)
 }
 
 fn create_if_necessary(path: &Path) -> Result<(), ZagreusError> {

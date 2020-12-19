@@ -7,10 +7,6 @@ pub struct ZagreusError {
 }
 
 impl ZagreusError {
-    pub fn new(error_message: &str) -> ZagreusError {
-        ZagreusError { error_message: error_message.to_owned() }
-    }
-
     pub fn from(error_message: String) -> ZagreusError {
         ZagreusError { error_message }
     }

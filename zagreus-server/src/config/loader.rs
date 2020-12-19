@@ -5,7 +5,6 @@ use crate::error::ZagreusError;
 
 pub struct ConfigurationManager<T> where T: Sized {
     configuration: T,
-    configuration_loader: ConfigurationLoader,
 }
 
 impl<T> ConfigurationManager<T> where T: Default + serde::Serialize + serde::de::DeserializeOwned {
@@ -19,11 +18,7 @@ impl<T> ConfigurationManager<T> where T: Default + serde::Serialize + serde::de:
             configuration = T::default();
             configuration_loader.store_config(&configuration)?;
         }
-        Ok(ConfigurationManager { configuration, configuration_loader })
-    }
-
-    pub fn persist_configuration(&self) -> Result<(), ZagreusError> {
-        self.configuration_loader.store_config(&self.configuration)
+        Ok(ConfigurationManager { configuration })
     }
 
     pub fn get_configuration(&self) -> &T {
