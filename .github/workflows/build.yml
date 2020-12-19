@@ -1,16 +1,28 @@
 name: build
-on: [push, pull_request]
+on: [push]
 jobs:
   build:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
-      - run: cd zagreus-runtime && npm ci --no-optional && npm run build
+      - name: Build zagreus runtime
+        run: |
+          npm ci --no-optional
+          npm run build
+        working-directory: ./zagreus-runtime
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - run: cd zagreus-generator && cargo build --release
-      - run: cd zagreus-generator && cargo test
-      - run: cd zagreus-server && cargo build --release
-      - run: cd zagreus-server && cargo test
+      - name: Build zagreus generator
+        run: cargo build --release
+        working-directory: ./zagreus-generator
+      - name: Test zagreus generator
+        run: cargo test
+        working-directory: ./zagreus-generator
+      - name: Build zagreus server
+        run: cargo build --release
+        working-directory: ./zagreus-server
+      - name: Test zagreus server
+        run: cargo test
+        working-directory: ./zagreus-server
