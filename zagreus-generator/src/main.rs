@@ -22,10 +22,8 @@ const TEMPLATE_CONFIG_FILE_NAME: &str = "zagreus-template.yaml";
 const BUILD_FOLDER_NAME: &str = "build";
 
 fn main() {
-    logger::init_logger();
-
     let options: Opt = Opt::from_args();
-    info!("Is debug: {}", options.is_debug());
+    logger::init_logger(options.is_debug());
 
     let template_config =
         crate::data::load_config::<TemplateConfig>(Path::new(TEMPLATE_CONFIG_FILE_NAME)).unwrap();
