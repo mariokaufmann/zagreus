@@ -6,14 +6,10 @@ use zip::write::FileOptions;
 use zip::ZipWriter;
 
 use crate::error::ZagreusError;
-use crate::get_path_in_build_folder;
 
-const ZIPPED_TEMPLATE_FILE_NAME: &str = "template.zip";
-
-pub fn pack_template(build_file_names: Vec<&str>, assets_folder: &PathBuf) -> Result<(), ZagreusError> {
+pub fn pack_template(zipped_template_file: &Path, build_file_names: &[PathBuf], assets_folder: &PathBuf) -> Result<(), ZagreusError> {
     debug!("Packing template.");
     let assets_walkdir = WalkDir::new(assets_folder);
-    let zipped_template_file = get_path_in_build_folder(ZIPPED_TEMPLATE_FILE_NAME);
     let zipped_file = std::fs::File::create(zipped_template_file)?;
     let mut zip_writer = zip::ZipWriter::new(zipped_file);
 
@@ -21,10 +17,19 @@ pub fn pack_template(build_file_names: Vec<&str>, assets_folder: &PathBuf) -> Re
 
     // pack build files
     debug!("Packing build files.");
-    for build_file_name in build_file_names {
-        let build_file = get_path_in_build_folder(build_file_name);
+    for build_file in build_file_names {
         debug!("Packing build file: {}.", build_file.display());
-        write_zip_file(&mut zip_writer, build_file, build_file_name, &mut buffer)?;
+        match build_file.file_name() {
+            Some(build_file_name) => {
+                match build_file_name.to_str() {
+                    Some(build_file_name) => {
+                        write_zip_file(&mut zip_writer, build_file, build_file_name, &mut buffer)?;
+                    }
+                    None => return Err(ZagreusError::from(format!("Could not convert build file name to str for file {}", build_file.display()))),
+                }
+            }
+            None => return Err(ZagreusError::from(format!("Could not get file for file {}", build_file.display()))),
+        }
     }
 
     // pack assets

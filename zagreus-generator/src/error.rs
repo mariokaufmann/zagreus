@@ -2,6 +2,10 @@ use reqwest::Error;
 use serde::export::Formatter;
 use zip::result::ZipError;
 
+pub fn error_with_message<T>(message: &str, error: impl std::fmt::Display) -> Result<T, ZagreusError> {
+    Err(ZagreusError::from(format!("{}: {}", message, error)))
+}
+
 #[derive(Debug)]
 pub struct ZagreusError {
     pub error_message: String,

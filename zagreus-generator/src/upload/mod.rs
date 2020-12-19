@@ -1,17 +1,17 @@
 use std::io::Read;
+use std::path::Path;
 use std::time::Duration;
 
 use crate::error::ZagreusError;
-use crate::get_path_in_build_folder;
 
 pub struct TemplateUploader<'a> {
     client: reqwest::blocking::Client,
     upload_url: String,
-    packed_template_file_name: &'a str,
+    packed_template_file_path: &'a Path,
 }
 
 impl<'a> TemplateUploader<'a> {
-    pub fn new(server_url: &str, template_name: &str, packed_template_file_name: &'a str) -> Result<TemplateUploader<'a>, ZagreusError> {
+    pub fn new(server_url: &str, template_name: &str, packed_template_file_path: &'a Path) -> Result<TemplateUploader<'a>, ZagreusError> {
         let client = reqwest::blocking::Client::builder()
             .timeout(Duration::from_secs(10))
             .build()?;
@@ -20,14 +20,13 @@ impl<'a> TemplateUploader<'a> {
         Ok(TemplateUploader {
             client,
             upload_url,
-            packed_template_file_name,
+            packed_template_file_path,
         })
     }
 
     pub fn upload_template(&self) -> Result<(), ZagreusError> {
-        let packed_template_file_name = get_path_in_build_folder(self.packed_template_file_name);
         let mut buffer = Vec::new();
-        let mut input_file = std::fs::File::open(packed_template_file_name)?;
+        let mut input_file = std::fs::File::open(self.packed_template_file_path)?;
         input_file.read_to_end(&mut buffer)?;
         let part = reqwest::blocking::multipart::Part::bytes(buffer);
         let multipart = reqwest::blocking::multipart::Form::new()
