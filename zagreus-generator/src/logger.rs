@@ -19,7 +19,7 @@ pub fn init_logger(is_verbose: bool) {
     log4rs::init_config(config).unwrap();
 }
 
-fn level_filter(is_debug: bool) -> LevelFilter {
+fn level_filter(is_verbose: bool) -> LevelFilter {
     if is_debug {
         LevelFilter::Trace
     } else {
