@@ -12,9 +12,11 @@ pub fn create_xml_reader(input_path: &Path) -> EventReader<BufReader<File>> {
 
 pub fn create_xml_writer(output_path: &Path) -> EventWriter<File> {
     let file = File::create(output_path).unwrap();
-    EmitterConfig::new()
+    let mut config = EmitterConfig::new()
         .perform_indent(true)
         .write_document_declaration(false)
-        .normalize_empty_elements(false)
-        .create_writer(file)
+        .normalize_empty_elements(false);
+    // for some reason no builder setter is available for this flag
+    config.perform_escaping = false;
+    config.create_writer(file)
 }
