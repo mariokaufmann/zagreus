@@ -5,6 +5,13 @@ jobs:
     strategy:
       matrix:
         label: [Linux, Windows]
+        include:
+          - label: Linux
+            script-name: chmod +x ./package.sh && ./package.sh
+            artifact: zagreus-linux
+          - label: Windows
+            script-name: .\package.ps1
+            artifact: zagreus-win
     runs-on: [self-hosted, '${{ matrix.label }}']
     steps:
       - uses: actions/checkout@v2
@@ -39,3 +46,11 @@ jobs:
           rustup component add clippy
           cargo clippy -- -D warnings
         working-directory: ./zagreus-server
+      - name: Package
+        run: ${{ matrix.script-name }}
+        working-directory: ./package
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.artifact }}
+          path: package/zagreus.zip
