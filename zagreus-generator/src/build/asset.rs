@@ -1,9 +1,13 @@
+use std::collections::HashSet;
+use std::path::Path;
+
 use crate::error::ZagreusError;
 
 pub const ASSETS_FOLDER_NAME: &str = "assets";
 
-pub fn collect_stylesheets() -> Result<Vec<String>, ZagreusError> {
-    let read_dir = std::fs::read_dir(ASSETS_FOLDER_NAME)?;
+pub fn collect_stylesheets<P: AsRef<Path>>(base_folder: P) -> Result<HashSet<String>, ZagreusError> {
+    let assets_folder = base_folder.as_ref().join(ASSETS_FOLDER_NAME);
+    let read_dir = std::fs::read_dir(assets_folder)?;
     let entries = read_dir.into_iter()
         .filter_map(Result::ok)
         .map(|entry| entry.path())
@@ -19,3 +23,28 @@ pub fn collect_stylesheets() -> Result<Vec<String>, ZagreusError> {
         .collect();
     Ok(entries)
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::fs::temp::TempFolder;
+
+    use super::*;
+
+    #[test]
+    fn collect_stylesheets_valid() {
+        let temp_folder = TempFolder::new().unwrap();
+        let asset_folder = temp_folder.join(ASSETS_FOLDER_NAME);
+        std::fs::create_dir(&asset_folder).unwrap();
+        let stylesheet1_path = asset_folder.join("main.css");
+        std::fs::File::create(stylesheet1_path).unwrap();
+        let stylesheet2_path = asset_folder.join("animations.css");
+        std::fs::File::create(stylesheet2_path).unwrap();
+
+        let stylesheets = collect_stylesheets(temp_folder).unwrap();
+
+        assert_eq!(stylesheets.len(), 2);
+        assert!(stylesheets.contains("main.css"));
+        assert!(stylesheets.contains("animations.css"));
+    }
+}
+

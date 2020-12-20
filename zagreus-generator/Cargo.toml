@@ -22,3 +22,6 @@ structopt = "0.3.21"
 version = "0.13.0"
 default-features = false
 features = ["console_appender"]
+
+[dev-dependencies]
+rand = "0.8.0"

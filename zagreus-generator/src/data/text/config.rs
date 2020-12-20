@@ -59,3 +59,103 @@ impl Default for TextAlignment {
         TextAlignment::Left
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::data::DataElements;
+
+    use super::*;
+
+    #[test]
+    fn validate_text_config_valid() {
+        let data_elements = DataElements::new(vec![
+            String::from("id1"),
+            String::from("id2"),
+        ]);
+        let validation_data = ValidationData {
+            data_elements: &data_elements,
+        };
+        let text_config = TextConfig {
+            elements: vec![
+                TextElementConfig { id: String::from("id1"), align: TextAlignment::Left, align_with: String::from("") },
+                TextElementConfig { id: String::from("id2"), align: TextAlignment::Center, align_with: String::from("id1") },
+            ]
+        };
+
+        let result = text_config.validate(&validation_data);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn validate_text_config_inexistant_element() {
+        let data_elements = DataElements::new(vec![
+            String::from("id2"),
+        ]);
+        let validation_data = ValidationData {
+            data_elements: &data_elements,
+        };
+        let text_config = TextConfig {
+            elements: vec![
+                TextElementConfig { id: String::from("id1"), align: TextAlignment::Left, align_with: String::from("") },
+            ]
+        };
+
+        let result = text_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_text_config_center_no_align_with() {
+        let data_elements = DataElements::new(vec![
+            String::from("id1"),
+        ]);
+        let validation_data = ValidationData {
+            data_elements: &data_elements,
+        };
+        let text_config = TextConfig {
+            elements: vec![
+                TextElementConfig { id: String::from("id1"), align: TextAlignment::Center, align_with: String::from("") },
+            ]
+        };
+
+        let result = text_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_text_config_center_invalid_align_with() {
+        let data_elements = DataElements::new(vec![
+            String::from("id1"),
+        ]);
+        let validation_data = ValidationData {
+            data_elements: &data_elements,
+        };
+        let text_config = TextConfig {
+            elements: vec![
+                TextElementConfig { id: String::from("id1"), align: TextAlignment::Center, align_with: String::from("id2") },
+            ]
+        };
+
+        let result = text_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_text_config_center_duplicate() {
+        let data_elements = DataElements::new(vec![
+            String::from("id1"),
+        ]);
+        let validation_data = ValidationData {
+            data_elements: &data_elements,
+        };
+        let text_config = TextConfig {
+            elements: vec![
+                TextElementConfig { id: String::from("id1"), align: TextAlignment::Left, align_with: String::from("") },
+                TextElementConfig { id: String::from("id1"), align: TextAlignment::Left, align_with: String::from("") },
+            ]
+        };
+
+        let result = text_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
+}

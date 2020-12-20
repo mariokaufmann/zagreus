@@ -54,3 +54,25 @@ fn transform_event(event: &ReaderEvent) -> Option<WriterEvent> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::fs::temp::TempFolder;
+
+    use super::*;
+
+    #[test]
+    fn process_valid_from_affinity_designer() {
+        let temp_folder = TempFolder::new().unwrap();
+        let input_file_path = Path::new("fixtures/svg/valid.svg");
+        let expected_output_path = Path::new("fixtures/svg/valid_processed.svg");
+        let actual_output_path = temp_folder.join("output.svg");
+
+        process_svg(input_file_path, &actual_output_path).unwrap();
+
+        let actual_contents = std::fs::read_to_string(actual_output_path).unwrap();
+        let expected_contents = std::fs::read_to_string(expected_output_path).unwrap();
+
+        assert_eq!(actual_contents, expected_contents);
+    }
+}
+

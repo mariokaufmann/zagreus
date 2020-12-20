@@ -65,3 +65,88 @@ impl Default for AnimationDirection {
         AnimationDirection::Normal
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::data::DataElements;
+
+    use super::*;
+
+    #[test]
+    fn validate_animation_config_valid() {
+        let data_elements = DataElements::new(vec![
+            String::from("id1"),
+            String::from("id2"),
+        ]);
+        let validation_data = ValidationData {
+            data_elements: &data_elements,
+        };
+        let animation_config = AnimationConfig {
+            sequences: vec![AnimationSequence {
+                name: String::from("sequence"),
+                steps: vec![AnimationStep {
+                    start: 0,
+                    duration: 0,
+                    animations: vec![
+                        Animation { id: String::from("id1"), name: String::from("ani1"), direction: AnimationDirection::Normal },
+                        Animation { id: String::from("id2"), name: String::from("ani2"), direction: AnimationDirection::Normal },
+                    ],
+                }],
+            }],
+        };
+
+        let result = animation_config.validate(&validation_data);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn validate_animation_config_inexistant_element() {
+        let data_elements = DataElements::new(vec![
+            String::from("id1"),
+        ]);
+        let validation_data = ValidationData {
+            data_elements: &data_elements,
+        };
+        let animation_config = AnimationConfig {
+            sequences: vec![AnimationSequence {
+                name: String::from("sequence"),
+                steps: vec![AnimationStep {
+                    start: 0,
+                    duration: 0,
+                    animations: vec![
+                        Animation { id: String::from("id2"), name: String::from("ani2"), direction: AnimationDirection::Normal },
+                    ],
+                }],
+            }],
+        };
+
+        let result = animation_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_animation_config_duplicate() {
+        let data_elements = DataElements::new(vec![
+            String::from("id1"),
+        ]);
+        let validation_data = ValidationData {
+            data_elements: &data_elements,
+        };
+        let animation_config = AnimationConfig {
+            sequences: vec![AnimationSequence {
+                name: String::from("sequence"),
+                steps: vec![AnimationStep {
+                    start: 0,
+                    duration: 0,
+                    animations: vec![
+                        Animation { id: String::from("id1"), name: String::from("ani1"), direction: AnimationDirection::Normal },
+                        Animation { id: String::from("id1"), name: String::from("ani2"), direction: AnimationDirection::Normal },
+                    ],
+                }],
+            }],
+        };
+
+        let result = animation_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
+}
