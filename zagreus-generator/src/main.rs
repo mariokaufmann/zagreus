@@ -35,11 +35,10 @@ fn main() {
         ZagreusSubcommand::Upload => upload_template(),
     };
 
-    if let Err(error) = result {
-        error!("Unable to process command: {}", error);
-    } else {
-        info!("Processing complete");
-    }
+    match result {
+        Ok(()) => info!("Processing complete"),
+        Err(error) =>  error!("Unable to process command: {}", error)
+    };
 }
 
 fn new_template(_name: String) -> Result<(), ZagreusError> {
