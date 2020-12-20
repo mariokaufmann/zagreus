@@ -35,3 +35,86 @@ pub fn get_duplicate_elements<'a, T, F>(elements: &'a [T], mapping_function: F)
         .map(|(key, _)| key)
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct TestElement {
+        id: String,
+    }
+
+    #[test]
+    fn count_elements_grouped_multiple() {
+        let test_elements = create_elements(true);
+
+        let grouped_elements = count_elements_grouped(&test_elements, |animation| &animation.id);
+
+        assert_eq!(grouped_elements.len(), 2);
+
+        let id1_count = grouped_elements.get("id1");
+        assert!(id1_count.is_some());
+        let id1_count = id1_count.unwrap();
+        assert_eq!(*id1_count, 2);
+
+        let id2_count = grouped_elements.get("id2");
+        assert!(id2_count.is_some());
+        let id2_count = id2_count.unwrap();
+        assert_eq!(*id2_count, 1);
+    }
+
+    #[test]
+    fn count_elements_grouped_single() {
+        let test_elements = create_elements(false);
+
+        let grouped_elements = count_elements_grouped(&test_elements, |animation| &animation.id);
+
+        assert_eq!(grouped_elements.len(), 2);
+
+        let id1_count = grouped_elements.get("id1");
+        assert!(id1_count.is_some());
+        let id1_count = id1_count.unwrap();
+        assert_eq!(*id1_count, 1);
+
+        let id2_count = grouped_elements.get("id2");
+        assert!(id2_count.is_some());
+        let id2_count = id2_count.unwrap();
+        assert_eq!(*id2_count, 1);
+    }
+
+    #[test]
+    fn get_duplicates_present() {
+        let test_elements = create_elements(true);
+
+        let duplicates = get_duplicate_elements(&test_elements, |animation| &animation.id);
+
+        assert_eq!(duplicates.len(), 1);
+
+        let duplicate = duplicates.get(0);
+        assert!(duplicate.is_some());
+        let duplicate = duplicate.unwrap();
+        assert_eq!(*duplicate, "id1");
+    }
+
+    #[test]
+    fn get_duplicates_none() {
+        let test_elements = create_elements(false);
+
+        let duplicates = get_duplicate_elements(&test_elements, |animation| &animation.id);
+
+        assert!(duplicates.is_empty());
+    }
+
+    fn create_elements(create_duplicates: bool) -> Vec<TestElement> {
+        let mut test_elements = vec![
+            TestElement { id: String::from("id1") },
+            TestElement { id: String::from("id2") },
+        ];
+
+        if create_duplicates {
+            test_elements.push(TestElement { id: String::from("id1") });
+        }
+
+        test_elements
+    }
+}
