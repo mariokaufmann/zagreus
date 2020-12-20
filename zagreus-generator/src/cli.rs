@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use structopt::StructOpt;
 
 pub fn get_command() -> ZagreusCommand {
@@ -7,8 +6,8 @@ pub fn get_command() -> ZagreusCommand {
 
 #[derive(Debug, StructOpt)]
 #[structopt(
-name = "Zagreus Template Generator",
-about = "CLI application for generating, building and uploading Zagreus templates."
+    name = "Zagreus Template Generator",
+    about = "CLI application for generating, building and uploading Zagreus templates."
 )]
 pub struct ZagreusCommand {
     #[structopt(short, long, help = "Enables debug and trace logging")]
@@ -36,28 +35,22 @@ pub enum ZagreusSubcommand {
         name: String,
     },
 
-    #[structopt(name = "build", about = "Builds a template.")]
+    #[structopt(name = "build", about = "Builds the template in this directory.")]
     Build {
-        #[structopt(parse(from_os_str), help = "Path to the template to be built")]
-        path: PathBuf,
-
         #[structopt(short, long, help = "Keep running and rebuild on file changes")]
         watch: bool,
 
         #[structopt(
-        short,
-        long,
-        help = "Upload template to the configured Zagreus server after every build"
+            short,
+            long,
+            help = "Upload template to the configured Zagreus server after every build"
         )]
         upload: bool,
     },
 
     #[structopt(
-    name = "upload",
-    about = "Uploads a template to the Zagreus server configured in the template."
+        name = "upload",
+        about = "Uploads the template in this directory to the Zagreus server configured in the template."
     )]
-    Upload {
-        #[structopt(parse(from_os_str), help = "Path to the template to be uploaded")]
-        path: PathBuf,
-    },
+    Upload,
 }
