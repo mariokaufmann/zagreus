@@ -7,7 +7,7 @@ jobs:
         label: [Linux, Windows]
         include:
           - label: Linux
-            script-name: ./package.sh
+            script-name: chmod +x ./package.sh && ./package.sh
           - label: Windows
             script-name: .\package.ps1
     runs-on: [self-hosted, '${{ matrix.label }}']

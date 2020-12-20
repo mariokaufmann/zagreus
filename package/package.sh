@@ -1,3 +1,5 @@
+#!/bin/bash
+
 rm -rf ./target
 rm -f zagreus.zip
 
