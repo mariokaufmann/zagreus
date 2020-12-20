@@ -2,7 +2,10 @@ name: build
 on: [push]
 jobs:
   build:
-    runs-on: self-hosted
+    strategy:
+      matrix:
+        label: [Linux, Windows]
+    runs-on: [self-hosted, '${{ matrix.label }}']
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
