@@ -9,7 +9,7 @@ use std::path::PathBuf;
 
 use crate::cli::ZagreusSubcommand;
 use crate::data::TemplateConfig;
-use crate::error::ZagreusError;
+use crate::error::{error_with_message, simple_error, ZagreusError};
 
 mod build;
 mod cli;
@@ -37,7 +37,7 @@ fn main() {
 
     match result {
         Ok(()) => info!("Processing complete"),
-        Err(error) =>  error!("Unable to process command: {}", error)
+        Err(error) => error!("Unable to process command: {}", error),
     };
 }
 
@@ -51,11 +51,11 @@ fn build_template(_watch: bool, upload: bool) -> Result<(), ZagreusError> {
     let template_config = load_template_config()?;
     let build_dir = PathBuf::from(BUILD_FOLDER_NAME);
 
-    if let Err(err) = build::build_template(build_dir.as_path(), &template_config) {
-        return Err(ZagreusError::from(format!(
-            "Could not build template {}: {}",
-            &template_config.name, err
-        )));
+    if let Err(error) = build::build_template(build_dir.as_path(), &template_config) {
+        return error_with_message(
+            &format!("Could not build template {}", &template_config.name),
+            error,
+        );
     }
 
     info!("Successfully built template '{}'", template_config.name);
@@ -79,17 +79,11 @@ fn upload_template() -> Result<(), ZagreusError> {
     match upload::TemplateUploader::new(&server_url, &template_config.name, &zipped_template_path) {
         Ok(template_uploader) => {
             if let Err(err) = template_uploader.upload_template() {
-                return Err(ZagreusError::from(format!(
-                    "Could not upload template: {}.",
-                    err
-                )));
+                return error_with_message("Could not upload template", err);
             }
         }
-        Err(err) => {
-            return Err(ZagreusError::from(format!(
-                "Could not construct template uploader: {}.",
-                err
-            )));
+        Err(error) => {
+            return error_with_message("Could not construct template uploader", error);
         }
     }
 
@@ -108,17 +102,14 @@ fn load_template_config() -> Result<TemplateConfig, ZagreusError> {
 fn get_zipped_template_path() -> Result<PathBuf, ZagreusError> {
     let build_dir = PathBuf::from(BUILD_FOLDER_NAME);
     if !build_dir.exists() {
-        return Err(ZagreusError::from(
-            "Build directory not found. Did you build the template?".to_string(),
-        ));
+        return simple_error("Build directory not found. Did you build the template?");
     }
 
     let zipped_template_path = build::get_zipped_template_file_path(build_dir.as_path());
     if !zipped_template_path.exists() {
-        return Err(ZagreusError::from(
-            "Zipped template not found in build directory. Try rebuilding the template."
-                .to_string(),
-        ));
+        return simple_error(
+            "Zipped template not found in build directory. Try rebuilding the template.",
+        );
     }
 
     Ok(zipped_template_path)

@@ -6,6 +6,10 @@ pub fn error_with_message<T>(message: &str, error: impl std::fmt::Display) -> Re
     Err(ZagreusError::from(format!("{}: {}", message, error)))
 }
 
+pub fn simple_error<T>(message: &str) -> Result<T, ZagreusError> {
+    Err(ZagreusError::from(message.to_string()))
+}
+
 #[derive(Debug)]
 pub struct ZagreusError {
     pub error_message: String,
