@@ -12,6 +12,7 @@ use crate::data::TemplateConfig;
 mod build;
 mod data;
 mod error;
+mod fs;
 mod logger;
 mod upload;
 

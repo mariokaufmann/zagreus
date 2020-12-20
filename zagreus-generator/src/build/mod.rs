@@ -51,10 +51,10 @@ pub fn build_template(build_folder: &Path, template_config: &TemplateConfig) -> 
         Err(err) => error!("Could not serialize data elements: {}.", err),
     }
 
-    let collected_stylesheets = asset::collect_stylesheets().unwrap();
+    let collected_stylesheets = asset::collect_stylesheets(Path::new("./")).unwrap();
 
     let raw_html_path = build_folder.join(RAW_HTML_FILE_NAME);
-    html::write_raw_html(&processed_template_file_path, &raw_html_path, &template_config.name, &collected_stylesheets);
+    html::write_raw_html(&processed_template_file_path, &raw_html_path, &template_config.name, collected_stylesheets);
 
     let processed_html_path = build_folder.join(HTML_FILE_NAME);
     html::process_raw_html(&raw_html_path, &processed_html_path);
