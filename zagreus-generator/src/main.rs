@@ -59,18 +59,27 @@ fn main() {
     logger::init_logger(command.debug);
 
     match command.subcommand {
-        Subcommand::NewCommand { path } => new_template(path),
-        Subcommand::BuildCommand { path, watch, upload } => build(path, watch, upload),
+        Subcommand::NewCommand { name } => new_template(name),
+        Subcommand::BuildCommand {
+            path,
+            watch,
+            upload,
+        } => build(path, watch, upload),
         Subcommand::UploadCommand { path } => upload(path),
     }
 }
 
-fn new_template(path: PathBuf) {
-    trace!("Creating new template at {:?}", path);
+fn new_template(name: String) {
+    trace!("Creating new template at {:?}", name);
 }
 
 fn build(path: PathBuf, watch: bool, upload: bool) {
-    trace!("Building {:?}, watch={:?}, upload={:?}", path, watch, upload);
+    trace!(
+        "Building {:?}, watch={:?}, upload={:?}",
+        path,
+        watch,
+        upload
+    );
 }
 
 fn upload(path: PathBuf) {
@@ -87,16 +96,15 @@ struct ZagreusCommand {
     debug: bool,
 
     #[structopt(subcommand)]
-    subcommand: Subcommand
+    subcommand: Subcommand,
 }
 
 #[derive(Debug, StructOpt)]
 enum Subcommand {
-
     #[structopt(name = "new", about = "Generates a new boilerplate template.")]
     NewCommand {
-        #[structopt(parse(from_os_str), help = "Target directory for the new template")]
-        path: PathBuf
+        #[structopt(help = "Name of the new template")]
+        name: String,
     },
 
     #[structopt(name = "build", about = "Builds a template.")]
@@ -107,13 +115,20 @@ enum Subcommand {
         #[structopt(short, long, help = "Keep running and rebuild on file changes")]
         watch: bool,
 
-        #[structopt(short, long, help = "Upload template to the configured Zagreus server after every build")]
-        upload: bool
+        #[structopt(
+            short,
+            long,
+            help = "Upload template to the configured Zagreus server after every build"
+        )]
+        upload: bool,
     },
 
-    #[structopt(name = "upload", about = "Uploads a template to the Zagreus server configured in the template.")]
+    #[structopt(
+        name = "upload",
+        about = "Uploads a template to the Zagreus server configured in the template."
+    )]
     UploadCommand {
         #[structopt(parse(from_os_str), help = "Path to the template to be uploaded")]
         path: PathBuf,
-    }
+    },
 }
