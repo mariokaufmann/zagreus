@@ -22,9 +22,6 @@ mod upload;
 const TEMPLATE_CONFIG_FILE_NAME: &str = "zagreus-template.yaml";
 const BUILD_FOLDER_NAME: &str = "build";
 
-#[allow(dead_code)]
-fn build_and_upload() {}
-
 fn main() {
     let command = cli::get_command();
     logger::init_logger(command.is_verbose());
