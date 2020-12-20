@@ -6,10 +6,11 @@ extern crate log;
 extern crate serde_derive;
 
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 
 use crate::data::TemplateConfig;
+use crate::cli::ZagreusSubcommand;
 
+mod cli;
 mod build;
 mod data;
 mod error;
@@ -56,27 +57,27 @@ fn build_and_upload() {
 }
 
 fn main() {
-    let command: ZagreusCommand = ZagreusCommand::from_args();
-    logger::init_logger(command.debug);
+    let command = cli::get_command();
+    logger::init_logger(command.debug_enabled());
 
-    match command.subcommand {
-        Subcommand::NewCommand { name } => new_template(name),
-        Subcommand::BuildCommand {
+    match command.subcommand() {
+        ZagreusSubcommand::New { name } => new_template(name),
+        ZagreusSubcommand::Build {
             path,
             watch,
             upload,
         } => build(path, watch, upload),
-        Subcommand::UploadCommand { path } => upload(path),
+        ZagreusSubcommand::Upload { path } => upload(path),
     }
 }
 
 fn new_template(name: String) {
-    trace!("Creating new template at {:?}", name);
+    trace!("Creating new template '{}'", name);
 }
 
 fn build(path: PathBuf, watch: bool, upload: bool) {
     trace!(
-        "Building {:?}, watch={:?}, upload={:?}",
+        "Building template {:?}, watch={:?}, upload={:?}",
         path,
         watch,
         upload
@@ -84,52 +85,7 @@ fn build(path: PathBuf, watch: bool, upload: bool) {
 }
 
 fn upload(path: PathBuf) {
-    trace!("Uploading to {:?}", path);
+    trace!("Uploading template {:?} to configured server", path);
 }
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    name = "Zagreus Template Generator",
-    about = "CLI application for generating, building and uploading Zagreus templates."
-)]
-struct ZagreusCommand {
-    #[structopt(short, long, help = "Enables debug and trace logging")]
-    debug: bool,
 
-    #[structopt(subcommand)]
-    subcommand: Subcommand,
-}
-
-#[derive(Debug, StructOpt)]
-enum Subcommand {
-    #[structopt(name = "new", about = "Generates a new boilerplate template.")]
-    NewCommand {
-        #[structopt(help = "Name of the new template")]
-        name: String,
-    },
-
-    #[structopt(name = "build", about = "Builds a template.")]
-    BuildCommand {
-        #[structopt(parse(from_os_str), help = "Path to the template to be built")]
-        path: PathBuf,
-
-        #[structopt(short, long, help = "Keep running and rebuild on file changes")]
-        watch: bool,
-
-        #[structopt(
-            short,
-            long,
-            help = "Upload template to the configured Zagreus server after every build"
-        )]
-        upload: bool,
-    },
-
-    #[structopt(
-        name = "upload",
-        about = "Uploads a template to the Zagreus server configured in the template."
-    )]
-    UploadCommand {
-        #[structopt(parse(from_os_str), help = "Path to the template to be uploaded")]
-        path: PathBuf,
-    },
-}
