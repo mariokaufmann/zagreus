@@ -43,7 +43,7 @@ pub enum ZagreusSubcommand {
         #[structopt(
             short,
             long,
-            help = "Upload template to the configured Zagreus server after every build"
+            help = "Upload template to the configured Zagreus server after building"
         )]
         upload: bool,
     },

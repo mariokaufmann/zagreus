@@ -37,36 +37,31 @@ fn main() {
 
     if let Err(error) = result {
         error!("Unable to process command: {}", error);
+    } else {
+        info!("Processing complete");
     }
 }
 
-fn new_template(name: String) -> Result<(), ZagreusError> {
-    trace!("Creating new template '{}'", name);
-    Ok(())
+fn new_template(_name: String) -> Result<(), ZagreusError> {
+    Err(ZagreusError::from(
+        "Creating a template is not yet supported.".to_string(),
+    ))
 }
 
-fn build_template(watch: bool, do_upload: bool) -> Result<(), ZagreusError> {
-    trace!(
-        "Building template, watch={:?}, upload={:?}",
-        watch,
-        do_upload
-    );
-
+fn build_template(_watch: bool, upload: bool) -> Result<(), ZagreusError> {
     let template_config = load_template_config()?;
-
     let build_dir = PathBuf::from(BUILD_FOLDER_NAME);
 
     if let Err(err) = build::build_template(build_dir.as_path(), &template_config) {
-        let error_msg = format!(
+        return Err(ZagreusError::from(format!(
             "Could not build template {}: {}",
             &template_config.name, err
-        );
-        return Err(ZagreusError::from(error_msg));
+        )));
     }
 
-    build::get_zipped_template_file_path(build_dir.as_path());
+    info!("Successfully built template '{}'", template_config.name);
 
-    if do_upload {
+    if upload {
         return upload_template();
     }
 
@@ -74,41 +69,58 @@ fn build_template(watch: bool, do_upload: bool) -> Result<(), ZagreusError> {
 }
 
 fn upload_template() -> Result<(), ZagreusError> {
-    trace!("Uploading template to configured server");
-
-    let build_dir = PathBuf::from(BUILD_FOLDER_NAME);
     let template_config = load_template_config()?;
-    let zipped_template_path = build::get_zipped_template_file_path(build_dir.as_path());
+    let zipped_template_path = get_zipped_template_path()?;
 
-    if !zipped_template_path.exists() {
-        let error_msg = format!(
-            "Zipped template not found in build dir: {:?}",
-            zipped_template_path
-        );
-        return Err(ZagreusError::from(error_msg));
-    }
+    let server_url = format!(
+        "{}:{}",
+        &template_config.dev_server.address, &template_config.dev_server.port
+    );
 
-    match upload::TemplateUploader::new(
-        &format!(
-            "{}:{}",
-            &template_config.dev_server.address, &template_config.dev_server.port
-        ),
-        &template_config.name,
-        &zipped_template_path,
-    ) {
+    match upload::TemplateUploader::new(&server_url, &template_config.name, &zipped_template_path) {
         Ok(template_uploader) => {
             if let Err(err) = template_uploader.upload_template() {
-                error!("Could not upload template: {}.", err);
+                return Err(ZagreusError::from(format!(
+                    "Could not upload template: {}.",
+                    err
+                )));
             }
         }
-        Err(err) => error!("Could not construct template uploader: {}.", err),
+        Err(err) => {
+            return Err(ZagreusError::from(format!(
+                "Could not construct template uploader: {}.",
+                err
+            )));
+        }
     }
 
-    info!("Finished processing.");
+    info!(
+        "Successfully uploaded template '{}' to {}",
+        template_config.name, server_url
+    );
     Ok(())
 }
 
 fn load_template_config() -> Result<TemplateConfig, ZagreusError> {
     let file_path = PathBuf::from(TEMPLATE_CONFIG_FILE_NAME);
     crate::data::load_config::<TemplateConfig>(&file_path)
+}
+
+fn get_zipped_template_path() -> Result<PathBuf, ZagreusError> {
+    let build_dir = PathBuf::from(BUILD_FOLDER_NAME);
+    if !build_dir.exists() {
+        return Err(ZagreusError::from(
+            "Build directory not found. Did you build the template?".to_string(),
+        ));
+    }
+
+    let zipped_template_path = build::get_zipped_template_file_path(build_dir.as_path());
+    if !zipped_template_path.exists() {
+        return Err(ZagreusError::from(
+            "Zipped template not found in build directory. Try rebuilding the template."
+                .to_string(),
+        ));
+    }
+
+    Ok(zipped_template_path)
 }
