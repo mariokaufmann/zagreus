@@ -5,7 +5,7 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 
 use crate::cli::ZagreusSubcommand;
 use crate::data::TemplateConfig;
@@ -46,9 +46,9 @@ fn new_template(_name: String) -> Result<(), ZagreusError> {
 
 fn build_template(_watch: bool, upload: bool) -> Result<(), ZagreusError> {
     let template_config = load_template_config()?;
-    let build_dir = PathBuf::from(BUILD_FOLDER_NAME);
+    let build_dir = Path::new(BUILD_FOLDER_NAME);
 
-    if let Err(error) = build::build_template(build_dir.as_path(), &template_config) {
+    if let Err(error) = build::build_template(build_dir, &template_config) {
         return error_with_message(
             &format!("Could not build template {}", &template_config.name),
             error,
@@ -92,17 +92,17 @@ fn upload_template() -> Result<(), ZagreusError> {
 }
 
 fn load_template_config() -> Result<TemplateConfig, ZagreusError> {
-    let file_path = PathBuf::from(TEMPLATE_CONFIG_FILE_NAME);
-    crate::data::load_config::<TemplateConfig>(&file_path)
+    let file_path = Path::new(TEMPLATE_CONFIG_FILE_NAME);
+    crate::data::load_config::<TemplateConfig>(file_path)
 }
 
 fn get_zipped_template_path() -> Result<PathBuf, ZagreusError> {
-    let build_dir = PathBuf::from(BUILD_FOLDER_NAME);
+    let build_dir = Path::new(BUILD_FOLDER_NAME);
     if !build_dir.exists() {
         return simple_error("Build directory not found. Did you build the template?");
     }
 
-    let zipped_template_path = build::get_zipped_template_file_path(build_dir.as_path());
+    let zipped_template_path = build::get_zipped_template_file_path(build_dir);
     if !zipped_template_path.exists() {
         return simple_error(
             "Zipped template not found in build directory. Try rebuilding the template.",
