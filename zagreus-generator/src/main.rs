@@ -27,7 +27,7 @@ fn build_and_upload() {}
 
 fn main() {
     let command = cli::get_command();
-    logger::init_logger(command.debug_enabled());
+    logger::init_logger(command.is_verbose());
 
     let result = match command.subcommand() {
         ZagreusSubcommand::New { name } => new_template(name),

@@ -10,16 +10,16 @@ pub fn get_command() -> ZagreusCommand {
     about = "CLI application for generating, building and uploading Zagreus templates."
 )]
 pub struct ZagreusCommand {
-    #[structopt(short, long, help = "Enables debug and trace logging")]
-    debug: bool,
+    #[structopt(short, long, help = "Enables verbose logging")]
+    verbose: bool,
 
     #[structopt(subcommand)]
     subcommand: ZagreusSubcommand,
 }
 
 impl ZagreusCommand {
-    pub fn debug_enabled(&self) -> bool {
-        self.debug
+    pub fn is_verbose(&self) -> bool {
+        self.verbose
     }
 
     pub fn subcommand(self) -> ZagreusSubcommand {
