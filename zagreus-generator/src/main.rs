@@ -6,7 +6,6 @@ extern crate log;
 extern crate serde_derive;
 
 use crate::cli::ZagreusSubcommand;
-use std::time::Duration;
 
 mod build;
 mod cli;
@@ -24,12 +23,6 @@ const BUILD_FOLDER_NAME: &str = "build";
 fn main() {
     let command = cli::get_command();
     logger::init_logger(command.is_verbose());
-
-    loop {
-        // TODO: POC only, move this to the build job.
-        let _ = file_watcher::wait_for_update(Duration::from_secs(2));
-        info!("rebuilding...");
-    }
 
     let result = match command.subcommand() {
         ZagreusSubcommand::New { name } => jobs::new_template(name),
