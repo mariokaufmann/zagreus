@@ -1,4 +1,3 @@
-use reqwest::Error;
 use serde::export::Formatter;
 use zip::result::ZipError;
 
@@ -39,7 +38,6 @@ impl From<serde_json::error::Error> for ZagreusError {
     }
 }
 
-
 impl From<serde_yaml::Error> for ZagreusError {
     fn from(error: serde_yaml::Error) -> Self {
         Self { error_message: "YAML error occurred: ".to_owned() + error.to_string().as_str() }
@@ -53,7 +51,13 @@ impl From<zip::result::ZipError> for ZagreusError {
 }
 
 impl From<reqwest::Error> for ZagreusError {
-    fn from(error: Error) -> Self {
+    fn from(error: reqwest::Error) -> Self {
         Self { error_message: format!("Reqwest error occurred: {}.", error) }
+    }
+}
+
+impl From<notify::Error> for ZagreusError {
+    fn from(error: notify::Error) -> Self {
+        Self { error_message: format!("Notify error occurred: {}.", error) }
     }
 }
