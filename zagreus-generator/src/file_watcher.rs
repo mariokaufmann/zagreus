@@ -1,78 +1,166 @@
-use crate::error::ZagreusError;
+use crate::error::{error_with_message, simple_error, ZagreusError};
 use notify::{raw_watcher, RawEvent, RecursiveMode, Watcher};
 use std::path::Path;
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering::{Acquire, Release};
-use std::sync::mpsc::Sender;
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::mpsc::{RecvTimeoutError, Sender, TryRecvError};
+use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::thread;
 use std::time::Duration;
 
-pub fn listen() -> Result<FileWatcherHandle, ZagreusError> {
+/*
+TODO:
+  - Implement a simple filter API to avoid forwarding events for e.g. the build dir
+  - Make sure we aren't doing more Arc clones that we absolutely need to
+  - See if there are any raw event types we need to filter out. Maybe take list of watched events
+    as an input to the wait_for_update() function?
+  - Doc comments
+  - Is there anything we could test?
+ */
+
+pub fn spawn(watch_path: &Path, recursive: bool) -> Result<FileWatcherHandle, ZagreusError> {
     // Set up file watcher handle.
-    let is_terminated = Arc::new(AtomicBool::new(false));
-    let output_tx: OptionalSender<RawEvent> = Arc::new(Mutex::new(None));
-    let handle = FileWatcherHandle::new(Arc::clone(&is_terminated), Arc::clone(&output_tx));
+    let (terminate_watcher_tx, terminate_watcher_rx) = mpsc::channel();
+    let file_watcher_tx = OptionalSender::from_none();
+    let file_watcher_handle = FileWatcherHandle::new(
+        terminate_watcher_tx,
+        OptionalSender::clone(&file_watcher_tx),
+    );
 
     // Spawn a notify file watcher.
     let (notify_tx, notify_rx) = mpsc::channel();
     let mut watcher = raw_watcher(notify_tx)?;
-    watcher.watch(Path::new(""), RecursiveMode::Recursive)?;
+    let recursive_mode = match recursive {
+        true => RecursiveMode::Recursive,
+        false => RecursiveMode::NonRecursive,
+    };
+    watcher.watch(watch_path, recursive_mode)?;
 
-    // Spawn the relay thread.
+    // Spawn the file event relay thread.
     thread::spawn(move || {
         // Make sure the watcher is moved into the thread, so it won't get dropped.
         let _ = watcher;
-        while !is_terminated.load(Acquire) {
-            let event = notify_rx.recv().unwrap();
-            let sender = output_tx.lock().expect("Unable to lock output sender");
-            match &*sender {
-                Some(tx) => tx.send(event).unwrap(),
-                None => {}
+
+        loop {
+            // If a message was received or the sender has disconnected on the terminate_watcher
+            // channel, break the loop and terminate the thread.
+            match terminate_watcher_rx.try_recv() {
+                Ok(_) | Err(TryRecvError::Disconnected) => break,
+                Err(TryRecvError::Empty) => {}
+            }
+
+            // Wait for the next file event from notify.
+            let event = match notify_rx.recv() {
+                Ok(event) => event,
+                Err(error) => {
+                    // Terminate thread if there is a RecvError.
+                    error!("Terminating file watcher thread due to error: {:?}", error);
+                    break;
+                }
+            };
+
+            // TODO: Filter logic goes here (path exclusions, ignored event types, etc.).
+
+            if let Err(error) = file_watcher_tx.try_send_or_reset(event) {
+                // Terminate thread if there is an error.
+                error!("Terminating file watcher thread due to error: {:?}", error);
+                break;
             }
         }
-        info!("File watcher terminated.")
+        trace!("Notify watcher thread terminated.")
     });
 
-    Ok(handle)
+    Ok(file_watcher_handle)
+}
+
+struct OptionalSender<T>(Arc<Mutex<Option<Sender<T>>>>);
+
+impl<T> OptionalSender<T> {
+    fn new(tx_option: Option<Sender<T>>) -> Self {
+        OptionalSender(Arc::new(Mutex::new(tx_option)))
+    }
+
+    fn from_none() -> Self {
+        OptionalSender::new(None)
+    }
+
+    fn lock(&self) -> Result<MutexGuard<Option<Sender<T>>>, ZagreusError> {
+        match self.0.lock() {
+            Err(error) => error_with_message("Failed to lock optional sender", error),
+            Ok(inner) => Ok(inner),
+        }
+    }
+
+    fn set(&self, value: Option<Sender<T>>) -> Result<(), ZagreusError> {
+        let mut inner = self.lock()?;
+        *inner = value;
+        Ok(())
+    }
+
+    fn try_send_or_reset(&self, value: T) -> Result<(), ZagreusError> {
+        let mut sender_guard = self.lock()?;
+
+        // Check whether sender is Some, return Ok if not.
+        let tx = match &*sender_guard {
+            Some(tx) => tx,
+            None => return Ok(()),
+        };
+
+        // Try sending value, return Ok if Ok.
+        if tx.send(value).is_ok() {
+            return Ok(());
+        }
+
+        // Sending failed, reset sender to None.
+        *sender_guard = None;
+        Ok(())
+    }
+}
+
+impl<T> Clone for OptionalSender<T> {
+    fn clone(&self) -> Self {
+        OptionalSender(Arc::clone(&self.0))
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        self.0 = Arc::clone(&source.0)
+    }
+}
+
+pub struct FileWatcherHandle {
+    _terminate_watcher: Sender<()>,
+    file_watcher_tx: OptionalSender<RawEvent>,
+}
+
+impl FileWatcherHandle {
+    fn new(terminate_tx: Sender<()>, file_watcher_tx: OptionalSender<RawEvent>) -> Self {
+        FileWatcherHandle {
+            _terminate_watcher: terminate_tx,
+            file_watcher_tx,
+        }
+    }
 }
 
 /// Block until (1) at least one file system event (create, delete,
 /// write, etc.) has occurred in the working directory, but (2) no events have occurred for `delay`
 /// amount of time. As soon as conditions (1) and (2) are met, return.
-pub fn wait_for_update(handle: &FileWatcherHandle, debounce_delay: Duration) {
-    let tx_handle = handle.tx();
+pub fn await_file_event(
+    watcher_handle: &FileWatcherHandle,
+    debounce_delay: Duration,
+) -> Result<(), ZagreusError> {
     let (tx, rx) = mpsc::channel();
-    {
-        let mut tx_option = tx_handle.lock().expect("Unable to lock handle");
-        *tx_option = Some(tx);
-    }
-    let _ = rx.recv();
-    while rx.recv_timeout(debounce_delay).is_ok() {}
-    {
-        let mut tx_option = tx_handle.lock().expect("Unable to lock handle");
-        *tx_option = None;
-    }
-}
+    watcher_handle.file_watcher_tx.set(Some(tx))?;
 
-type OptionalSender<T> = Arc<Mutex<Option<Sender<T>>>>;
+    // Wait for a first event, or return error.
+    rx.recv()?;
 
-pub struct FileWatcherHandle {
-    is_terminated: Arc<AtomicBool>,
-    tx: OptionalSender<RawEvent>,
-}
-
-impl FileWatcherHandle {
-    fn new(is_terminated: Arc<AtomicBool>, tx: OptionalSender<RawEvent>) -> Self {
-        FileWatcherHandle { is_terminated, tx }
-    }
-
-    pub(super) fn tx(&self) -> OptionalSender<RawEvent> {
-        Arc::clone(&self.tx)
-    }
-
-    #[allow(dead_code)]
-    pub fn terminate(&self) {
-        self.is_terminated.store(true, Release);
+    // Wait until recv_timeout no longer returns Ok(). Then, return Ok() if a timeout occurred,
+    // or Err() if the file watcher has disconnected.
+    loop {
+        match rx.recv_timeout(debounce_delay) {
+            Ok(_) => {}
+            Err(RecvTimeoutError::Disconnected) => {
+                return simple_error("File watcher disconnected unexpectedly")
+            }
+            Err(RecvTimeoutError::Timeout) => return Ok(()),
+        }
     }
 }

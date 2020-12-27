@@ -18,12 +18,13 @@ pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
     };
 
     info!("Watch mode started");
-    let file_watcher_handle = file_watcher::listen()?;
+    let file_watcher_handle = file_watcher::spawn(Path::new(""), true)?;
     loop {
         if let Err(err) = build_once(&template_config, build_dir, upload) {
+            // If a build error occurs, log the error and wait for the next file change.
             error!("{:?}", err);
         }
-        file_watcher::wait_for_update(&file_watcher_handle, Duration::from_secs(1));
+        file_watcher::await_file_event(&file_watcher_handle, Duration::from_millis(200))?;
     }
 }
 

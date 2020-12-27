@@ -11,11 +11,11 @@ mod build;
 mod cli;
 mod data;
 mod error;
+mod file_watcher;
 mod fs;
+mod jobs;
 mod logger;
 mod upload;
-mod jobs;
-mod file_watcher;
 
 const TEMPLATE_CONFIG_FILE_NAME: &str = "zagreus-template.yaml";
 const BUILD_FOLDER_NAME: &str = "build";
