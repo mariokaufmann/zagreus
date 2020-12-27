@@ -1,16 +1,37 @@
-use crate::error::{ZagreusError, error_with_message, simple_error};
-use crate::{build, upload, BUILD_FOLDER_NAME, TEMPLATE_CONFIG_FILE_NAME};
 use crate::data::TemplateConfig;
+use crate::error::{error_with_message, simple_error, ZagreusError};
+use crate::file_watcher;
+use crate::{build, upload, BUILD_FOLDER_NAME, TEMPLATE_CONFIG_FILE_NAME};
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 pub fn new_template(_name: String) -> Result<(), ZagreusError> {
     simple_error("Creating a template is not yet supported.")
 }
 
-pub fn build_template(_watch: bool, upload: bool) -> Result<(), ZagreusError> {
+pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
     let template_config = load_template_config()?;
     let build_dir = Path::new(BUILD_FOLDER_NAME);
 
+    if !watch {
+        return build_once(&template_config, build_dir, upload);
+    };
+
+    info!("Watch mode started");
+    let file_watcher_handle = file_watcher::listen()?;
+    loop {
+        if let Err(err) = build_once(&template_config, build_dir, upload) {
+            error!("{:?}", err);
+        }
+        file_watcher::wait_for_update(&file_watcher_handle, Duration::from_secs(1));
+    }
+}
+
+fn build_once(
+    template_config: &TemplateConfig,
+    build_dir: &Path,
+    upload: bool,
+) -> Result<(), ZagreusError> {
     if let Err(error) = build::build_template(build_dir, &template_config) {
         return error_with_message(
             &format!("Could not build template {}", &template_config.name),
