@@ -5,11 +5,12 @@ use std::sync::mpsc::{RecvTimeoutError, Sender, TryRecvError};
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::thread;
 use std::time::Duration;
+use globset::{GlobSetBuilder, Glob};
+use std::env;
 
 /*
 TODO:
   - Implement a simple filter API to avoid forwarding events for e.g. the build dir
-  - Make sure we aren't doing more Arc clones that we absolutely need to
   - See if there are any raw event types we need to filter out. Maybe take list of watched events
     as an input to the wait_for_update() function?
   - Doc comments
@@ -17,6 +18,12 @@ TODO:
  */
 
 pub fn spawn(watch_path: &Path, recursive: bool) -> Result<FileWatcherHandle, ZagreusError> {
+    // TODO: Consider building from args.
+    let mut globset_builder = GlobSetBuilder::new();
+    globset_builder.add(Glob::new("build/**").unwrap());
+    globset_builder.add(Glob::new("*.afdesign").unwrap());
+    let globset = globset_builder.build().unwrap();
+
     // Set up file watcher handle.
     let (terminate_watcher_tx, terminate_watcher_rx) = mpsc::channel();
     let file_watcher_tx = OptionalSender::from_none();
@@ -57,7 +64,13 @@ pub fn spawn(watch_path: &Path, recursive: bool) -> Result<FileWatcherHandle, Za
                 }
             };
 
-            // TODO: Filter logic goes here (path exclusions, ignored event types, etc.).
+            // TODO: Refactor, avoid using unwrap.
+            let pwd = env::current_dir().unwrap();
+            let event_path = event.path.as_ref().unwrap();
+            let rel_event_path = event_path.strip_prefix(pwd).unwrap();
+            if globset.is_match(rel_event_path) {
+                continue;
+            }
 
             if let Err(error) = file_watcher_tx.try_send_or_reset(event) {
                 // Terminate thread if there is an error.
