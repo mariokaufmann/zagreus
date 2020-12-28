@@ -20,18 +20,24 @@ impl std::fmt::Display for ZagreusError {
 
 impl From<std::io::Error> for ZagreusError {
     fn from(error: std::io::Error) -> Self {
-        Self { error_message: "IO Error occurred: ".to_owned() + error.to_string().as_str() }
+        Self {
+            error_message: "IO Error occurred: ".to_owned() + error.to_string().as_str(),
+        }
     }
 }
 
 impl From<serde_json::error::Error> for ZagreusError {
     fn from(error: serde_json::error::Error) -> Self {
-        Self { error_message: "JSON error occurred: ".to_owned() + error.to_string().as_str() }
+        Self {
+            error_message: "JSON error occurred: ".to_owned() + error.to_string().as_str(),
+        }
     }
 }
 
 impl From<zip::result::ZipError> for ZagreusError {
     fn from(error: ZipError) -> Self {
-        Self { error_message: format!("ZIP error occurred: {:?}.", error) }
+        Self {
+            error_message: format!("ZIP error occurred: {:?}.", error),
+        }
     }
 }

@@ -29,10 +29,15 @@ impl Default for ZagreusServerConfig {
                 }
             }
             Err(err) => {
-                error!("Could not get application folder to create default config: {}.", err);
+                error!(
+                    "Could not get application folder to create default config: {}.",
+                    err
+                );
                 PathBuf::new()
             }
         };
-        ZagreusServerConfig { data_folder: folder }
+        ZagreusServerConfig {
+            data_folder: folder,
+        }
     }
 }

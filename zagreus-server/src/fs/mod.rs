@@ -33,7 +33,10 @@ pub fn get_templates_data_folder(data_folder_path: &Path) -> Result<PathBuf, Zag
     Ok(folder)
 }
 
-pub fn get_template_folder(data_folder_path: &Path, template_name: &str) -> Result<PathBuf, ZagreusError> {
+pub fn get_template_folder(
+    data_folder_path: &Path,
+    template_name: &str,
+) -> Result<PathBuf, ZagreusError> {
     let mut folder = get_templates_data_folder(data_folder_path)?;
     folder.push(template_name);
     create_if_necessary(&folder)?;
@@ -59,9 +62,9 @@ fn get_profile_folder() -> Result<PathBuf, ZagreusError> {
     const PROFILE_FOLDER_VAR: &str = "userprofile";
     match std::env::var(PROFILE_FOLDER_VAR) {
         Ok(var) => Ok(PathBuf::from(var)),
-        Err(err) => {
-            Err(ZagreusError::from("User profile environment variable was not set: ".to_owned() + err.to_string().as_str()))
-        }
+        Err(err) => Err(ZagreusError::from(
+            "User profile environment variable was not set: ".to_owned() + err.to_string().as_str(),
+        )),
     }
 }
 
@@ -70,9 +73,10 @@ fn get_profile_folder() -> Result<PathBuf, ZagreusError> {
     const USER_FOLDER_VAR: &str = "HOME";
     match std::env::var(USER_FOLDER_VAR) {
         Ok(var) => Ok(PathBuf::from(var)),
-        Err(err) => {
-            Err(ZagreusError::from(format!("Home environment variable was not set: {}", err)))
-        }
+        Err(err) => Err(ZagreusError::from(format!(
+            "Home environment variable was not set: {}",
+            err
+        ))),
     }
 }
 

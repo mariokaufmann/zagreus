@@ -1,11 +1,11 @@
+use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
-use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
 use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
+use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
 use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::encode::pattern::PatternEncoder;
-use log::LevelFilter;
 
 use crate::APPLICATION_NAME;
 
@@ -28,12 +28,19 @@ pub fn init_logger() {
 
     const FILE_LOGGER_NAME: &str = "file_logger";
     const CONSOLE_LOGGER_NAME: &str = "console_logger";
-    let roller = FixedWindowRoller::builder().build(rotated_log_file_path, LOG_FILE_COUNT).unwrap_or_else(|err| {
-        panic!("Could not setup fixed window roller: {}.", err);
-    });
-    let rolling_file_policy = CompoundPolicy::new(Box::new(SizeTrigger::new(MAX_LOG_SIZE_BYTES)), Box::new(roller));
+    let roller = FixedWindowRoller::builder()
+        .build(rotated_log_file_path, LOG_FILE_COUNT)
+        .unwrap_or_else(|err| {
+            panic!("Could not setup fixed window roller: {}.", err);
+        });
+    let rolling_file_policy = CompoundPolicy::new(
+        Box::new(SizeTrigger::new(MAX_LOG_SIZE_BYTES)),
+        Box::new(roller),
+    );
     let file_appender = RollingFileAppender::builder()
-        .encoder(Box::new(PatternEncoder::new("{d} [{h({l})}] - {T} - {m}{n}")))
+        .encoder(Box::new(PatternEncoder::new(
+            "{d} [{h({l})}] - {T} - {m}{n}",
+        )))
         .build(log_file_path, Box::new(rolling_file_policy))
         .unwrap();
 
@@ -41,7 +48,12 @@ pub fn init_logger() {
     let config = Config::builder()
         .appender(Appender::builder().build(FILE_LOGGER_NAME, Box::new(file_appender)))
         .appender(Appender::builder().build(CONSOLE_LOGGER_NAME, Box::new(console_appender)))
-        .build(Root::builder().appender(CONSOLE_LOGGER_NAME).appender(FILE_LOGGER_NAME).build(LevelFilter::Info))
+        .build(
+            Root::builder()
+                .appender(CONSOLE_LOGGER_NAME)
+                .appender(FILE_LOGGER_NAME)
+                .build(LevelFilter::Info),
+        )
         .unwrap_or_else(|err| {
             panic!("Could not construct logging config: {}", err);
         });

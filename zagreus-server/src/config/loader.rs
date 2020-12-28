@@ -3,12 +3,21 @@ use std::path::PathBuf;
 
 use crate::error::ZagreusError;
 
-pub struct ConfigurationManager<T> where T: Sized {
+pub struct ConfigurationManager<T>
+where
+    T: Sized,
+{
     configuration: T,
 }
 
-impl<T> ConfigurationManager<T> where T: Default + serde::Serialize + serde::de::DeserializeOwned {
-    pub fn load(application_folder: &PathBuf, config_file_name: &str) -> Result<ConfigurationManager<T>, ZagreusError> {
+impl<T> ConfigurationManager<T>
+where
+    T: Default + serde::Serialize + serde::de::DeserializeOwned,
+{
+    pub fn load(
+        application_folder: &PathBuf,
+        config_file_name: &str,
+    ) -> Result<ConfigurationManager<T>, ZagreusError> {
         let configuration_loader = ConfigurationLoader::new(&application_folder, config_file_name);
 
         let configuration;
@@ -27,7 +36,7 @@ impl<T> ConfigurationManager<T> where T: Default + serde::Serialize + serde::de:
 }
 
 struct ConfigurationLoader {
-    config_file_path: PathBuf
+    config_file_path: PathBuf,
 }
 
 impl ConfigurationLoader {
@@ -37,7 +46,10 @@ impl ConfigurationLoader {
         ConfigurationLoader { config_file_path }
     }
 
-    pub fn load_config<T>(&self) -> Result<T, ZagreusError> where T: serde::de::DeserializeOwned {
+    pub fn load_config<T>(&self) -> Result<T, ZagreusError>
+    where
+        T: serde::de::DeserializeOwned,
+    {
         let mut file = std::fs::File::open(&self.config_file_path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
@@ -50,13 +62,15 @@ impl ConfigurationLoader {
         self.config_file_path.exists()
     }
 
-    pub fn store_config<T>(&self, config: &T) -> Result<(), ZagreusError> where T: serde::Serialize {
+    pub fn store_config<T>(&self, config: &T) -> Result<(), ZagreusError>
+    where
+        T: serde::Serialize,
+    {
         let serialized_data = serde_json::to_string_pretty(config)?;
         std::fs::write(&self.config_file_path, serialized_data)?;
         Ok(())
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -67,12 +81,14 @@ mod tests {
 
     #[derive(Serialize, Deserialize, Clone)]
     struct TestConfig {
-        string_value: String
+        string_value: String,
     }
 
     impl Default for TestConfig {
         fn default() -> Self {
-            TestConfig { string_value: DEFAULT_STRING_VALUE.to_owned() }
+            TestConfig {
+                string_value: DEFAULT_STRING_VALUE.to_owned(),
+            }
         }
     }
 
@@ -94,7 +110,9 @@ mod tests {
         let loader = ConfigurationLoader::new(&path, CONFIG_FILE_NAME);
 
         const TEST_VALUE: &str = "Test value";
-        let config = TestConfig { string_value: TEST_VALUE.to_owned() };
+        let config = TestConfig {
+            string_value: TEST_VALUE.to_owned(),
+        };
         loader.store_config(&config).unwrap();
 
         let mut config_file_path = path.clone();
@@ -110,7 +128,9 @@ mod tests {
         let loader = ConfigurationLoader::new(&path, CONFIG_FILE_NAME);
 
         const TEST_VALUE: &str = "This is the expected text.";
-        let config = TestConfig { string_value: TEST_VALUE.to_owned() };
+        let config = TestConfig {
+            string_value: TEST_VALUE.to_owned(),
+        };
         loader.store_config(&config).unwrap();
 
         let loaded_config = loader.load_config::<TestConfig>().unwrap();

@@ -13,9 +13,9 @@ use crate::controller::ServerController;
 use crate::template::registry::TemplateRegistry;
 use crate::websocket::server::WebsocketServer;
 
-mod data;
 mod config;
 mod controller;
+mod data;
 mod endpoint;
 mod error;
 mod fs;
@@ -47,22 +47,26 @@ async fn start_with_config(configuration_manager: ConfigurationManager<ZagreusSe
     let configuration = configuration_manager.get_configuration();
     let ws_server = Arc::new(WebsocketServer::new());
     let (template_event_tx, template_event_rx) = tokio::sync::mpsc::unbounded_channel();
-    let mut template_registry = TemplateRegistry::new(&configuration.data_folder, template_event_tx);
+    let mut template_registry =
+        TemplateRegistry::new(&configuration.data_folder, template_event_tx);
     template_registry.load_templates();
     let template_registry = Arc::new(tokio::sync::RwLock::new(template_registry));
 
-    let server_controller = Arc::new(ServerController::new(template_event_rx,
-                                                           ws_server.clone(), template_registry.clone()));
+    let server_controller = Arc::new(ServerController::new(
+        template_event_rx,
+        ws_server.clone(),
+        template_registry.clone(),
+    ));
 
-    match endpoint::routes::get_routes(server_controller, ws_server, template_registry, configuration) {
-        Ok(routes) => {
-            warp::serve(routes)
-                .run(([0, 0, 0, 0], 58179))
-                .await
-        }
+    match endpoint::routes::get_routes(
+        server_controller,
+        ws_server,
+        template_registry,
+        configuration,
+    ) {
+        Ok(routes) => warp::serve(routes).run(([0, 0, 0, 0], 58179)).await,
         Err(err) => {
             error!("Could not configure server routes: {}.", err);
         }
     }
 }
-
