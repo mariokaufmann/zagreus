@@ -11,8 +11,10 @@ pub struct ValidationData<'a> {
     pub data_elements: &'a DataElements,
 }
 
-fn count_elements_grouped<'a, T, F>(elements: &'a [T], mapping_function: F)
-                                    -> HashMap<&str, u16> where F: Fn(&'a T) -> &'a str {
+fn count_elements_grouped<'a, T, F>(elements: &'a [T], mapping_function: F) -> HashMap<&str, u16>
+where
+    F: Fn(&'a T) -> &'a str,
+{
     let mut result = HashMap::new();
     for element in elements {
         let id = mapping_function(element);
@@ -25,13 +27,14 @@ fn count_elements_grouped<'a, T, F>(elements: &'a [T], mapping_function: F)
     result
 }
 
-pub fn get_duplicate_elements<'a, T, F>(elements: &'a [T], mapping_function: F)
-                                        -> Vec<&'a str> where F: Fn(&'a T) -> &'a str {
+pub fn get_duplicate_elements<'a, T, F>(elements: &'a [T], mapping_function: F) -> Vec<&'a str>
+where
+    F: Fn(&'a T) -> &'a str,
+{
     let mut element_counts = count_elements_grouped(elements, mapping_function);
-    element_counts.drain()
-        .filter(|(_, value)| {
-            *value > 1
-        })
+    element_counts
+        .drain()
+        .filter(|(_, value)| *value > 1)
         .map(|(key, _)| key)
         .collect()
 }
@@ -107,12 +110,18 @@ mod tests {
 
     fn create_elements(create_duplicates: bool) -> Vec<TestElement> {
         let mut test_elements = vec![
-            TestElement { id: String::from("id1") },
-            TestElement { id: String::from("id2") },
+            TestElement {
+                id: String::from("id1"),
+            },
+            TestElement {
+                id: String::from("id2"),
+            },
         ];
 
         if create_duplicates {
-            test_elements.push(TestElement { id: String::from("id1") });
+            test_elements.push(TestElement {
+                id: String::from("id1"),
+            });
         }
 
         test_elements

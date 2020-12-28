@@ -5,7 +5,7 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 
 use crate::cli::ZagreusSubcommand;
 use crate::data::TemplateConfig;

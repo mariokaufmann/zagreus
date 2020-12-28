@@ -11,7 +11,11 @@ pub struct TemplateUploader<'a> {
 }
 
 impl<'a> TemplateUploader<'a> {
-    pub fn new(server_url: &str, template_name: &str, packed_template_file_path: &'a Path) -> Result<TemplateUploader<'a>, ZagreusError> {
+    pub fn new(
+        server_url: &str,
+        template_name: &str,
+        packed_template_file_path: &'a Path,
+    ) -> Result<TemplateUploader<'a>, ZagreusError> {
         let client = reqwest::blocking::Client::builder()
             .timeout(Duration::from_secs(10))
             .build()?;
@@ -29,9 +33,9 @@ impl<'a> TemplateUploader<'a> {
         let mut input_file = std::fs::File::open(self.packed_template_file_path)?;
         input_file.read_to_end(&mut buffer)?;
         let part = reqwest::blocking::multipart::Part::bytes(buffer);
-        let multipart = reqwest::blocking::multipart::Form::new()
-            .part("template.zip", part);
-        let response = self.client
+        let multipart = reqwest::blocking::multipart::Form::new().part("template.zip", part);
+        let response = self
+            .client
             .post(&self.upload_url)
             .multipart(multipart)
             .send()?;

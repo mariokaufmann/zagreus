@@ -45,17 +45,24 @@ pub struct DataElements {
 
 impl DataElements {
     pub fn new(elements: Vec<String>) -> DataElements {
-        DataElements {
-            elements
-        }
+        DataElements { elements }
     }
 
     pub fn has_data_element(&self, element_name: &str) -> bool {
-        self.elements.iter().any(|element| (*element).eq(element_name))
+        self.elements
+            .iter()
+            .any(|element| (*element).eq(element_name))
     }
 }
 
-pub fn convert_config<T>(input_file_path: &Path, output_file_path: &Path, validation_data: &ValidationData) -> Result<(), ZagreusError> where T: DeserializeOwned + Serialize + ConfigValidate {
+pub fn convert_config<T>(
+    input_file_path: &Path,
+    output_file_path: &Path,
+    validation_data: &ValidationData,
+) -> Result<(), ZagreusError>
+where
+    T: DeserializeOwned + Serialize + ConfigValidate,
+{
     let config: T = load_config(input_file_path)?;
     config.validate(validation_data)?;
     let output_file = std::fs::File::create(&output_file_path)?;
@@ -63,9 +70,11 @@ pub fn convert_config<T>(input_file_path: &Path, output_file_path: &Path, valida
     Ok(())
 }
 
-pub fn load_config<T>(config_file_path: &Path) -> Result<T, ZagreusError> where T: DeserializeOwned + Serialize + ConfigValidate {
+pub fn load_config<T>(config_file_path: &Path) -> Result<T, ZagreusError>
+where
+    T: DeserializeOwned + Serialize + ConfigValidate,
+{
     let input_file = std::fs::File::open(&config_file_path)?;
     let config: T = serde_yaml::from_reader(input_file)?;
     Ok(config)
 }
-
