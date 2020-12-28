@@ -8,8 +8,14 @@ pub struct WebsocketConnection {
 }
 
 impl WebsocketConnection {
-    pub fn new(message_sender: UnboundedSender<Result<warp::ws::Message, warp::Error>>, template_name: String) -> WebsocketConnection {
-        WebsocketConnection { message_sender, template_name }
+    pub fn new(
+        message_sender: UnboundedSender<Result<warp::ws::Message, warp::Error>>,
+        template_name: String,
+    ) -> WebsocketConnection {
+        WebsocketConnection {
+            message_sender,
+            template_name,
+        }
     }
 
     pub fn is_from_template(&self, template_name: &str) -> bool {

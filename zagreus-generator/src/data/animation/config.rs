@@ -1,5 +1,5 @@
-use crate::data::ConfigValidate;
 use crate::data::validation::{get_duplicate_elements, ValidationData};
+use crate::data::ConfigValidate;
 use crate::error::ZagreusError;
 
 #[derive(Serialize, Deserialize)]
@@ -12,7 +12,8 @@ impl ConfigValidate for AnimationConfig {
         for sequence in &self.sequences {
             for step in &sequence.steps {
                 // check for duplicate animations on the same element
-                let duplicate_elements = get_duplicate_elements(&step.animations, |animation| &animation.id);
+                let duplicate_elements =
+                    get_duplicate_elements(&step.animations, |animation| &animation.id);
 
                 if let Some(duplicate_element) = duplicate_elements.get(0) {
                     return Err(ZagreusError::from(
@@ -20,8 +21,14 @@ impl ConfigValidate for AnimationConfig {
                 }
 
                 for animation in &step.animations {
-                    if !validation_data.data_elements.has_data_element(&animation.id) {
-                        return Err(ZagreusError::from(format!("Animation config contains unknown element {}.", &animation.id)));
+                    if !validation_data
+                        .data_elements
+                        .has_data_element(&animation.id)
+                    {
+                        return Err(ZagreusError::from(format!(
+                            "Animation config contains unknown element {}.",
+                            &animation.id
+                        )));
                     }
                 }
             }
@@ -74,10 +81,7 @@ mod tests {
 
     #[test]
     fn validate_animation_config_valid() {
-        let data_elements = DataElements::new(vec![
-            String::from("id1"),
-            String::from("id2"),
-        ]);
+        let data_elements = DataElements::new(vec![String::from("id1"), String::from("id2")]);
         let validation_data = ValidationData {
             data_elements: &data_elements,
         };
@@ -88,8 +92,16 @@ mod tests {
                     start: 0,
                     duration: 0,
                     animations: vec![
-                        Animation { id: String::from("id1"), name: String::from("ani1"), direction: AnimationDirection::Normal },
-                        Animation { id: String::from("id2"), name: String::from("ani2"), direction: AnimationDirection::Normal },
+                        Animation {
+                            id: String::from("id1"),
+                            name: String::from("ani1"),
+                            direction: AnimationDirection::Normal,
+                        },
+                        Animation {
+                            id: String::from("id2"),
+                            name: String::from("ani2"),
+                            direction: AnimationDirection::Normal,
+                        },
                     ],
                 }],
             }],
@@ -101,9 +113,7 @@ mod tests {
 
     #[test]
     fn validate_animation_config_inexistant_element() {
-        let data_elements = DataElements::new(vec![
-            String::from("id1"),
-        ]);
+        let data_elements = DataElements::new(vec![String::from("id1")]);
         let validation_data = ValidationData {
             data_elements: &data_elements,
         };
@@ -113,9 +123,11 @@ mod tests {
                 steps: vec![AnimationStep {
                     start: 0,
                     duration: 0,
-                    animations: vec![
-                        Animation { id: String::from("id2"), name: String::from("ani2"), direction: AnimationDirection::Normal },
-                    ],
+                    animations: vec![Animation {
+                        id: String::from("id2"),
+                        name: String::from("ani2"),
+                        direction: AnimationDirection::Normal,
+                    }],
                 }],
             }],
         };
@@ -126,9 +138,7 @@ mod tests {
 
     #[test]
     fn validate_animation_config_duplicate() {
-        let data_elements = DataElements::new(vec![
-            String::from("id1"),
-        ]);
+        let data_elements = DataElements::new(vec![String::from("id1")]);
         let validation_data = ValidationData {
             data_elements: &data_elements,
         };
@@ -139,8 +149,16 @@ mod tests {
                     start: 0,
                     duration: 0,
                     animations: vec![
-                        Animation { id: String::from("id1"), name: String::from("ani1"), direction: AnimationDirection::Normal },
-                        Animation { id: String::from("id1"), name: String::from("ani2"), direction: AnimationDirection::Normal },
+                        Animation {
+                            id: String::from("id1"),
+                            name: String::from("ani1"),
+                            direction: AnimationDirection::Normal,
+                        },
+                        Animation {
+                            id: String::from("id1"),
+                            name: String::from("ani2"),
+                            direction: AnimationDirection::Normal,
+                        },
                     ],
                 }],
             }],

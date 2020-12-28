@@ -7,7 +7,11 @@ use zip::ZipWriter;
 
 use crate::error::ZagreusError;
 
-pub fn pack_template(zipped_template_file: &Path, build_file_names: &[PathBuf], assets_folder: &PathBuf) -> Result<(), ZagreusError> {
+pub fn pack_template(
+    zipped_template_file: &Path,
+    build_file_names: &[PathBuf],
+    assets_folder: &PathBuf,
+) -> Result<(), ZagreusError> {
     debug!("Packing template.");
     let assets_walkdir = WalkDir::new(assets_folder);
     let zipped_file = std::fs::File::create(zipped_template_file)?;
@@ -20,15 +24,23 @@ pub fn pack_template(zipped_template_file: &Path, build_file_names: &[PathBuf], 
     for build_file in build_file_names {
         debug!("Packing build file: {}.", build_file.display());
         match build_file.file_name() {
-            Some(build_file_name) => {
-                match build_file_name.to_str() {
-                    Some(build_file_name) => {
-                        write_zip_file(&mut zip_writer, build_file, build_file_name, &mut buffer)?;
-                    }
-                    None => return Err(ZagreusError::from(format!("Could not convert build file name to str for file {}", build_file.display()))),
+            Some(build_file_name) => match build_file_name.to_str() {
+                Some(build_file_name) => {
+                    write_zip_file(&mut zip_writer, build_file, build_file_name, &mut buffer)?;
                 }
+                None => {
+                    return Err(ZagreusError::from(format!(
+                        "Could not convert build file name to str for file {}",
+                        build_file.display()
+                    )))
+                }
+            },
+            None => {
+                return Err(ZagreusError::from(format!(
+                    "Could not get file for file {}",
+                    build_file.display()
+                )))
             }
-            None => return Err(ZagreusError::from(format!("Could not get file for file {}", build_file.display()))),
         }
     }
 
@@ -59,8 +71,16 @@ pub fn pack_template(zipped_template_file: &Path, build_file_names: &[PathBuf], 
     Ok(())
 }
 
-fn write_zip_file<P, S>(zip_writer: &mut ZipWriter<std::fs::File>, input_file_path: P, output_file: S, buffer: &mut Vec<u8>) -> Result<(), ZagreusError>
-    where P: AsRef<Path>, S: Into<String> {
+fn write_zip_file<P, S>(
+    zip_writer: &mut ZipWriter<std::fs::File>,
+    input_file_path: P,
+    output_file: S,
+    buffer: &mut Vec<u8>,
+) -> Result<(), ZagreusError>
+where
+    P: AsRef<Path>,
+    S: Into<String>,
+{
     zip_writer.start_file(output_file, get_file_options())?;
     let mut input_file = std::fs::File::open(input_file_path)?;
 

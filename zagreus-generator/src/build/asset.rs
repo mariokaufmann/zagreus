@@ -5,17 +5,18 @@ use crate::error::ZagreusError;
 
 pub const ASSETS_FOLDER_NAME: &str = "assets";
 
-pub fn collect_stylesheets<P: AsRef<Path>>(base_folder: P) -> Result<HashSet<String>, ZagreusError> {
+pub fn collect_stylesheets<P: AsRef<Path>>(
+    base_folder: P,
+) -> Result<HashSet<String>, ZagreusError> {
     let assets_folder = base_folder.as_ref().join(ASSETS_FOLDER_NAME);
     let read_dir = std::fs::read_dir(assets_folder)?;
-    let entries = read_dir.into_iter()
+    let entries = read_dir
+        .into_iter()
         .filter_map(Result::ok)
         .map(|entry| entry.path())
-        .filter(|path| {
-            match path.extension() {
-                Some(extension) => extension.eq("css"),
-                None => false,
-            }
+        .filter(|path| match path.extension() {
+            Some(extension) => extension.eq("css"),
+            None => false,
         })
         .filter_map(|path| path.file_name().map(|file_name| file_name.to_os_string()))
         .map(|name| name.into_string())
@@ -47,4 +48,3 @@ mod tests {
         assert!(stylesheets.contains("animations.css"));
     }
 }
-

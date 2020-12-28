@@ -40,7 +40,10 @@ impl TempFolder {
 
 impl Drop for TempFolder {
     fn drop(&mut self) {
-        self.delete_temp_folder().expect(&format!("Could not delete temp folder {}.", &self.path.display()));
+        self.delete_temp_folder().expect(&format!(
+            "Could not delete temp folder {}.",
+            &self.path.display()
+        ));
     }
 }
 
