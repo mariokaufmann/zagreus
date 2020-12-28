@@ -7,16 +7,25 @@ use xml::writer::XmlEvent as WriterEvent;
 use crate::data::DataElements;
 use crate::error::ZagreusError;
 
-pub fn process_svg(input_file_path: &Path, output_file_path: &Path) -> Result<DataElements, ZagreusError> {
+pub fn process_svg(
+    input_file_path: &Path,
+    output_file_path: &Path,
+) -> Result<DataElements, ZagreusError> {
     let template_reader = crate::build::transform::create_xml_reader(input_file_path);
-    let mut processed_template_writer = crate::build::transform::create_xml_writer(output_file_path);
+    let mut processed_template_writer =
+        crate::build::transform::create_xml_writer(output_file_path);
 
     let mut found_elements = Vec::new();
 
     for e in template_reader {
         match e {
             Ok(evt) => {
-                if let ReaderEvent::StartElement { name: _, attributes, namespace: _ } = &evt {
+                if let ReaderEvent::StartElement {
+                    name: _,
+                    attributes,
+                    namespace: _,
+                } = &evt
+                {
                     for attribute in attributes {
                         if attribute.name.local_name.eq("id") {
                             found_elements.push(attribute.value.clone());
@@ -46,11 +55,22 @@ pub fn process_svg(input_file_path: &Path, output_file_path: &Path) -> Result<Da
 fn transform_event(event: &ReaderEvent) -> Option<WriterEvent> {
     match event {
         ReaderEvent::StartDocument { .. } => None,
-        ReaderEvent::StartElement { name, attributes, namespace } => {
-            let attributes = attributes.iter().map(|attribute| attribute.borrow()).collect();
-            Option::Some(WriterEvent::StartElement { name: name.borrow(), attributes, namespace: Cow::Borrowed(namespace) })
+        ReaderEvent::StartElement {
+            name,
+            attributes,
+            namespace,
+        } => {
+            let attributes = attributes
+                .iter()
+                .map(|attribute| attribute.borrow())
+                .collect();
+            Option::Some(WriterEvent::StartElement {
+                name: name.borrow(),
+                attributes,
+                namespace: Cow::Borrowed(namespace),
+            })
         }
-        other => other.as_writer_event()
+        other => other.as_writer_event(),
     }
 }
 
@@ -75,4 +95,3 @@ mod tests {
         assert_eq!(actual_contents, expected_contents);
     }
 }
-

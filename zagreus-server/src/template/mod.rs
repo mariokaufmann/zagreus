@@ -24,7 +24,8 @@ pub struct Template {
 impl Template {
     pub fn load(data_folder: &Path, template_name: &str) -> Result<Template, ZagreusError> {
         let template_folder = get_template_folder(data_folder, template_name)?;
-        let animation_config = Self::load_config::<AnimationConfig>(&template_folder, ANIMATIONS_FILE_NAME)?;
+        let animation_config =
+            Self::load_config::<AnimationConfig>(&template_folder, ANIMATIONS_FILE_NAME)?;
         let texts_config = Self::load_config::<TextConfig>(&template_folder, TEXTS_FILE_NAME)?;
         let template_config = Self::load_config(&template_folder, TEMPLATE_CONFIG_FILE_NAME)?;
 
@@ -37,7 +38,10 @@ impl Template {
         Ok(template)
     }
 
-    fn load_config<T>(template_folder: &Path, input_file_name: &str) -> Result<T, ZagreusError> where T: DeserializeOwned {
+    fn load_config<T>(template_folder: &Path, input_file_name: &str) -> Result<T, ZagreusError>
+    where
+        T: DeserializeOwned,
+    {
         let file_path = template_folder.join(input_file_name);
         let file = std::fs::File::open(file_path)?;
         let config: T = serde_json::from_reader(file)?;

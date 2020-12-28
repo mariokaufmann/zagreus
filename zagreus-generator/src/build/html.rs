@@ -6,26 +6,45 @@ use std::path::Path;
 use xml::reader::XmlEvent as ReaderEvent;
 
 const HTML_PART_1: &str = "<html><head><meta charset=\"UTF-8\" />";
-const HTML_PART_2: &str = "</head><body><div id=\"zagreus-svg-container\" class=\"zagreus-hidden\">";
-const HTML_PART_3: &str = "</div><script src=\"/static/zagreus-runtime.js\"></script></body></html>";
+const HTML_PART_2: &str =
+    "</head><body><div id=\"zagreus-svg-container\" class=\"zagreus-hidden\">";
+const HTML_PART_3: &str =
+    "</div><script src=\"/static/zagreus-runtime.js\"></script></body></html>";
 
-pub fn write_raw_html(processed_template_path: &Path, raw_html_path: &Path, template_name: &str, mut stylesheets: HashSet<String>) {
+pub fn write_raw_html(
+    processed_template_path: &Path,
+    raw_html_path: &Path,
+    template_name: &str,
+    mut stylesheets: HashSet<String>,
+) {
     let mut raw_html_file = File::create(raw_html_path).unwrap();
     let processed_template_data = std::fs::read(processed_template_path).unwrap();
 
     raw_html_file.write_all(HTML_PART_1.as_bytes()).unwrap();
 
     // write base tag
-    raw_html_file.write_all(format!("<base href=\"/static/template/{}/\" />", template_name).as_bytes()).unwrap();
+    raw_html_file
+        .write_all(format!("<base href=\"/static/template/{}/\" />", template_name).as_bytes())
+        .unwrap();
     // sort stylesheet names for a stable conversion
     let mut stylesheets: Vec<String> = stylesheets.drain().collect();
     stylesheets.sort();
     for stylesheet in stylesheets {
-        raw_html_file.write_all(format!("<link rel=\"stylesheet\" type=\"text/css\" href=\"assets/{}\" />", stylesheet).as_bytes()).unwrap();
+        raw_html_file
+            .write_all(
+                format!(
+                    "<link rel=\"stylesheet\" type=\"text/css\" href=\"assets/{}\" />",
+                    stylesheet
+                )
+                .as_bytes(),
+            )
+            .unwrap();
     }
 
     raw_html_file.write_all(HTML_PART_2.as_bytes()).unwrap();
-    raw_html_file.write_all(processed_template_data.as_slice()).unwrap();
+    raw_html_file
+        .write_all(processed_template_data.as_slice())
+        .unwrap();
     raw_html_file.write_all(HTML_PART_3.as_bytes()).unwrap();
 }
 
@@ -64,7 +83,10 @@ mod tests {
         let stylesheets: HashSet<String> = [
             String::from("assets/main.css"),
             String::from("assets/animations.css"),
-        ].iter().cloned().collect();
+        ]
+        .iter()
+        .cloned()
+        .collect();
         write_raw_html(
             processed_template_path,
             &actual_output_path,
@@ -85,10 +107,7 @@ mod tests {
         let expected_output_path = Path::new("fixtures/html/valid_processed.html");
         let actual_output_path = temp_folder.join("index.html");
 
-        process_raw_html(
-            raw_html_path,
-            &actual_output_path,
-        );
+        process_raw_html(raw_html_path, &actual_output_path);
 
         let actual_contents = std::fs::read_to_string(actual_output_path).unwrap();
         let expected_contents = std::fs::read_to_string(expected_output_path).unwrap();
