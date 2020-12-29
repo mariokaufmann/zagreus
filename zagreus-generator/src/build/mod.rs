@@ -12,6 +12,9 @@ mod svg;
 mod transform;
 mod zip;
 
+pub const BUILD_FOLDER_NAME: &str = "build";
+pub const ASSETS_FOLDER_NAME: &str = "assets";
+
 const ZIPPED_TEMPLATE_FILE_NAME: &str = "template.zip";
 const INPUT_SVG_FILE_NAME: &str = "template.svg";
 const PROCESSED_SVG_FILE_NAME: &str = "template_processed.svg";
@@ -111,7 +114,7 @@ pub fn build_template(
     .iter()
     .map(|file_name| build_folder.join(file_name))
     .collect();
-    let assets_folder = PathBuf::from(asset::ASSETS_FOLDER_NAME);
+    let assets_folder = PathBuf::from(ASSETS_FOLDER_NAME);
     let packed_file_path = get_zipped_template_file_path(build_folder);
     zip::pack_template(&packed_file_path, &build_files, &assets_folder).unwrap();
 

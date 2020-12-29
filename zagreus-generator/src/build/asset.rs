@@ -1,9 +1,8 @@
 use std::collections::HashSet;
 use std::path::Path;
 
+use crate::build::ASSETS_FOLDER_NAME;
 use crate::error::ZagreusError;
-
-pub const ASSETS_FOLDER_NAME: &str = "assets";
 
 pub fn collect_stylesheets<P: AsRef<Path>>(
     base_folder: P,

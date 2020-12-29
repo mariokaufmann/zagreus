@@ -1,5 +1,6 @@
-use reqwest::Error;
 use serde::export::Formatter;
+use std::path::StripPrefixError;
+use std::sync::mpsc::RecvError;
 use zip::result::ZipError;
 
 pub fn error_with_message<T>(
@@ -63,9 +64,41 @@ impl From<zip::result::ZipError> for ZagreusError {
 }
 
 impl From<reqwest::Error> for ZagreusError {
-    fn from(error: Error) -> Self {
+    fn from(error: reqwest::Error) -> Self {
         Self {
             error_message: format!("Reqwest error occurred: {}.", error),
+        }
+    }
+}
+
+impl From<notify::Error> for ZagreusError {
+    fn from(error: notify::Error) -> Self {
+        Self {
+            error_message: format!("Notify error occurred: {}.", error),
+        }
+    }
+}
+
+impl From<&notify::Error> for ZagreusError {
+    fn from(error: &notify::Error) -> Self {
+        Self {
+            error_message: format!("Notify error occurred: {}.", error),
+        }
+    }
+}
+
+impl From<RecvError> for ZagreusError {
+    fn from(error: RecvError) -> Self {
+        Self {
+            error_message: format!("Recv error occurred: {}.", error),
+        }
+    }
+}
+
+impl From<StripPrefixError> for ZagreusError {
+    fn from(error: StripPrefixError) -> Self {
+        Self {
+            error_message: format!("StripPrefixError error occurred: {}.", error),
         }
     }
 }
