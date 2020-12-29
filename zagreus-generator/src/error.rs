@@ -1,6 +1,7 @@
 use serde::export::Formatter;
-use zip::result::ZipError;
+use std::path::StripPrefixError;
 use std::sync::mpsc::RecvError;
+use zip::result::ZipError;
 
 pub fn error_with_message<T>(
     message: &str,
@@ -82,6 +83,14 @@ impl From<RecvError> for ZagreusError {
     fn from(error: RecvError) -> Self {
         Self {
             error_message: format!("Recv error occurred: {}.", error),
+        }
+    }
+}
+
+impl From<StripPrefixError> for ZagreusError {
+    fn from(error: StripPrefixError) -> Self {
+        Self {
+            error_message: format!("StripPrefixError error occurred: {}.", error),
         }
     }
 }

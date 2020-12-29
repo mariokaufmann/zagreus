@@ -1,28 +1,23 @@
+use crate::build::{ASSETS_FOLDER_NAME, BUILD_FOLDER_NAME};
 use crate::error::{error_with_message, simple_error, ZagreusError};
 use notify::{raw_watcher, RawEvent, RecursiveMode, Watcher};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::mpsc::{RecvTimeoutError, Sender, TryRecvError};
 use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::thread;
 use std::time::Duration;
-use globset::{GlobSetBuilder, Glob};
-use std::env;
 
 /*
 TODO:
-  - Implement a simple filter API to avoid forwarding events for e.g. the build dir
-  - See if there are any raw event types we need to filter out. Maybe take list of watched events
-    as an input to the wait_for_update() function?
   - Doc comments
   - Is there anything we could test?
  */
 
-pub fn spawn(watch_path: &Path, recursive: bool) -> Result<FileWatcherHandle, ZagreusError> {
-    // TODO: Consider building from args.
-    let mut globset_builder = GlobSetBuilder::new();
-    globset_builder.add(Glob::new("build/**").unwrap());
-    globset_builder.add(Glob::new("*.afdesign").unwrap());
-    let globset = globset_builder.build().unwrap();
+pub fn spawn(watch_path: PathBuf, recursive: bool) -> Result<FileWatcherHandle, ZagreusError> {
+    if !watch_path.is_absolute() {
+        // Watch path must be absolute, required for path ignore checks.
+        return simple_error("Watch path must be absolute");
+    }
 
     // Set up file watcher handle.
     let (terminate_watcher_tx, terminate_watcher_rx) = mpsc::channel();
@@ -39,7 +34,7 @@ pub fn spawn(watch_path: &Path, recursive: bool) -> Result<FileWatcherHandle, Za
         true => RecursiveMode::Recursive,
         false => RecursiveMode::NonRecursive,
     };
-    watcher.watch(watch_path, recursive_mode)?;
+    watcher.watch(&watch_path, recursive_mode)?;
 
     // Spawn the file event relay thread.
     thread::spawn(move || {
@@ -64,13 +59,35 @@ pub fn spawn(watch_path: &Path, recursive: bool) -> Result<FileWatcherHandle, Za
                 }
             };
 
-            // TODO: Refactor, avoid using unwrap.
-            let pwd = env::current_dir().unwrap();
-            let event_path = event.path.as_ref().unwrap();
-            let rel_event_path = event_path.strip_prefix(pwd).unwrap();
-            if globset.is_match(rel_event_path) {
-                continue;
+            // Check whether the event represents an error, break if true.
+            if let Err(error) = &event.op {
+                error!(
+                    "Terminating file watcher thread due to notify error: {:?}",
+                    error
+                );
+                break;
             }
+
+            // Try extracting event path, skip if no path is available.
+            let event_path = match event.path.as_ref() {
+                Some(path) => path,
+                None => {
+                    // Should not reach here - non-error events should always have a path.
+                    debug!("Ignoring event without path: {:?}", event);
+                    continue;
+                }
+            };
+
+            // Check whether event should be ignored. Skip if true, break on error.
+            match should_ignore_event_path(&watch_path, event_path) {
+                Ok(true) => continue,
+                Ok(false) => {}
+                Err(error) => {
+                    // Error occurs if event path is not at or below watch path.
+                    error!("Terminating file watcher thread due to error: {:?}", error);
+                    break;
+                }
+            };
 
             if let Err(error) = file_watcher_tx.try_send_or_reset(event) {
                 // Terminate thread if there is an error.
@@ -82,6 +99,36 @@ pub fn spawn(watch_path: &Path, recursive: bool) -> Result<FileWatcherHandle, Za
     });
 
     Ok(file_watcher_handle)
+}
+
+fn should_ignore_event_path(root_path: &Path, event_path: &Path) -> Result<bool, ZagreusError> {
+    // Make event path relative to root directory.
+    let event_path = event_path.strip_prefix(root_path)?;
+
+    // Never ignore assets directory.
+    if event_path.starts_with(ASSETS_FOLDER_NAME) {
+        // Assets directory, don't ignore.
+        return Ok(false);
+    }
+
+    // Always ignore build dir.
+    if event_path.starts_with(BUILD_FOLDER_NAME) {
+        // Assets directory, don't ignore.
+        return Ok(true);
+    }
+
+    // Get event path file extension. If no extension is available, ignore event (i.e. is a dir).
+    let extension = match event_path.extension() {
+        Some(extension) => extension,
+        None => return Ok(true),
+    };
+
+    // Not in build or assets dir. Keep yaml and svg files, ignore everything else.
+    if (extension == "yaml") || (extension == "yml") || (extension == "svg") {
+        Ok(false)
+    } else {
+        Ok(true)
+    }
 }
 
 struct OptionalSender<T>(Arc<Mutex<Option<Sender<T>>>>);

@@ -1,7 +1,9 @@
+use crate::build::BUILD_FOLDER_NAME;
 use crate::data::TemplateConfig;
 use crate::error::{error_with_message, simple_error, ZagreusError};
 use crate::file_watcher;
-use crate::{build, upload, BUILD_FOLDER_NAME, TEMPLATE_CONFIG_FILE_NAME};
+use crate::{build, upload, TEMPLATE_CONFIG_FILE_NAME};
+use std::env;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
@@ -18,7 +20,7 @@ pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
     };
 
     info!("Watch mode started");
-    let file_watcher_handle = file_watcher::spawn(Path::new(""), true)?;
+    let file_watcher_handle = file_watcher::spawn(env::current_dir()?, true)?;
     loop {
         if let Err(err) = build_once(&template_config, build_dir, upload) {
             // If a build error occurs, log the error and wait for the next file change.

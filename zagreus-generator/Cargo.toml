@@ -18,7 +18,6 @@ zip = "0.5.8"
 walkdir = "2.3.1"
 structopt = "0.3.21"
 notify = "4.0.15"
-globset = "0.4.6"
 
 [dependencies.log4rs]
 version = "0.13.0"

@@ -18,7 +18,6 @@ mod logger;
 mod upload;
 
 const TEMPLATE_CONFIG_FILE_NAME: &str = "zagreus-template.yaml";
-const BUILD_FOLDER_NAME: &str = "build";
 
 fn main() {
     let command = cli::get_command();
