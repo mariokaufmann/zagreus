@@ -1,10 +1,10 @@
 name: build
-on: [push]
+on: [ push ]
 jobs:
   build:
     strategy:
       matrix:
-        label: [Linux, Windows]
+        label: [ Linux, Windows ]
         include:
           - label: Linux
             script-name: chmod +x ./package.sh && ./package.sh
@@ -12,13 +12,13 @@ jobs:
           - label: Windows
             script-name: .\package.ps1
             artifact: zagreus-win
-    runs-on: [self-hosted, '${{ matrix.label }}']
+    runs-on: [ self-hosted, '${{ matrix.label }}' ]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
       - uses: actions-rs/toolchain@v1
-          with:
-            toolchain: stable
+        with:
+          toolchain: stable
       - name: Check formatting of generator
         run: |
           rustup component add rustfmt
