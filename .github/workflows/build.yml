@@ -1,10 +1,10 @@
 name: build
-on: [push]
+on: [ push ]
 jobs:
   build:
     strategy:
       matrix:
-        label: [Linux, Windows]
+        label: [ Linux, Windows ]
         include:
           - label: Linux
             script-name: chmod +x ./package.sh && ./package.sh
@@ -12,39 +12,49 @@ jobs:
           - label: Windows
             script-name: .\package.ps1
             artifact: zagreus-win
-    runs-on: [self-hosted, '${{ matrix.label }}']
+    runs-on: [ self-hosted, '${{ matrix.label }}' ]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
-      - name: Build zagreus runtime
-        run: |
-          npm ci --no-optional
-          npm run build
-        working-directory: ./zagreus-runtime
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Build zagreus generator
-        run: cargo build --release
+      - name: Check formatting of generator
+        run: |
+          rustup component add rustfmt
+          cargo fmt --quiet -- --check
         working-directory: ./zagreus-generator
+      - name: Check formatting of server
+        run: |
+          rustup component add rustfmt
+          cargo fmt --quiet -- --check
+        working-directory: ./zagreus-server
       - name: Test zagreus generator
         run: cargo test
         working-directory: ./zagreus-generator
+      - name: Test zagreus server
+        run: cargo test
+        working-directory: ./zagreus-server
       - name: Lint zagreus generator
         run: |
           rustup component add clippy
           cargo clippy -- -D warnings
         working-directory: ./zagreus-generator
-      - name: Build zagreus server
-        run: cargo build --release
-        working-directory: ./zagreus-server
-      - name: Test zagreus server
-        run: cargo test
-        working-directory: ./zagreus-server
       - name: Lint zagreus server
         run: |
           rustup component add clippy
           cargo clippy -- -D warnings
+        working-directory: ./zagreus-server
+      - name: Build zagreus runtime
+        run: |
+          npm ci --no-optional
+          npm run build
+        working-directory: ./zagreus-runtime
+      - name: Build zagreus generator
+        run: cargo build --release
+        working-directory: ./zagreus-generator
+      - name: Build zagreus server
+        run: cargo build --release
         working-directory: ./zagreus-server
       - name: Package
         run: ${{ matrix.script-name }}
