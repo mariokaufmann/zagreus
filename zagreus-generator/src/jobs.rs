@@ -7,6 +7,8 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
+const FILE_WATCHER_DEBOUNCE_DELAY: u64 = 200;
+
 pub fn new_template(_name: String) -> Result<(), ZagreusError> {
     simple_error("Creating a template is not yet supported.")
 }
@@ -20,13 +22,17 @@ pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
     };
 
     info!("Watch mode started");
-    let file_watcher_handle = file_watcher::spawn(env::current_dir()?, true)?;
+    let file_watcher_rx = file_watcher::spawn(
+        env::current_dir()?,
+        true,
+        Duration::from_millis(FILE_WATCHER_DEBOUNCE_DELAY),
+    )?;
     loop {
-        if let Err(err) = build_once(&template_config, build_dir, upload) {
+        if let Err(error) = build_once(&template_config, build_dir, upload) {
             // If a build error occurs, log the error and wait for the next file change.
-            error!("{:?}", err);
+            error!("{:?}", error);
         }
-        file_watcher::await_file_event(&file_watcher_handle, Duration::from_millis(200))?;
+        file_watcher_rx.recv()?;
     }
 }
 

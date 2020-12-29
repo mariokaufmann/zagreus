@@ -79,6 +79,14 @@ impl From<notify::Error> for ZagreusError {
     }
 }
 
+impl From<&notify::Error> for ZagreusError {
+    fn from(error: &notify::Error) -> Self {
+        Self {
+            error_message: format!("Notify error occurred: {}.", error),
+        }
+    }
+}
+
 impl From<RecvError> for ZagreusError {
     fn from(error: RecvError) -> Self {
         Self {

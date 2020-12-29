@@ -1,31 +1,25 @@
 use crate::build::{ASSETS_FOLDER_NAME, BUILD_FOLDER_NAME};
-use crate::error::{error_with_message, simple_error, ZagreusError};
+use crate::error::{simple_error, ZagreusError};
 use notify::{raw_watcher, RawEvent, RecursiveMode, Watcher};
+use std::ops::Add;
 use std::path::{Path, PathBuf};
-use std::sync::mpsc::{RecvTimeoutError, Sender, TryRecvError};
-use std::sync::{mpsc, Arc, Mutex, MutexGuard};
+use std::sync::mpsc;
+use std::sync::mpsc::{Receiver, RecvTimeoutError, TrySendError};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
-/*
-TODO:
-  - Doc comments
-  - Is there anything we could test?
- */
-
-pub fn spawn(watch_path: PathBuf, recursive: bool) -> Result<FileWatcherHandle, ZagreusError> {
+pub fn spawn(
+    watch_path: PathBuf,
+    recursive: bool,
+    debounce_delay: Duration,
+) -> Result<Receiver<()>, ZagreusError> {
+    // Check whether watch path is absolute, required for path ignore checks.
     if !watch_path.is_absolute() {
-        // Watch path must be absolute, required for path ignore checks.
         return simple_error("Watch path must be absolute");
     }
 
-    // Set up file watcher handle.
-    let (terminate_watcher_tx, terminate_watcher_rx) = mpsc::channel();
-    let file_watcher_tx = OptionalSender::from_none();
-    let file_watcher_handle = FileWatcherHandle::new(
-        terminate_watcher_tx,
-        OptionalSender::clone(&file_watcher_tx),
-    );
+    // Set up file event channel.
+    let (event_tx, event_rx) = mpsc::sync_channel(1);
 
     // Spawn a notify file watcher.
     let (notify_tx, notify_rx) = mpsc::channel();
@@ -42,67 +36,120 @@ pub fn spawn(watch_path: PathBuf, recursive: bool) -> Result<FileWatcherHandle, 
         let _ = watcher;
 
         loop {
-            // If a message was received or the sender has disconnected on the terminate_watcher
-            // channel, break the loop and terminate the thread.
-            match terminate_watcher_rx.try_recv() {
-                Ok(_) | Err(TryRecvError::Disconnected) => break,
-                Err(TryRecvError::Empty) => {}
-            }
-
-            // Wait for the next file event from notify.
-            let event = match notify_rx.recv() {
-                Ok(event) => event,
-                Err(error) => {
-                    // Terminate thread if there is a RecvError.
-                    error!("Terminating file watcher thread due to error: {:?}", error);
-                    break;
-                }
-            };
-
-            // Check whether the event represents an error, break if true.
-            if let Err(error) = &event.op {
-                error!(
-                    "Terminating file watcher thread due to notify error: {:?}",
-                    error
-                );
-                break;
-            }
-
-            // Try extracting event path, skip if no path is available.
-            let event_path = match event.path.as_ref() {
-                Some(path) => path,
-                None => {
-                    // Should not reach here - non-error events should always have a path.
-                    debug!("Ignoring event without path: {:?}", event);
-                    continue;
-                }
-            };
-
-            // Check whether event should be ignored. Skip if true, break on error.
-            match should_ignore_event_path(&watch_path, event_path) {
-                Ok(true) => continue,
-                Ok(false) => {}
-                Err(error) => {
-                    // Error occurs if event path is not at or below watch path.
-                    error!("Terminating file watcher thread due to error: {:?}", error);
-                    break;
-                }
-            };
-
-            if let Err(error) = file_watcher_tx.try_send_or_reset(event) {
-                // Terminate thread if there is an error.
+            // Wait for first relevant event, break if an error is received.
+            if let Err(error) = wait_for_relevant_event(&notify_rx, &watch_path) {
                 error!("Terminating file watcher thread due to error: {:?}", error);
                 break;
             }
+
+            // Wait until no further relevant events have occurred for at least debounce_delay
+            // amount of time, break if an error is received.
+            if let Err(error) = debounce(&notify_rx, &watch_path, debounce_delay) {
+                error!("Terminating file watcher thread due to error: {:?}", error);
+                break;
+            }
+
+            // Try notifying receiver. Drop event if buffer is full, break if receiver has
+            // disconnected.
+            match event_tx.try_send(()) {
+                Ok(_) | Err(TrySendError::Full(_)) => {}
+                Err(TrySendError::Disconnected(_)) => {
+                    // Terminate thread if rx has disconnected.
+                    trace!("File watcher receiver disconnected, terminating watcher thread");
+                    break;
+                }
+            }
         }
-        trace!("Notify watcher thread terminated.")
+        trace!("File watcher thread terminated.")
     });
 
-    Ok(file_watcher_handle)
+    Ok(event_rx)
+}
+
+fn wait_for_relevant_event(rx: &Receiver<RawEvent>, watch_path: &Path) -> Result<(), ZagreusError> {
+    loop {
+        let event = match rx.recv() {
+            Ok(event) => event,
+            Err(error) => return Err(error.into()),
+        };
+        match categorize_event(&event, watch_path) {
+            EventCategory::Relevant => return Ok(()),
+            EventCategory::Ignored => {}
+            EventCategory::Err(error) => return Err(error),
+        }
+    }
+}
+
+fn debounce(
+    rx: &Receiver<RawEvent>,
+    watch_path: &Path,
+    delay: Duration,
+) -> Result<(), ZagreusError> {
+    // Deadline for receiving further relevant events is (now + debounce delay). If no relevant
+    // events are received past the deadline, debouncing is complete.
+    let mut deadline = Instant::now().add(delay);
+
+    // Time remaining is the difference between now and deadline, i.e. how much time there is left
+    // until the deadline. Break if deadline is already reached or exceeded (i.e. now is later
+    // than deadline).
+    while let Some(time_remaining) = deadline.checked_duration_since(Instant::now()) {
+        // Wait for an event. If timeout is reached, break. If sender disconnected, return Err.
+        let event = match rx.recv_timeout(time_remaining) {
+            Ok(event) => event,
+            Err(RecvTimeoutError::Timeout) => break,
+            Err(RecvTimeoutError::Disconnected) => {
+                let msg = String::from("Notify sender has disconnected");
+                return Err(ZagreusError::from(msg));
+            }
+        };
+
+        // Event received, no timeout. Check if event is relevant. If it should be ignored, continue
+        // loop without affecting the deadline. If it is relevant, reset the deadline (i.e. keep
+        // debouncing). If error is received, return error.
+        match categorize_event(&event, watch_path) {
+            EventCategory::Ignored => {}
+            EventCategory::Relevant => deadline = Instant::now().add(delay),
+            EventCategory::Err(error) => return Err(error),
+        }
+    }
+
+    // No relevant events seen for at least delay amount of time, return Ok.
+    Ok(())
+}
+
+fn categorize_event(event: &RawEvent, watch_path: &Path) -> EventCategory {
+    // Check whether the event represents an error, return Err if true.
+    if let Err(error) = &event.op {
+        return EventCategory::Err(error.into());
+    }
+
+    // Try extracting event path, skip if no path is available.
+    let event_path = match event.path.as_ref() {
+        Some(path) => path,
+        None => {
+            // Should not reach here - non-error events should always have a path.
+            debug!("Event has no path, marking as ignored: {:?}", event);
+            return EventCategory::Ignored;
+        }
+    };
+
+    // Check whether event should be ignored. Skip if true, break on error.
+    match should_ignore_event_path(watch_path, event_path) {
+        Ok(true) => EventCategory::Ignored,
+        Ok(false) => EventCategory::Relevant,
+        Err(error) => EventCategory::Err(error),
+    }
+}
+
+enum EventCategory {
+    Relevant,
+    Ignored,
+    Err(ZagreusError),
 }
 
 fn should_ignore_event_path(root_path: &Path, event_path: &Path) -> Result<bool, ZagreusError> {
-    // Make event path relative to root directory.
+    // Make event path relative to root directory, return Err if event path is not below root
+    // directory.
     let event_path = event_path.strip_prefix(root_path)?;
 
     // Never ignore assets directory.
@@ -111,116 +158,23 @@ fn should_ignore_event_path(root_path: &Path, event_path: &Path) -> Result<bool,
         return Ok(false);
     }
 
-    // Always ignore build dir.
+    // Always ignore build directory.
     if event_path.starts_with(BUILD_FOLDER_NAME) {
         // Assets directory, don't ignore.
         return Ok(true);
     }
 
-    // Get event path file extension. If no extension is available, ignore event (i.e. is a dir).
+    // Event is not in build or assets dir: decide based on extension. Get event path's file
+    // extension. If None, mark event as ignored (i.e. is a dir).
     let extension = match event_path.extension() {
         Some(extension) => extension,
         None => return Ok(true),
     };
 
-    // Not in build or assets dir. Keep yaml and svg files, ignore everything else.
+    // Keep yaml and svg files, ignore everything else.
     if (extension == "yaml") || (extension == "yml") || (extension == "svg") {
         Ok(false)
     } else {
         Ok(true)
-    }
-}
-
-struct OptionalSender<T>(Arc<Mutex<Option<Sender<T>>>>);
-
-impl<T> OptionalSender<T> {
-    fn new(tx_option: Option<Sender<T>>) -> Self {
-        OptionalSender(Arc::new(Mutex::new(tx_option)))
-    }
-
-    fn from_none() -> Self {
-        OptionalSender::new(None)
-    }
-
-    fn lock(&self) -> Result<MutexGuard<Option<Sender<T>>>, ZagreusError> {
-        match self.0.lock() {
-            Err(error) => error_with_message("Failed to lock optional sender", error),
-            Ok(inner) => Ok(inner),
-        }
-    }
-
-    fn set(&self, value: Option<Sender<T>>) -> Result<(), ZagreusError> {
-        let mut inner = self.lock()?;
-        *inner = value;
-        Ok(())
-    }
-
-    fn try_send_or_reset(&self, value: T) -> Result<(), ZagreusError> {
-        let mut sender_guard = self.lock()?;
-
-        // Check whether sender is Some, return Ok if not.
-        let tx = match &*sender_guard {
-            Some(tx) => tx,
-            None => return Ok(()),
-        };
-
-        // Try sending value, return Ok if Ok.
-        if tx.send(value).is_ok() {
-            return Ok(());
-        }
-
-        // Sending failed, reset sender to None.
-        *sender_guard = None;
-        Ok(())
-    }
-}
-
-impl<T> Clone for OptionalSender<T> {
-    fn clone(&self) -> Self {
-        OptionalSender(Arc::clone(&self.0))
-    }
-
-    fn clone_from(&mut self, source: &Self) {
-        self.0 = Arc::clone(&source.0)
-    }
-}
-
-pub struct FileWatcherHandle {
-    _terminate_watcher: Sender<()>,
-    file_watcher_tx: OptionalSender<RawEvent>,
-}
-
-impl FileWatcherHandle {
-    fn new(terminate_tx: Sender<()>, file_watcher_tx: OptionalSender<RawEvent>) -> Self {
-        FileWatcherHandle {
-            _terminate_watcher: terminate_tx,
-            file_watcher_tx,
-        }
-    }
-}
-
-/// Block until (1) at least one file system event (create, delete,
-/// write, etc.) has occurred in the working directory, but (2) no events have occurred for `delay`
-/// amount of time. As soon as conditions (1) and (2) are met, return.
-pub fn await_file_event(
-    watcher_handle: &FileWatcherHandle,
-    debounce_delay: Duration,
-) -> Result<(), ZagreusError> {
-    let (tx, rx) = mpsc::channel();
-    watcher_handle.file_watcher_tx.set(Some(tx))?;
-
-    // Wait for a first event, or return error.
-    rx.recv()?;
-
-    // Wait until recv_timeout no longer returns Ok(). Then, return Ok() if a timeout occurred,
-    // or Err() if the file watcher has disconnected.
-    loop {
-        match rx.recv_timeout(debounce_delay) {
-            Ok(_) => {}
-            Err(RecvTimeoutError::Disconnected) => {
-                return simple_error("File watcher disconnected unexpectedly")
-            }
-            Err(RecvTimeoutError::Timeout) => return Ok(()),
-        }
     }
 }
