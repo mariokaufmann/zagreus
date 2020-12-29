@@ -70,6 +70,14 @@ pub fn get_routes(
         .and(warp::path(RUNTIME_FILE_NAME))
         .and(warp::path::end())
         .and(warp::fs::file(format!("./{}", RUNTIME_FILE_NAME)));
+    const RUNTIME_SOURCE_MAP_FILE_NAME: &str = "zagreus-runtime.js.map";
+    let runtime_source_map_file_filter = static_file_filter
+        .and(warp::path(RUNTIME_SOURCE_MAP_FILE_NAME))
+        .and(warp::path::end())
+        .and(warp::fs::file(format!(
+            "./{}",
+            RUNTIME_SOURCE_MAP_FILE_NAME
+        )));
 
     // REST API
     let api_filter = warp::path("api");
@@ -171,6 +179,7 @@ pub fn get_routes(
 
     let filters = ws_filter
         .or(runtime_file_filter)
+        .or(runtime_source_map_file_filter)
         .or(template_file_filter)
         .or(version_filter)
         .or(upload_template_filter)

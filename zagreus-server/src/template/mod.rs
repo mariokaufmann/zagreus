@@ -1,23 +1,23 @@
 use std::path::Path;
 
+use serde::de::DeserializeOwned;
+
 use crate::data::animation::config::{AnimationConfig, AnimationSequence};
-use crate::data::config::TemplateConfig;
-use crate::data::text::config::{TextConfig, TextElementConfig};
+use crate::data::config::{ElementConfig, ElementConfigs, TemplateConfig};
 use crate::error::ZagreusError;
 use crate::fs::get_template_folder;
-use serde::de::DeserializeOwned;
 
 pub mod event;
 pub mod registry;
 
 const ANIMATIONS_FILE_NAME: &str = "animations.json";
-const TEXTS_FILE_NAME: &str = "texts.json";
+const ELEMENTS_FILE_NAME: &str = "elements.json";
 const TEMPLATE_CONFIG_FILE_NAME: &str = "template.json";
 
 pub struct Template {
     pub name: String,
     pub animations: Vec<AnimationSequence>,
-    pub text_elements: Vec<TextElementConfig>,
+    pub elements: Vec<ElementConfig>,
     pub template: TemplateConfig,
 }
 
@@ -26,13 +26,13 @@ impl Template {
         let template_folder = get_template_folder(data_folder, template_name)?;
         let animation_config =
             Self::load_config::<AnimationConfig>(&template_folder, ANIMATIONS_FILE_NAME)?;
-        let texts_config = Self::load_config::<TextConfig>(&template_folder, TEXTS_FILE_NAME)?;
+        let element_configs = Self::load_config::<ElementConfigs>(&template_folder, ELEMENTS_FILE_NAME)?;
         let template_config = Self::load_config(&template_folder, TEMPLATE_CONFIG_FILE_NAME)?;
 
         let template = Template {
             name: String::from(template_name),
             animations: animation_config.sequences,
-            text_elements: texts_config.elements,
+            elements: element_configs.elements,
             template: template_config,
         };
         Ok(template)
