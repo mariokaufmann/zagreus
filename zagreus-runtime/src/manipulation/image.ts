@@ -1,5 +1,5 @@
-import {getZagreusState} from "../data/data";
-import {Alignment} from "../websocket/types";
+import {getZagreusState, ZagreusRuntimeState} from "../data/data";
+import {Alignment, AlignmentConfig} from "../websocket/types";
 
 export const setImageSource = (elementName: string, asset: string) => {
     const url = `assets/${asset}`;
@@ -34,6 +34,15 @@ const replaceUseElement = (element: SVGUseElement, elementName: string, url: str
     alignImage(imageElement, elementName, boundingBox);
 }
 
+/**
+ * Align the image according to its alignment config. If the element is center aligned another element must be
+ * configured as the 'alignWith' element. The element will then be aligned according to the positioning of that element.
+ * When aligning a center-aligned element we read the alignment state (basically the bounding box of the 'alignWith'
+ * element at template load time.
+ * @param element the image element to align
+ * @param elementName the name (id) of the element to align
+ * @param originalImageBoundingBox the bounding box of the image element _before_ aligning it
+ */
 const alignImage = (element: SVGImageElement, elementName: string, originalImageBoundingBox: DOMRect) => {
     const state = getZagreusState();
 
@@ -51,14 +60,11 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     if (horizontalAlign === 'right') {
         newX += originalImageBoundingBox.width;
     } else if (horizontalAlign === 'center') {
-        const alignmentState = state.alignmentStates[config.with];
-        if (!alignmentState) {
-            console.error(`Align with element ${config.with} could not be found.`);
-            return;
-        }
         const updatedImageBoundingBox = element.getBoundingClientRect();
-        const alignWithBoundingBox = alignmentState.elementBoundingBox;
-        newX = alignWithBoundingBox.x + (alignWithBoundingBox.width / 2) - (updatedImageBoundingBox.width / 2);
+        const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
+        if (alignWithBoundingBox) {
+            newX = alignWithBoundingBox.x + (alignWithBoundingBox.width / 2) - (updatedImageBoundingBox.width / 2);
+        }
     } else {
         console.error(`Invalid value ${horizontalAlign} for horizontal alignment on element ${elementName} provided.`);
         return;
@@ -68,14 +74,11 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     if (verticalAlign === 'bottom') {
         newY += originalImageBoundingBox.height;
     } else if (verticalAlign === 'center') {
-        const alignmentState = state.alignmentStates[config.with];
-        if (!alignmentState) {
-            console.error(`Align with element ${config.with} could not be found.`);
-            return;
-        }
         const updatedImageBoundingBox = element.getBoundingClientRect();
-        const alignWithBoundingBox = alignmentState.elementBoundingBox;
-        newY = alignWithBoundingBox.y + (alignWithBoundingBox.height / 2) - (updatedImageBoundingBox.height / 2);
+        const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
+        if (alignWithBoundingBox) {
+            newY = alignWithBoundingBox.y + (alignWithBoundingBox.height / 2) - (updatedImageBoundingBox.height / 2);
+        }
     } else {
         console.error(`Invalid value ${verticalAlign} for vertical alignment on element ${elementName} provided.`);
         return;
@@ -83,4 +86,13 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
 
     element.setAttribute('x', String(newX));
     element.setAttribute('y', String(newY));
+}
+
+const getAlignmentBoundingBox = (state: ZagreusRuntimeState, config: AlignmentConfig): DOMRect => {
+    const alignmentState = state.alignmentStates[config.with];
+    if (!alignmentState) {
+        console.error(`Align with element ${config.with} could not be found.`);
+        return;
+    }
+    return alignmentState.elementBoundingBox;
 }

@@ -1,13 +1,14 @@
-/* Dynamic elements that have the ability to respect absolute positioning attributes (x/y and width/height) we want to remove
-transforms from the SVG editor and replace them with absolute attributes. This has two benefits:
-1. It is much easier to position the element with dynamic content
-2. It is still possible to animate the element with a CSS animation that animates the 'transform' attribute
-CAVEATS:
-1) this removes any skewX(), skewY() values the element might have
-2) at the moment this is only done for the 2D transformation matrix style of the transform attribute
- */
 import {ElementConfig} from "../websocket/types";
 
+/**
+ For dynamic elements that have the ability to respect absolute positioning attributes (x/y and width/height) we want to remove
+ transforms from the SVG editor and replace them with absolute attributes. This has two benefits:
+ 1. It is much easier to position the element with dynamic content
+ 2. It is still possible to animate the element with a CSS animation that animates the 'transform' attribute
+ CAVEATS:
+ 1) this removes any skewX(), skewY() values the element might have
+ 2) at the moment this is only done for the 2D transformation matrix style of the transform attribute
+ */
 export const flattenTransforms = (elementConfigs: ElementConfig[]) => {
     elementConfigs.forEach(flattenTransform);
 }

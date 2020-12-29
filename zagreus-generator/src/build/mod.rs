@@ -82,10 +82,10 @@ pub fn build_template(
     }
 
     // process element configs
-    let text_config_output_path = build_folder.join(ELEMENT_CONFIG_OUTPUT_FILE_NAME);
+    let element_config_output_path = build_folder.join(ELEMENT_CONFIG_OUTPUT_FILE_NAME);
     if let Err(err) = crate::data::convert_config::<ElementsConfig>(
         Path::new(ELEMENT_CONFIG_INPUT_FILE_NAME),
-        &text_config_output_path,
+        &element_config_output_path,
         &validation_data,
     ) {
         return error_with_message("Could not convert element configs", err);
