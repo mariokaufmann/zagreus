@@ -9,7 +9,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 /// Starts recursively watching the given path for file changes. Returns a `ZagreusError` if the
-/// `watch_path` is not absolute, or of the file watcher can't be initialized or started.
+/// `watch_path` is not absolute, or if the file watcher can't be initialized or started.
 /// Otherwise, returns a `Receiver<()>` which gets notified about filtered and debounced file
 /// events.
 ///
@@ -19,8 +19,8 @@ use std::time::{Duration, Instant};
 ///                      the receiver.
 ///
 /// # Bounded Channel
-/// The receiver's queue is guaranteed always contain at most one item. If a new event occurs while
-/// the queue already contains an item, the new event is dropped.
+/// The receiver's queue is guaranteed to always contain at most one item. If a new event occurs
+/// while the queue already contains an item, the new event is dropped.
 ///
 /// # Relay Thread
 /// This function creates a new `notify` file watcher and spawns a relay thread which is responsible
@@ -158,7 +158,7 @@ fn categorize_event(event: &RawEvent, watch_path: &Path) -> EventCategory {
         Some(path) => path,
         None => {
             // Should not reach here - non-error events should always have a path.
-            debug!("Event has no path, marking as ignored: {:?}", event);
+            warn!("Event has no path, marking as ignored: {:?}", event);
             return EventCategory::Ignored;
         }
     };
@@ -193,13 +193,11 @@ fn should_ignore_event_path(root_path: &Path, event_path: &Path) -> Result<bool,
 
     // Never ignore assets directory.
     if event_path.starts_with(ASSETS_FOLDER_NAME) {
-        // Assets directory, don't ignore.
         return Ok(false);
     }
 
     // Always ignore build directory.
     if event_path.starts_with(BUILD_FOLDER_NAME) {
-        // Assets directory, don't ignore.
         return Ok(true);
     }
 
