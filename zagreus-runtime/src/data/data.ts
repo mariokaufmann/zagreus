@@ -1,4 +1,4 @@
-import {AnimationSequence, TextElementConfig} from "../websocket/types";
+import {AnimationSequence, ElementConfig} from "../websocket/types";
 
 declare global {
     interface Window {
@@ -6,21 +6,21 @@ declare global {
     }
 }
 
-export interface TextAlignmentState {
+export interface AlignmentState {
     elementBoundingBox: DOMRect,
 }
 
 export interface ZagreusRuntimeState {
     animationsSequences: AnimationSequence[],
-    textElementConfigs: TextElementConfig[],
-    textAlignmentStates: { [key in string]: TextAlignmentState },
+    elementConfigs: ElementConfig[],
+    alignmentStates: { [key in string]: AlignmentState },
 }
 
 if (!window.zagreusRuntimeState) {
     window.zagreusRuntimeState = {
         animationsSequences: [],
-        textElementConfigs: [],
-        textAlignmentStates: undefined,
+        elementConfigs: [],
+        alignmentStates: undefined,
     }
 }
 

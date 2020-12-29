@@ -1,5 +1,5 @@
-import {getZagreusState, TextAlignmentState} from "../data/data";
-import {TextAlignment, TextElementConfig} from "../websocket/types";
+import {getZagreusState} from "../data/data";
+import {Alignment} from "../websocket/types";
 
 export const setTextOnElement = (elementName: string, text: string) => {
     let element = document.getElementById(elementName);
@@ -16,14 +16,14 @@ export const setTextOnElement = (elementName: string, text: string) => {
 
 export const setTextOnFoundElement = (element: HTMLElement, text: string, elementName: string) => {
     const state = getZagreusState();
-    const config = state.textElementConfigs.find(textConfig => textConfig.id === elementName);
-    let align: TextAlignment = "left";
+    const config = state.elementConfigs.find(config => config.id === elementName)?.align;
+    let align: Alignment = "left";
     if (config) {
-        align = config.align;
+        align = config.horizontal;
     }
 
     if (align === "center") {
-        setTextAndAlignCenter(element, text, config.alignWith);
+        setTextAndAlignCenter(element, text, config.with);
     } else if (align === "right") {
         setTextAndAlignRight(element, text);
     } else if (align === "left") {
@@ -35,7 +35,7 @@ export const setTextAndAlignCenter = (element: HTMLElement, text: string, alignW
     const state = getZagreusState();
     element.textContent = text;
 
-    const alignmentState = state.textAlignmentStates[alignWithElementName];
+    const alignmentState = state.alignmentStates[alignWithElementName];
     if (!alignmentState) {
         console.error(`Align with element ${alignWithElementName} could not be found.`);
         return;
@@ -57,31 +57,5 @@ export const setTextAndAlignRight = (element: HTMLElement, text: string) => {
         element.style.textAnchor = 'end';
         const lowerRightCorner = boundingBox.x + boundingBox.width;
         element.setAttribute('x', String(lowerRightCorner));
-    }
-}
-
-export const saveInitialAlignmentStates = (textConfigs: TextElementConfig[]) => {
-    const state = getZagreusState();
-
-    if (state.textAlignmentStates) {
-        // only save them on initial load
-        return;
-    }
-
-    state.textAlignmentStates = {};
-    textConfigs
-        .filter(textConfig => textConfig.alignWith && textConfig.alignWith.length > 0)
-        .forEach(textConfig => state.textAlignmentStates[textConfig.alignWith] = getInitialAlignmentStateForElement(textConfig.alignWith));
-};
-
-const getInitialAlignmentStateForElement = (elementName: string): TextAlignmentState => {
-    const element = document.getElementById(elementName);
-    if (!element) {
-        console.error(`Could not find alignment element ${elementName}.`);
-        return undefined;
-    }
-
-    return {
-        elementBoundingBox: element.getBoundingClientRect(),
     }
 }
