@@ -26,7 +26,8 @@ impl Template {
         let template_folder = get_template_folder(data_folder, template_name)?;
         let animation_config =
             Self::load_config::<AnimationConfig>(&template_folder, ANIMATIONS_FILE_NAME)?;
-        let element_configs = Self::load_config::<ElementConfigs>(&template_folder, ELEMENTS_FILE_NAME)?;
+        let element_configs =
+            Self::load_config::<ElementConfigs>(&template_folder, ELEMENTS_FILE_NAME)?;
         let template_config = Self::load_config(&template_folder, TEMPLATE_CONFIG_FILE_NAME)?;
 
         let template = Template {

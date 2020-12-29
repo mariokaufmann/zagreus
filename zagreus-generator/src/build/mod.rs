@@ -1,10 +1,10 @@
 use std::path::{Path, PathBuf};
 
 use crate::data::animation::config::AnimationConfig;
+use crate::data::element::ElementsConfig;
 use crate::data::validation::ValidationData;
 use crate::data::TemplateConfig;
 use crate::error::{error_with_message, ZagreusError};
-use crate::data::element::ElementsConfig;
 
 mod asset;
 mod html;

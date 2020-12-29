@@ -1,4 +1,4 @@
-use crate::data::validation::{ConfigValidate, get_duplicate_elements, ValidationData};
+use crate::data::validation::{get_duplicate_elements, ConfigValidate, ValidationData};
 use crate::error::{error_with_message, ZagreusError};
 
 #[derive(Serialize, Deserialize)]
@@ -87,11 +87,7 @@ impl ConfigValidate for AlignmentConfig {
             )));
         }
 
-        if !self.with.is_empty()
-            && !validation_data
-                .data_elements
-                .has_data_element(&self.with)
-        {
+        if !self.with.is_empty() && !validation_data.data_elements.has_data_element(&self.with) {
             return Err(ZagreusError::from(format!(
                 "Element is configured to be aligned with unknown element {}.",
                 &self.with
@@ -124,8 +120,8 @@ impl Alignment {
 
 #[cfg(test)]
 mod tests {
-    use crate::data::DataElements;
     use crate::data::validation::ValidationData;
+    use crate::data::DataElements;
 
     use super::*;
 
