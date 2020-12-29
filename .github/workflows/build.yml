@@ -25,10 +25,10 @@ jobs:
           cargo fmt --quiet -- --check
         working-directory: ./zagreus-generator
       - name: Check formatting of server
-          run: |
-            rustup component add rustfmt
-            cargo fmt --quiet -- --check
-          working-directory: ./zagreus-server
+        run: |
+          rustup component add rustfmt
+          cargo fmt --quiet -- --check
+        working-directory: ./zagreus-server
       - name: Test zagreus generator
         run: cargo test
         working-directory: ./zagreus-generator
