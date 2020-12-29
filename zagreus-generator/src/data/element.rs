@@ -59,16 +59,6 @@ pub struct AlignmentConfig {
     with: String,
 }
 
-impl AlignmentConfig {
-    fn center(align_with: &str) -> AlignmentConfig {
-        AlignmentConfig {
-            horizontal: Alignment::Center,
-            vertical: Alignment::Center,
-            with: align_with.to_owned(),
-        }
-    }
-}
-
 impl Default for AlignmentConfig {
     fn default() -> Self {
         AlignmentConfig {
@@ -82,9 +72,9 @@ impl Default for AlignmentConfig {
 impl ConfigValidate for AlignmentConfig {
     fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
         if self.horizontal == Alignment::Center && self.with.is_empty() {
-            return Err(ZagreusError::from(format!(
-                "Element is center-aligned but no alignWith is configured."
-            )));
+            return Err(ZagreusError::from(
+                "Element is center-aligned but no alignWith is configured.".to_string(),
+            ));
         }
 
         if !self.with.is_empty() && !validation_data.data_elements.has_data_element(&self.with) {
@@ -124,6 +114,16 @@ mod tests {
     use crate::data::DataElements;
 
     use super::*;
+
+    impl AlignmentConfig {
+        fn center(align_with: &str) -> AlignmentConfig {
+            AlignmentConfig {
+                horizontal: Alignment::Center,
+                vertical: Alignment::Center,
+                with: align_with.to_owned(),
+            }
+        }
+    }
 
     #[test]
     fn validate_element_config_valid() {
