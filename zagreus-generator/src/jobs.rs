@@ -2,15 +2,15 @@ use crate::build::BUILD_FOLDER_NAME;
 use crate::data::TemplateConfig;
 use crate::error::{error_with_message, simple_error, ZagreusError};
 use crate::file_watcher;
-use crate::{build, upload, TEMPLATE_CONFIG_FILE_NAME};
+use crate::{build, new, upload, TEMPLATE_CONFIG_FILE_NAME};
 use std::env;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 const FILE_WATCHER_DEBOUNCE_DELAY: u64 = 200;
 
-pub fn new_template(_name: String) -> Result<(), ZagreusError> {
-    simple_error("Creating a template is not yet supported.")
+pub fn new_template(name: String) -> Result<(), ZagreusError> {
+    new::new_template(&name)
 }
 
 pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
