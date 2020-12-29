@@ -8,11 +8,39 @@ use std::sync::mpsc::{Receiver, RecvTimeoutError, TrySendError};
 use std::thread;
 use std::time::{Duration, Instant};
 
-pub fn spawn(
-    watch_path: PathBuf,
-    recursive: bool,
-    debounce_delay: Duration,
-) -> Result<Receiver<()>, ZagreusError> {
+/// Starts recursively watching the given path for file changes. Returns a `ZagreusError` if the
+/// `watch_path` is not absolute, or of the file watcher can't be initialized or started.
+/// Otherwise, returns a `Receiver<()>` which gets notified about filtered and debounced file
+/// events.
+///
+/// # Arguments
+/// * `watch_path` - The path to recursively watch for file changes, must be absolute.
+/// * `debounce_delay` - Amount of time to wait after the last relevant file event, before notifying
+///                      the receiver.
+///
+/// # Bounded Channel
+/// The receiver's queue is guaranteed always contain at most one item. If a new event occurs while
+/// the queue already contains an item, the new event is dropped.
+///
+/// # Relay Thread
+/// This function creates a new `notify` file watcher and spawns a relay thread which is responsible
+/// for continuously polling the `notify` watcher for new file events. If an event is received, the
+/// relay thread first decides whether the event is relevant (filtering), and then waits until no
+/// further relevant events are received for at least `debounce_delay` amount of time (debouncing),
+/// before notifying the receiver. Note that ignored events to not reset the debounce timer.
+///
+/// Whether or not an event should be ignored (i.e. is irrelevant) is decided as follows:
+/// * If an event occurs in the `build` directory, it is ignored.
+/// * Else, if it occurs in the `assets` directory, it is **not** ignored.
+/// * Else, if it occurs on a `yml`, `yaml` or `svg` file, it is **not** ignored
+/// * Else, it is ignored
+///
+/// # Termination
+/// The relay thread and its underlying `notify` file watcher are terminated if:
+/// * The relay thread receives an `Error` event from the `notify` file watcher
+/// * The relay thread tries to notify a disconnected (i.e. dropped) receiver
+/// * An unexpected error occurs in the relay thread while processing an event
+pub fn spawn(watch_path: PathBuf, debounce_delay: Duration) -> Result<Receiver<()>, ZagreusError> {
     // Check whether watch path is absolute, required for path ignore checks.
     if !watch_path.is_absolute() {
         return simple_error("Watch path must be absolute");
@@ -24,11 +52,7 @@ pub fn spawn(
     // Spawn a notify file watcher.
     let (notify_tx, notify_rx) = mpsc::channel();
     let mut watcher = raw_watcher(notify_tx)?;
-    let recursive_mode = match recursive {
-        true => RecursiveMode::Recursive,
-        false => RecursiveMode::NonRecursive,
-    };
-    watcher.watch(&watch_path, recursive_mode)?;
+    watcher.watch(&watch_path, RecursiveMode::Recursive)?;
 
     // Spawn the file event relay thread.
     thread::spawn(move || {
@@ -66,6 +90,8 @@ pub fn spawn(
     Ok(event_rx)
 }
 
+/// Blocks until an event is received and categorized as `EventCategory::Relevant`. Immediately
+/// returns `Err` if an event gets categorized as `Err`.
 fn wait_for_relevant_event(rx: &Receiver<RawEvent>, watch_path: &Path) -> Result<(), ZagreusError> {
     loop {
         let event = match rx.recv() {
@@ -80,6 +106,9 @@ fn wait_for_relevant_event(rx: &Receiver<RawEvent>, watch_path: &Path) -> Result
     }
 }
 
+/// Blocks until no event has been received and categorized as `EventCategory::Relevant` for at
+/// least `debounce_delay` amount of time. Returns `Ok` as soon as this timeout is reached.
+/// Immediately returns `Err` if an event gets categorized as `Err`.
 fn debounce(
     rx: &Receiver<RawEvent>,
     watch_path: &Path,
@@ -89,7 +118,7 @@ fn debounce(
     // events are received past the deadline, debouncing is complete.
     let mut deadline = Instant::now().add(delay);
 
-    // Time remaining is the difference between now and deadline, i.e. how much time there is left
+    // Time remaining is the difference between now and the deadline, i.e. how much time is left
     // until the deadline. Break if deadline is already reached or exceeded (i.e. now is later
     // than deadline).
     while let Some(time_remaining) = deadline.checked_duration_since(Instant::now()) {
@@ -103,9 +132,9 @@ fn debounce(
             }
         };
 
-        // Event received, no timeout. Check if event is relevant. If it should be ignored, continue
-        // loop without affecting the deadline. If it is relevant, reset the deadline (i.e. keep
-        // debouncing). If error is received, return error.
+        // Event received, no timeout occurred. Check if event is relevant. If it should be ignored,
+        // continue loop without affecting the deadline. If it is relevant, reset the deadline (i.e.
+        // keep debouncing). If error is received, return error.
         match categorize_event(&event, watch_path) {
             EventCategory::Ignored => {}
             EventCategory::Relevant => deadline = Instant::now().add(delay),
@@ -117,6 +146,7 @@ fn debounce(
     Ok(())
 }
 
+/// Assigns an `EventCategory` variant to a given event.
 fn categorize_event(event: &RawEvent, watch_path: &Path) -> EventCategory {
     // Check whether the event represents an error, return Err if true.
     if let Err(error) = &event.op {
@@ -141,12 +171,21 @@ fn categorize_event(event: &RawEvent, watch_path: &Path) -> EventCategory {
     }
 }
 
+/// Represents whether a given event is relevant, irrelevant (ignored), or represents an error.
 enum EventCategory {
+    /// This event is relevant, the receiver should notified.
     Relevant,
+
+    /// This event can be ignored, the receiver should **not** be notified.
     Ignored,
+
+    /// This event represents a `notify` error or otherwise can't processed.
     Err(ZagreusError),
 }
 
+/// Determines whether or not a given event path should be ignored, based on a predefined ruleset.
+/// Returns `true` if an event at that path should be ignored, `false` if it should not be ignored,
+/// and `Err` if the given `event_path` is not below the `root_path`.
 fn should_ignore_event_path(root_path: &Path, event_path: &Path) -> Result<bool, ZagreusError> {
     // Make event path relative to root directory, return Err if event path is not below root
     // directory.

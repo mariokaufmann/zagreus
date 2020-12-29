@@ -24,7 +24,6 @@ pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
     info!("Watch mode started");
     let file_watcher_rx = file_watcher::spawn(
         env::current_dir()?,
-        true,
         Duration::from_millis(FILE_WATCHER_DEBOUNCE_DELAY),
     )?;
     loop {
