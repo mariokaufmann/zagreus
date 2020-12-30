@@ -47,8 +47,8 @@ impl ServerController {
                 self.websocket_server
                     .send_message_to_template_clients(&template_name, &message)
                     .await;
-                let message = TemplateMessage::LoadTexts {
-                    text_elements: Cow::Borrowed(&template.text_elements),
+                let message = TemplateMessage::LoadElements {
+                    elements: Cow::Borrowed(&template.elements),
                 };
                 self.websocket_server
                     .send_message_to_template_clients(&template_name, &message)
@@ -93,17 +93,17 @@ impl ServerController {
     }
 
     async fn send_messages_on_template_update(template: &Template, server: &Arc<WebsocketServer>) {
-        // send new animations
-        let message = TemplateMessage::LoadAnimations {
-            animations: Cow::Borrowed(&template.animations),
+        // send element configs
+        let message = TemplateMessage::LoadElements {
+            elements: Cow::Borrowed(&template.elements),
         };
         server
             .send_message_to_template_clients(&template.name, &message)
             .await;
 
-        // send new texts
-        let message = TemplateMessage::LoadTexts {
-            text_elements: Cow::Borrowed(&template.text_elements),
+        // send new animations
+        let message = TemplateMessage::LoadAnimations {
+            animations: Cow::Borrowed(&template.animations),
         };
         server
             .send_message_to_template_clients(&template.name, &message)

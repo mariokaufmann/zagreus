@@ -15,14 +15,14 @@ export type TemplateMessage =
     | "AddClass"
     | "RemoveClass"
     | "LoadAnimations"
-    | "LoadTexts"
+    | "LoadElements"
     | "ExecuteAnimation"
     | "SetImageSource";
 
 export type SetTextPayload = { id: string, text: string };
 export type OnLoadPayload = { animationSequences: string[] };
 export type LoadAnimationsPayload = { animations: AnimationSequence[] };
-export type LoadTextsPayload = { textElements: TextElementConfig[] };
+export type LoadElementsPayload = { elements: ElementConfig[] };
 export type ExecuteAnimationPayload = { animationSequence: string };
 export type ManipulateClassPayload = { id: string, class: string };
 export type SetImageSourcePayload = { id: string, asset: string };
@@ -47,10 +47,16 @@ export interface Animation {
 
 export type AnimationDirection = "normal" | "reverse";
 
-export interface TextElementConfig {
+export interface ElementConfig {
     id: string,
-    align: TextAlignment,
-    alignWith: string,
+    align: AlignmentConfig,
 }
 
-export type TextAlignment = "center" | "left" | "right";
+export interface AlignmentConfig {
+    horizontal: HorizontalAlignment,
+    vertical: VerticalAlignment,
+    with: string,
+}
+
+export type HorizontalAlignment = "center" | "left" | "right";
+export type VerticalAlignment = "center" | "top" | "bottom";
