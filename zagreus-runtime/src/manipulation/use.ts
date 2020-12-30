@@ -7,7 +7,7 @@ import {ElementConfig} from "../websocket/types";
  this, we clone the referenced element and give the clone the id of the use element.
  */
 export const flattenUseElements = (elementConfigs: ElementConfig[]) => {
-    // TODO do this will all elements and not just the ones with configuration
+    // TODO do this with all elements and not just the ones with configuration
     elementConfigs
         .map(elementConfig => document.getElementById(elementConfig.id))
         .filter(element => element !== null)

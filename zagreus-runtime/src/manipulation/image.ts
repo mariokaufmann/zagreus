@@ -55,12 +55,14 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     }
 
     let newX;
-    if (horizontalAlign === 'left') {
-        newX = originalImageBoundingBox.x;
-    } else if (horizontalAlign === 'right') {
-        const updatedImageBoundingBox = element.getBoundingClientRect();
-        newX = originalImageBoundingBox.x + originalImageBoundingBox.width - updatedImageBoundingBox.width;
-    } else if (horizontalAlign === 'center') {
+    // TODO reactivate
+    // if (horizontalAlign === 'left') {
+    //     newX = originalImageBoundingBox.x;
+    // } else if (horizontalAlign === 'right') {
+    //     const updatedImageBoundingBox = element.getBoundingClientRect();
+    //     newX = originalImageBoundingBox.x + originalImageBoundingBox.width - updatedImageBoundingBox.width;
+    // } else if (horizontalAlign === 'center') {
+    if (horizontalAlign === 'center') {
         const updatedImageBoundingBox = element.getBoundingClientRect();
         const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
         if (alignWithBoundingBox) {
@@ -69,12 +71,14 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     }
 
     let newY;
-    if (verticalAlign === 'top') {
-        newY = originalImageBoundingBox.y;
-    } else if (verticalAlign === 'bottom') {
-        const updatedImageBoundingBox = element.getBoundingClientRect();
-        newY = originalImageBoundingBox.y + originalImageBoundingBox.height - updatedImageBoundingBox.height;
-    } else if (verticalAlign === 'center') {
+    // TODO reactivate
+    // if (verticalAlign === 'top') {
+    //     newY = originalImageBoundingBox.y;
+    // } else if (verticalAlign === 'bottom') {
+    //     const updatedImageBoundingBox = element.getBoundingClientRect();
+    //     newY = originalImageBoundingBox.y + originalImageBoundingBox.height - updatedImageBoundingBox.height;
+    // } else if (verticalAlign === 'center') {
+    if (verticalAlign === 'center') {
         const updatedImageBoundingBox = element.getBoundingClientRect();
         const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
         if (alignWithBoundingBox) {
