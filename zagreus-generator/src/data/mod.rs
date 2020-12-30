@@ -7,7 +7,7 @@ use crate::data::validation::{ConfigValidate, ValidationData};
 use crate::error::ZagreusError;
 
 pub mod animation;
-pub mod text;
+pub mod element;
 pub mod validation;
 
 const DEFAULT_DEV_SERVER_ADDRESS: &str = "localhost";

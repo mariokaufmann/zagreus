@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::data::animation::config::AnimationConfig;
-use crate::data::text::config::TextConfig;
+use crate::data::element::ElementsConfig;
 use crate::data::validation::ValidationData;
 use crate::data::TemplateConfig;
 use crate::error::{error_with_message, ZagreusError};
@@ -22,12 +22,12 @@ const PROCESSED_SVG_FILE_NAME: &str = "template_processed.svg";
 const RAW_HTML_FILE_NAME: &str = "index_raw.html";
 const HTML_FILE_NAME: &str = "index.html";
 
-const TEXT_CONFIG_INPUT_FILE_NAME: &str = "texts.yaml";
+const ELEMENT_CONFIG_INPUT_FILE_NAME: &str = "elements.yaml";
 
 const DATA_OUTPUT_FILE_NAME: &str = "data.json";
+const ELEMENT_CONFIG_OUTPUT_FILE_NAME: &str = "elements.json";
 const TEMPLATE_CONFIG_OUTPUT_FILE_NAME: &str = "template.json";
 const ANIMATION_CONFIG_OUTPUT_FILE_NAME: &str = "animations.json";
-const TEXT_CONFIG_OUTPUT_FILE_NAME: &str = "texts.json";
 
 pub fn build_template(
     build_folder: &Path,
@@ -84,6 +84,16 @@ pub fn build_template(
         return error_with_message("Could not convert template config", err);
     }
 
+    // process element configs
+    let element_config_output_path = build_folder.join(ELEMENT_CONFIG_OUTPUT_FILE_NAME);
+    if let Err(err) = crate::data::convert_config::<ElementsConfig>(
+        Path::new(ELEMENT_CONFIG_INPUT_FILE_NAME),
+        &element_config_output_path,
+        &validation_data,
+    ) {
+        return error_with_message("Could not convert element configs", err);
+    }
+
     // process animations
     let animation_config_output_path = build_folder.join(ANIMATION_CONFIG_OUTPUT_FILE_NAME);
     if let Err(err) = crate::data::convert_config::<AnimationConfig>(
@@ -94,22 +104,12 @@ pub fn build_template(
         return error_with_message("Could not convert animations", err);
     }
 
-    // process text
-    let text_config_output_path = build_folder.join(TEXT_CONFIG_OUTPUT_FILE_NAME);
-    if let Err(err) = crate::data::convert_config::<TextConfig>(
-        Path::new(TEXT_CONFIG_INPUT_FILE_NAME),
-        &text_config_output_path,
-        &validation_data,
-    ) {
-        return error_with_message("Could not convert texts", err);
-    }
-
     let build_files: Vec<PathBuf> = vec![
         HTML_FILE_NAME,
         DATA_OUTPUT_FILE_NAME,
         TEMPLATE_CONFIG_OUTPUT_FILE_NAME,
         ANIMATION_CONFIG_OUTPUT_FILE_NAME,
-        TEXT_CONFIG_OUTPUT_FILE_NAME,
+        ELEMENT_CONFIG_OUTPUT_FILE_NAME,
     ]
     .iter()
     .map(|file_name| build_folder.join(file_name))

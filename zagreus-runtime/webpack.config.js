@@ -18,6 +18,7 @@ module.exports = {
         filename: 'zagreus-runtime.js',
         path: path.resolve(__dirname, 'dist'),
     },
+    devtool: 'source-map',
     devServer: {
         open: true,
         openPage: 'api/template/test-template',
@@ -33,5 +34,5 @@ module.exports = {
                 changeOrigin: true,
             }
         }
-    }
+    },
 };

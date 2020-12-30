@@ -3,7 +3,7 @@ import {
     EnumTypeHandler,
     ExecuteAnimationPayload,
     LoadAnimationsPayload,
-    LoadTextsPayload,
+    LoadElementsPayload,
     ManipulateClassPayload,
     OnLoadPayload,
     SetImageSourcePayload,
@@ -11,11 +11,14 @@ import {
     TaggedEnumType,
     TemplateMessage
 } from "./types";
-import {saveInitialAlignmentStates, setTextOnElement} from "../manipulation/text";
+import {setTextOnElement} from "../manipulation/text";
 import {addClassOnElement, removeClassOnElement, showZagreusSvgContainer} from "../manipulation/css";
 import {getZagreusState} from "../data/data";
 import {applyAnimation, getMaxTimeoutFromSequences} from "../manipulation/animation";
 import {setImageSource} from "../manipulation/image";
+import {saveInitialAlignmentStates} from "../manipulation/manipulation";
+import {flattenTransforms} from "../manipulation/transform";
+import {flattenUseElements} from "../manipulation/use";
 
 const templateMessageHandlers: EnumTypeHandler<TemplateMessage, WebsocketSender> = {
     "SetText": (payload: SetTextPayload) => {
@@ -31,10 +34,12 @@ const templateMessageHandlers: EnumTypeHandler<TemplateMessage, WebsocketSender>
         const state = getZagreusState();
         state.animationsSequences = payload.animations;
     },
-    "LoadTexts": (payload: LoadTextsPayload) => {
+    "LoadElements": (payload: LoadElementsPayload) => {
         const state = getZagreusState();
-        state.textElementConfigs = payload.textElements;
-        saveInitialAlignmentStates(state.textElementConfigs)
+        state.elementConfigs = payload.elements;
+        saveInitialAlignmentStates(state.elementConfigs);
+        flattenUseElements(state.elementConfigs);
+        flattenTransforms(state.elementConfigs);
     },
     "ExecuteAnimation": (payload: ExecuteAnimationPayload) => {
         applyAnimation(payload.animationSequence);

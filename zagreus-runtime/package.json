@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "serve": "webpack serve",
-    "copyScript": "cpy dist/zagreus-runtime.js ../zagreus-server/",
+    "copyScript": "cpy dist/zagreus-runtime.js* ../zagreus-server/",
     "build": "webpack && npm run copyScript",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
