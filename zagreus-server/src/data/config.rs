@@ -23,17 +23,23 @@ pub struct ElementConfig {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AlignmentConfig {
-    horizontal: Alignment,
-    vertical: Alignment,
+    horizontal: HorizontalAlignment,
+    vertical: VerticalAlignment,
     with: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "lowercase")]
-pub enum Alignment {
+pub enum HorizontalAlignment {
     Center,
     Left,
     Right,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum VerticalAlignment {
+    Center,
     Top,
     Bottom,
 }

@@ -1,5 +1,5 @@
 import {getZagreusState} from "../data/data";
-import {Alignment} from "../websocket/types";
+import {HorizontalAlignment} from "../websocket/types";
 
 export const setTextOnElement = (elementName: string, text: string) => {
     let element = document.getElementById(elementName);
@@ -17,7 +17,7 @@ export const setTextOnElement = (elementName: string, text: string) => {
 export const setTextOnFoundElement = (element: HTMLElement, text: string, elementName: string) => {
     const state = getZagreusState();
     const config = state.elementConfigs.find(config => config.id === elementName)?.align;
-    let align: Alignment = "left";
+    let align: HorizontalAlignment = "left";
     if (config) {
         align = config.horizontal;
     }

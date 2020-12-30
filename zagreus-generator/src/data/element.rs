@@ -48,32 +48,29 @@ pub struct ElementConfig {
     align: AlignmentConfig,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct AlignmentConfig {
-    #[serde(default = "Alignment::default_horizontal")]
-    horizontal: Alignment,
-    #[serde(default = "Alignment::default_vertical")]
-    vertical: Alignment,
+    #[serde(default)]
+    horizontal: HorizontalAlignment,
+    #[serde(default)]
+    vertical: VerticalAlignment,
     #[serde(default)]
     with: String,
 }
 
-impl Default for AlignmentConfig {
-    fn default() -> Self {
-        AlignmentConfig {
-            horizontal: Alignment::Left,
-            vertical: Alignment::Top,
-            with: Default::default(),
-        }
-    }
-}
-
 impl ConfigValidate for AlignmentConfig {
     fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
-        if self.horizontal == Alignment::Center && self.with.is_empty() {
+        if self.horizontal == HorizontalAlignment::Center && self.with.is_empty() {
             return Err(ZagreusError::from(
-                "Element is center-aligned but no alignWith is configured.".to_string(),
+                "Element is horizontally center-aligned but no alignWith is configured."
+                    .to_string(),
+            ));
+        }
+
+        if self.vertical == VerticalAlignment::Center && self.with.is_empty() {
+            return Err(ZagreusError::from(
+                "Element is vertically center-aligned but no alignWith is configured.".to_string(),
             ));
         }
 
@@ -90,21 +87,29 @@ impl ConfigValidate for AlignmentConfig {
 
 #[derive(Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum Alignment {
+pub enum HorizontalAlignment {
     Center,
     Left,
     Right,
+}
+
+impl Default for HorizontalAlignment {
+    fn default() -> Self {
+        HorizontalAlignment::Left
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum VerticalAlignment {
+    Center,
     Top,
     Bottom,
 }
 
-impl Alignment {
-    fn default_horizontal() -> Self {
-        Alignment::Left
-    }
-
-    fn default_vertical() -> Self {
-        Alignment::Top
+impl Default for VerticalAlignment {
+    fn default() -> Self {
+        VerticalAlignment::Top
     }
 }
 
@@ -118,8 +123,8 @@ mod tests {
     impl AlignmentConfig {
         fn center(align_with: &str) -> AlignmentConfig {
             AlignmentConfig {
-                horizontal: Alignment::Center,
-                vertical: Alignment::Center,
+                horizontal: HorizontalAlignment::Center,
+                vertical: VerticalAlignment::Center,
                 with: align_with.to_owned(),
             }
         }

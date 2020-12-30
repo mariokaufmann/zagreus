@@ -53,9 +53,10 @@ export interface ElementConfig {
 }
 
 export interface AlignmentConfig {
-    horizontal: Alignment,
-    vertical: Alignment,
+    horizontal: HorizontalAlignment,
+    vertical: VerticalAlignment,
     with: string,
 }
 
-export type Alignment = "center" | "left" | "right" | "top" | "bottom";
+export type HorizontalAlignment = "center" | "left" | "right";
+export type VerticalAlignment = "center" | "top" | "bottom";

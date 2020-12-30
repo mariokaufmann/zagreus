@@ -1,5 +1,5 @@
 import {getZagreusState, ZagreusRuntimeState} from "../data/data";
-import {Alignment, AlignmentConfig} from "../websocket/types";
+import {AlignmentConfig, HorizontalAlignment, VerticalAlignment} from "../websocket/types";
 
 export const setImageSource = (elementName: string, asset: string) => {
     const url = `assets/${asset}`;
@@ -47,8 +47,8 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     const state = getZagreusState();
 
     const config = state.elementConfigs.find(config => config.id === elementName)?.align;
-    let horizontalAlign: Alignment = "left";
-    let verticalAlign: Alignment = "top";
+    let horizontalAlign: HorizontalAlignment = "left";
+    let verticalAlign: VerticalAlignment = "top";
     if (config) {
         horizontalAlign = config.horizontal;
     }
