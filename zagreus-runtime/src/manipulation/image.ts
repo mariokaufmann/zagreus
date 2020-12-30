@@ -51,37 +51,35 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     let verticalAlign: VerticalAlignment = "top";
     if (config) {
         horizontalAlign = config.horizontal;
-    }
-    if (config) {
         verticalAlign = config.vertical;
     }
 
-    let newX = originalImageBoundingBox.x;
-    if (horizontalAlign === 'right') {
-        newX += originalImageBoundingBox.width;
+    let newX;
+    if (horizontalAlign === 'left') {
+        newX = originalImageBoundingBox.x;
+    } else if (horizontalAlign === 'right') {
+        const updatedImageBoundingBox = element.getBoundingClientRect();
+        newX = originalImageBoundingBox.x + originalImageBoundingBox.width - updatedImageBoundingBox.width;
     } else if (horizontalAlign === 'center') {
         const updatedImageBoundingBox = element.getBoundingClientRect();
         const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
         if (alignWithBoundingBox) {
             newX = alignWithBoundingBox.x + (alignWithBoundingBox.width / 2) - (updatedImageBoundingBox.width / 2);
         }
-    } else {
-        console.error(`Invalid value ${horizontalAlign} for horizontal alignment on element ${elementName} provided.`);
-        return;
     }
 
-    let newY = originalImageBoundingBox.y;
-    if (verticalAlign === 'bottom') {
-        newY += originalImageBoundingBox.height;
+    let newY;
+    if (verticalAlign === 'top') {
+        newY = originalImageBoundingBox.y;
+    } else if (verticalAlign === 'bottom') {
+        const updatedImageBoundingBox = element.getBoundingClientRect();
+        newY = originalImageBoundingBox.y + originalImageBoundingBox.height - updatedImageBoundingBox.height;
     } else if (verticalAlign === 'center') {
         const updatedImageBoundingBox = element.getBoundingClientRect();
         const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
         if (alignWithBoundingBox) {
             newY = alignWithBoundingBox.y + (alignWithBoundingBox.height / 2) - (updatedImageBoundingBox.height / 2);
         }
-    } else {
-        console.error(`Invalid value ${verticalAlign} for vertical alignment on element ${elementName} provided.`);
-        return;
     }
 
     element.setAttribute('x', String(newX));
