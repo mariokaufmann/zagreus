@@ -30,7 +30,7 @@ impl ConfigValidate for ElementsConfig {
 
         // check for duplicate elements
         let duplicate_elements = get_duplicate_elements(&self.elements, |element| &element.id);
-        for duplicate_element in duplicate_elements {
+        for duplicate_element in &duplicate_elements {
             error!(
                 "Element {} is configured more than once.",
                 duplicate_element
