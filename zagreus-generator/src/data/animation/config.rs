@@ -7,6 +7,12 @@ pub struct AnimationConfig {
     sequences: Vec<AnimationSequence>,
 }
 
+impl AnimationConfig {
+    pub fn with_defaults() -> Self {
+        AnimationConfig { sequences: vec![] }
+    }
+}
+
 impl ConfigValidate for AnimationConfig {
     fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
         for sequence in &self.sequences {

@@ -10,12 +10,30 @@ pub mod animation;
 pub mod text;
 pub mod validation;
 
+const DEFAULT_DEV_SERVER_ADDRESS: &str = "localhost";
+const DEFAULT_DEV_SERVER_PORT: u16 = 58179;
+
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TemplateConfig {
     pub name: String,
     pub on_load: OnLoadConfig,
     pub dev_server: DevServerConfig,
+}
+
+impl TemplateConfig {
+    pub fn with_defaults(name: &str) -> Self {
+        TemplateConfig {
+            name: String::from(name),
+            on_load: OnLoadConfig {
+                animation_sequences: vec![],
+            },
+            dev_server: DevServerConfig {
+                address: String::from(DEFAULT_DEV_SERVER_ADDRESS),
+                port: DEFAULT_DEV_SERVER_PORT,
+            },
+        }
+    }
 }
 
 impl ConfigValidate for TemplateConfig {
