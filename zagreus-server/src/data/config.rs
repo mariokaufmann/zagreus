@@ -16,14 +16,12 @@ pub struct ElementConfigs {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct ElementConfig {
     id: String,
     align: AlignmentConfig,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct AlignmentConfig {
     horizontal: Alignment,
     vertical: Alignment,
