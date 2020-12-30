@@ -14,7 +14,7 @@ impl ConfigValidate for ElementsConfig {
                 .has_data_element(&element_config.id)
             {
                 return Err(ZagreusError::from(format!(
-                    "Text config contains unknown element {}.",
+                    "Element config contains unknown element {}.",
                     &element_config.id
                 )));
             }
@@ -32,7 +32,7 @@ impl ConfigValidate for ElementsConfig {
         let duplicate_elements = get_duplicate_elements(&self.elements, |element| &element.id);
         if let Some(duplicate_element) = duplicate_elements.get(0) {
             return Err(ZagreusError::from(format!(
-                "Text element {} is configured more than once.",
+                "Element {} is configured more than once.",
                 duplicate_element
             )));
         }
@@ -149,7 +149,7 @@ mod tests {
     }
 
     #[test]
-    fn validate_element_config_inexistant_element() {
+    fn validate_element_config_inexistent_element() {
         let data_elements = DataElements::new(vec![String::from("id2")]);
         let validation_data = ValidationData {
             data_elements: &data_elements,
