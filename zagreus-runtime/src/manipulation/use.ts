@@ -4,7 +4,7 @@ import {ElementConfig} from "../websocket/types";
  SVG documents can contain <use> elements. These reference another element. Through this mechanism, the same element
  can be present in the document without duplicating it.
  For our purposes it is more convenient to duplicate these elements so we can manipulate each copy individually. To do
- this, we clone the refernced element and give the clone the id of the use element.
+ this, we clone the referenced element and give the clone the id of the use element.
  */
 export const flattenUseElements = (elementConfigs: ElementConfig[]) => {
     // TODO do this will all elements and not just the ones with configuration

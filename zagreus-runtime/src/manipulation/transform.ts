@@ -27,29 +27,30 @@ const flattenTransform = (elementConfig: ElementConfig) => {
 
     const transform = element.getAttribute('transform');
     const prefix = 'matrix(';
-    if (transform.startsWith(prefix)) {
-        // get actual values, eg. matrix(0.1, 0.2, 0.3, 0.4, 100, 200) -> 0.1, 0.2, 0.3, 0.4, 100, 200
-        const values = transform.substr(prefix.length, transform.length - prefix.length - 1);
-        const individualValues = values.split(',')
-            .map(value => Number(value));
-        if (individualValues.length !== 6) {
-            // attribute form is not supported yet
-            return;
-        }
-
-        const scaleX = individualValues[0];
-        const scaleY = individualValues[3];
-        const translateX = individualValues[4];
-        const translateY = individualValues[5];
-
-        setScaledPixelAttribute(element, 'width', scaleX);
-        setScaledPixelAttribute(element, 'height', scaleY);
-        element.setAttribute('x', translateX.toString());
-        element.setAttribute('y', translateY.toString());
-
-        // remove transform
-        element.removeAttribute('transform');
+    if (!transform.startsWith(prefix)) {
+        return;
     }
+    // get actual values, eg. matrix(0.1, 0.2, 0.3, 0.4, 100, 200) -> 0.1, 0.2, 0.3, 0.4, 100, 200
+    const values = transform.substr(prefix.length, transform.length - prefix.length - 1);
+    const individualValues = values.split(',')
+        .map(value => Number(value));
+    if (individualValues.length !== 6) {
+        // attribute form is not supported yet
+        return;
+    }
+
+    const scaleX = individualValues[0];
+    const scaleY = individualValues[3];
+    const translateX = individualValues[4];
+    const translateY = individualValues[5];
+
+    setScaledPixelAttribute(element, 'width', scaleX);
+    setScaledPixelAttribute(element, 'height', scaleY);
+    element.setAttribute('x', translateX.toString());
+    element.setAttribute('y', translateY.toString());
+
+    // remove transform
+    element.removeAttribute('transform');
 }
 
 const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fraction: number) => {
