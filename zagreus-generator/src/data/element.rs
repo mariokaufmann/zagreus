@@ -1,5 +1,5 @@
 use crate::data::validation::{get_duplicate_elements, ConfigValidate, ValidationData};
-use crate::error::{error_with_message, ZagreusError};
+use crate::error::{error_with_message, simple_error, ZagreusError};
 
 #[derive(Serialize, Deserialize)]
 pub struct ElementsConfig {
@@ -30,11 +30,14 @@ impl ConfigValidate for ElementsConfig {
 
         // check for duplicate elements
         let duplicate_elements = get_duplicate_elements(&self.elements, |element| &element.id);
-        if let Some(duplicate_element) = duplicate_elements.get(0) {
-            return Err(ZagreusError::from(format!(
+        for duplicate_element in duplicate_elements {
+            error!(
                 "Element {} is configured more than once.",
                 duplicate_element
-            )));
+            )
+        }
+        if !duplicate_elements.is_empty() {
+            return simple_error("At least one element was configured more than once.");
         }
 
         Ok(())
