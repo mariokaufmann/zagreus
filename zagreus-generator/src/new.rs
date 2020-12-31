@@ -112,21 +112,21 @@ fn rollback(template_dir: &Path) -> Result<(), ZagreusError> {
         return Ok(());
     }
 
-    // Remove created files and directories. This requires some duplication path definitions, but
+    // Remove created files and directories. This requires some duplicate path definitions, but
     // it is safer than just using `fs::remove_dir_all(template_dir)`, which could recursively
     // remove the wrong directory.
-    remove_inode(&template_dir.join(ASSETS_FOLDER_NAME))?;
-    remove_inode(&template_dir.join(TEMPLATE_CONFIG_FILE_NAME))?;
-    remove_inode(&template_dir.join(ELEMENT_CONFIG_INPUT_FILE_NAME))?;
-    remove_inode(&template_dir.join(ANIMATION_CONFIG_INPUT_FILE_NAME))?;
-    remove_inode(template_dir)?;
+    remove_file_or_directory(&template_dir.join(ASSETS_FOLDER_NAME))?;
+    remove_file_or_directory(&template_dir.join(TEMPLATE_CONFIG_FILE_NAME))?;
+    remove_file_or_directory(&template_dir.join(ELEMENT_CONFIG_INPUT_FILE_NAME))?;
+    remove_file_or_directory(&template_dir.join(ANIMATION_CONFIG_INPUT_FILE_NAME))?;
+    remove_file_or_directory(template_dir)?;
 
     Ok(())
 }
 
-/// Removes the file or directory at the given path, if it exists. Returns an error if the inode
-/// doesn't exist, or if it is a directory and is not empty.
-fn remove_inode(path: &Path) -> Result<(), ZagreusError> {
+/// Removes the file or directory at the given path, if it exists. Returns an error if the file or
+/// directory doesn't exist, or if it is a directory and is not empty.
+fn remove_file_or_directory(path: &Path) -> Result<(), ZagreusError> {
     if !path.exists() {
         // Nothing to remove here.
         return Ok(());
