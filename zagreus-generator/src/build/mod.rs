@@ -24,7 +24,6 @@ const HTML_FILE_NAME: &str = "index.html";
 const ELEMENT_CONFIG_INPUT_FILE_NAME: &str = "elements.yaml";
 const ANIMATION_CONFIG_INPUT_FILE_NAME: &str = "animations.yaml";
 
-const DATA_OUTPUT_FILE_NAME: &str = "data.json";
 const ELEMENTS_OUTPUT_FILE_NAME: &str = "elements.json";
 const TEMPLATE_CONFIG_OUTPUT_FILE_NAME: &str = "template.json";
 const ANIMATION_CONFIG_OUTPUT_FILE_NAME: &str = "animations.json";
@@ -46,16 +45,6 @@ pub fn build_template(
 
     let template_elements =
         svg::process_svg(&input_template_file_path, &processed_template_file_path)?;
-
-    let data_file_path = build_folder.join(DATA_OUTPUT_FILE_NAME);
-    match serde_json::to_string_pretty(&template_elements) {
-        Ok(serialized_data) => {
-            if let Err(err) = std::fs::write(data_file_path, serialized_data) {
-                error!("Could not write data.json file: {}.", err);
-            }
-        }
-        Err(err) => error!("Could not serialize data elements: {}.", err),
-    }
 
     let collected_stylesheets = asset::collect_stylesheets(Path::new("./")).unwrap();
 
@@ -113,7 +102,6 @@ pub fn build_template(
 
     let build_files: Vec<PathBuf> = vec![
         HTML_FILE_NAME,
-        DATA_OUTPUT_FILE_NAME,
         TEMPLATE_CONFIG_OUTPUT_FILE_NAME,
         ANIMATION_CONFIG_OUTPUT_FILE_NAME,
         ELEMENTS_OUTPUT_FILE_NAME,
