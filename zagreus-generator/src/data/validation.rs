@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::data::DataElements;
+use crate::data::element::TemplateElements;
 use crate::error::ZagreusError;
 
 pub trait ConfigValidate {
@@ -8,7 +8,7 @@ pub trait ConfigValidate {
 }
 
 pub struct ValidationData<'a> {
-    pub data_elements: &'a DataElements,
+    pub template_elements: &'a TemplateElements,
 }
 
 fn count_elements_grouped<'a, T, F>(elements: &'a [T], mapping_function: F) -> HashMap<&str, u16>

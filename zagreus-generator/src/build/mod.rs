@@ -1,9 +1,9 @@
 use std::path::{Path, PathBuf};
 
-use crate::data::animation::config::AnimationConfig;
-use crate::data::element::ElementsConfig;
-use crate::data::validation::ValidationData;
 use crate::data::TemplateConfig;
+use crate::data::animation::config::AnimationConfig;
+use crate::data::element::{ElementsConfig, merge_elements_with_config, TemplateElements};
+use crate::data::validation::ValidationData;
 use crate::error::{error_with_message, ZagreusError};
 
 mod asset;
@@ -25,7 +25,7 @@ const ELEMENT_CONFIG_INPUT_FILE_NAME: &str = "elements.yaml";
 const ANIMATION_CONFIG_INPUT_FILE_NAME: &str = "animations.yaml";
 
 const DATA_OUTPUT_FILE_NAME: &str = "data.json";
-const ELEMENT_CONFIG_OUTPUT_FILE_NAME: &str = "elements.json";
+const ELEMENTS_OUTPUT_FILE_NAME: &str = "elements.json";
 const TEMPLATE_CONFIG_OUTPUT_FILE_NAME: &str = "template.json";
 const ANIMATION_CONFIG_OUTPUT_FILE_NAME: &str = "animations.json";
 
@@ -44,10 +44,11 @@ pub fn build_template(
     let input_template_file_path = Path::new(INPUT_SVG_FILE_NAME);
     let processed_template_file_path = build_folder.join(PROCESSED_SVG_FILE_NAME);
 
-    let data_elements = svg::process_svg(&input_template_file_path, &processed_template_file_path)?;
+    let template_elements =
+        svg::process_svg(&input_template_file_path, &processed_template_file_path)?;
 
     let data_file_path = build_folder.join(DATA_OUTPUT_FILE_NAME);
-    match serde_json::to_string_pretty(&data_elements) {
+    match serde_json::to_string_pretty(&template_elements) {
         Ok(serialized_data) => {
             if let Err(err) = std::fs::write(data_file_path, serialized_data) {
                 error!("Could not write data.json file: {}.", err);
@@ -70,7 +71,7 @@ pub fn build_template(
     html::process_raw_html(&raw_html_path, &processed_html_path);
 
     let validation_data = ValidationData {
-        data_elements: &data_elements,
+        template_elements: &template_elements,
     };
 
     // process template config
@@ -84,14 +85,20 @@ pub fn build_template(
         return error_with_message("Could not convert template config", err);
     }
 
-    // process element configs
-    let element_config_output_path = build_folder.join(ELEMENT_CONFIG_OUTPUT_FILE_NAME);
-    if let Err(err) = crate::data::convert_config::<ElementsConfig>(
+    // process elements
+    let elements_output_path = build_folder.join(ELEMENTS_OUTPUT_FILE_NAME);
+    let cloned_elements = template_elements.clone();
+    if let Err(err) = crate::data::map_and_convert_config::<ElementsConfig, TemplateElements, _>(
         Path::new(ELEMENT_CONFIG_INPUT_FILE_NAME),
-        &element_config_output_path,
+        &elements_output_path,
         &validation_data,
+        move |configs| {
+            let mut elements = cloned_elements;
+            merge_elements_with_config(&mut elements, configs);
+            elements
+        },
     ) {
-        return error_with_message("Could not convert element configs", err);
+        return error_with_message("Could not convert elements", err);
     }
 
     // process animations
@@ -109,7 +116,7 @@ pub fn build_template(
         DATA_OUTPUT_FILE_NAME,
         TEMPLATE_CONFIG_OUTPUT_FILE_NAME,
         ANIMATION_CONFIG_OUTPUT_FILE_NAME,
-        ELEMENT_CONFIG_OUTPUT_FILE_NAME,
+        ELEMENTS_OUTPUT_FILE_NAME,
     ]
     .iter()
     .map(|file_name| build_folder.join(file_name))
