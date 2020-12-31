@@ -36,10 +36,10 @@ const templateMessageHandlers: EnumTypeHandler<TemplateMessage, WebsocketSender>
     },
     "LoadElements": (payload: LoadElementsPayload) => {
         const state = getZagreusState();
-        state.elementConfigs = payload.elements;
-        saveInitialAlignmentStates(state.elementConfigs);
-        flattenUseElements(state.elementConfigs);
-        flattenTransforms(state.elementConfigs);
+        state.elements = payload.elements;
+        saveInitialAlignmentStates(state.elements);
+        flattenUseElements(state.elements);
+        flattenTransforms(state.elements);
     },
     "ExecuteAnimation": (payload: ExecuteAnimationPayload) => {
         applyAnimation(payload.animationSequence);

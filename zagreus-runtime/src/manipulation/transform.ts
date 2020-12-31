@@ -1,4 +1,4 @@
-import {ElementConfig} from "../websocket/types";
+import {TemplateElement} from "../websocket/types";
 
 /**
  For dynamic elements that have the ability to respect absolute positioning attributes (x/y and width/height) we want to remove
@@ -9,14 +9,14 @@ import {ElementConfig} from "../websocket/types";
  1) this removes any skewX(), skewY() values the element might have
  2) at the moment this is only done for the 2D transformation matrix style of the transform attribute
  */
-export const flattenTransforms = (elementConfigs: ElementConfig[]) => {
-    elementConfigs.forEach(flattenTransform);
+export const flattenTransforms = (elements: TemplateElement[]) => {
+    elements.forEach(flattenTransform);
 }
 
-const flattenTransform = (elementConfig: ElementConfig) => {
-    const element = document.getElementById(elementConfig.id);
+const flattenTransform = (templateElement: TemplateElement) => {
+    const element = document.getElementById(templateElement.id);
     if (!element) {
-        console.error(`Could not find element ${elementConfig.id} when flattening transforms.`);
+        console.error(`Could not find element ${templateElement.id} when flattening transforms.`);
         return;
     }
 
@@ -26,6 +26,9 @@ const flattenTransform = (elementConfig: ElementConfig) => {
     }
 
     const transform = element.getAttribute('transform');
+    if (!transform) {
+        return;
+    }
     const prefix = 'matrix(';
     if (!transform.startsWith(prefix)) {
         return;

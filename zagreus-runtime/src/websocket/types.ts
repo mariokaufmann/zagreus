@@ -22,7 +22,7 @@ export type TemplateMessage =
 export type SetTextPayload = { id: string, text: string };
 export type OnLoadPayload = { animationSequences: string[] };
 export type LoadAnimationsPayload = { animations: AnimationSequence[] };
-export type LoadElementsPayload = { elements: ElementConfig[] };
+export type LoadElementsPayload = { elements: TemplateElement[] };
 export type ExecuteAnimationPayload = { animationSequence: string };
 export type ManipulateClassPayload = { id: string, class: string };
 export type SetImageSourcePayload = { id: string, asset: string };
@@ -46,6 +46,11 @@ export interface Animation {
 }
 
 export type AnimationDirection = "normal" | "reverse";
+
+export interface TemplateElement {
+    id: string,
+    config: ElementConfig | null,
+}
 
 export interface ElementConfig {
     id: string,

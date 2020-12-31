@@ -1,4 +1,4 @@
-import {ElementConfig} from "../websocket/types";
+import {ElementConfig, TemplateElement} from "../websocket/types";
 
 /**
  SVG documents can contain <use> elements. These reference another element. Through this mechanism, the same element
@@ -6,10 +6,9 @@ import {ElementConfig} from "../websocket/types";
  For our purposes it is more convenient to duplicate these elements so we can manipulate each copy individually. To do
  this, we clone the referenced element and give the clone the id of the use element.
  */
-export const flattenUseElements = (elementConfigs: ElementConfig[]) => {
-    // TODO do this with all elements and not just the ones with configuration
-    elementConfigs
-        .map(elementConfig => document.getElementById(elementConfig.id))
+export const flattenUseElements = (elements: TemplateElement[]) => {
+    elements
+        .map(element => document.getElementById(element.id))
         .filter(element => element !== null)
         .filter(element => element.tagName === 'use')
         .map(element => <SVGUseElement><Element>element)

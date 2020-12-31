@@ -46,12 +46,17 @@ const replaceUseElement = (element: SVGUseElement, elementName: string, url: str
 const alignImage = (element: SVGImageElement, elementName: string, originalImageBoundingBox: DOMRect) => {
     const state = getZagreusState();
 
-    const config = state.elementConfigs.find(config => config.id === elementName)?.align;
+    const templateElement = state.elements.find(element => element.id === elementName);
+    if (!templateElement) {
+        console.error(`Element ${elementName} is not configured in template.`);
+        return;
+    }
+    const alignmentConfig = templateElement.config?.align;
     let horizontalAlign: HorizontalAlignment = "left";
     let verticalAlign: VerticalAlignment = "top";
-    if (config) {
-        horizontalAlign = config.horizontal;
-        verticalAlign = config.vertical;
+    if (alignmentConfig) {
+        horizontalAlign = alignmentConfig.horizontal;
+        verticalAlign = alignmentConfig.vertical;
     }
 
     let newX;
@@ -64,7 +69,7 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     // } else if (horizontalAlign === 'center') {
     if (horizontalAlign === 'center') {
         const updatedImageBoundingBox = element.getBoundingClientRect();
-        const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
+        const alignWithBoundingBox = getAlignmentBoundingBox(state, alignmentConfig);
         if (alignWithBoundingBox) {
             newX = alignWithBoundingBox.x + (alignWithBoundingBox.width / 2) - (updatedImageBoundingBox.width / 2);
         }
@@ -80,14 +85,16 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     // } else if (verticalAlign === 'center') {
     if (verticalAlign === 'center') {
         const updatedImageBoundingBox = element.getBoundingClientRect();
-        const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
+        const alignWithBoundingBox = getAlignmentBoundingBox(state, alignmentConfig);
         if (alignWithBoundingBox) {
             newY = alignWithBoundingBox.y + (alignWithBoundingBox.height / 2) - (updatedImageBoundingBox.height / 2);
         }
     }
 
-    element.setAttribute('x', String(newX));
-    element.setAttribute('y', String(newY));
+    if (newX && newY) {
+        element.setAttribute('x', String(newX));
+        element.setAttribute('y', String(newY));
+    }
 }
 
 const getAlignmentBoundingBox = (state: ZagreusRuntimeState, config: AlignmentConfig): DOMRect => {

@@ -16,14 +16,21 @@ export const setTextOnElement = (elementName: string, text: string) => {
 
 export const setTextOnFoundElement = (element: HTMLElement, text: string, elementName: string) => {
     const state = getZagreusState();
-    const config = state.elementConfigs.find(config => config.id === elementName)?.align;
+
+    const templateElement = state.elements.find(element => element.id === elementName);
+    if(!templateElement) {
+        console.error(`Element ${elementName} is not configured in template.`);
+        return;
+    }
+    const alignmentConfig = templateElement.config?.align;
+
     let align: HorizontalAlignment = "left";
-    if (config) {
-        align = config.horizontal;
+    if (alignmentConfig) {
+        align = alignmentConfig.horizontal;
     }
 
     if (align === "center") {
-        setTextAndAlignCenter(element, text, config.with);
+        setTextAndAlignCenter(element, text, alignmentConfig.with);
     } else if (align === "right") {
         setTextAndAlignRight(element, text);
     } else if (align === "left") {
