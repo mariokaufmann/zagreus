@@ -6,6 +6,7 @@ use crate::data::element::ElementsConfig;
 use crate::data::TemplateConfig;
 use crate::error::{simple_error, ZagreusError};
 use crate::TEMPLATE_CONFIG_FILE_NAME;
+use std::collections::HashSet;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -18,9 +19,10 @@ use std::path::Path;
 /// to build a template. Users may still need to provide additional files until the template can be
 /// built.
 pub fn new_template(name: &str) -> Result<(), ZagreusError> {
-    let template_dir = Path::new(name);
+    validate_template_name(name)?;
 
     // Return Err if the directory already exists.
+    let template_dir = Path::new(name);
     if template_dir.exists() {
         return simple_error(&format!("Directory '{}' already exists", name));
     }
@@ -41,6 +43,24 @@ pub fn new_template(name: &str) -> Result<(), ZagreusError> {
     }
 
     Ok(())
+}
+
+/// Checks whether the given template name only contains valid characters. The set of valid
+/// characters is defined by this function. Returns an error the name is invalid, with an error
+/// message containing the complete set of offending characters.
+fn validate_template_name(template_name: &str) -> Result<(), ZagreusError> {
+    let allowed_special_chars = ['-'];
+    let illegal_chars: HashSet<char> = template_name
+        .chars()
+        .filter(|char| !(char.is_ascii_alphanumeric() || allowed_special_chars.contains(char)))
+        .collect();
+    match illegal_chars.is_empty() {
+        true => Ok(()),
+        false => simple_error(&format!(
+            "Template name must only contain characters in [a-zA-Z0-9-], provided name contains: {:?}",
+            illegal_chars
+        )),
+    }
 }
 
 /// Creates all directories and boilerplate files required for a new template, not including the
