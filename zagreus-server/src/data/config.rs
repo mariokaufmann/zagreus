@@ -11,8 +11,14 @@ pub struct OnLoadConfig {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct ElementConfigs {
-    pub elements: Vec<ElementConfig>,
+pub struct TemplateElements {
+    pub elements: Vec<TemplateElement>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct TemplateElement {
+    id: String,
+    config: Option<ElementConfig>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
