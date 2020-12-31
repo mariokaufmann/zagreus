@@ -1,4 +1,4 @@
-use crate::data::validation::{ConfigValidate, get_duplicate_elements, ValidationData};
+use crate::data::validation::{get_duplicate_elements, ConfigValidate, ValidationData};
 use crate::error::{error_with_message, simple_error, ZagreusError};
 
 #[derive(Serialize, Deserialize, Clone)]

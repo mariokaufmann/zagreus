@@ -1,9 +1,9 @@
 use std::path::{Path, PathBuf};
 
-use crate::data::TemplateConfig;
 use crate::data::animation::config::AnimationConfig;
-use crate::data::element::{ElementsConfig, merge_elements_with_config, TemplateElements};
+use crate::data::element::{merge_elements_with_config, ElementsConfig, TemplateElements};
 use crate::data::validation::ValidationData;
+use crate::data::TemplateConfig;
 use crate::error::{error_with_message, ZagreusError};
 
 mod asset;
