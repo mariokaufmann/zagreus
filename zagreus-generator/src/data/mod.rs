@@ -22,7 +22,7 @@ pub struct TemplateConfig {
 }
 
 impl TemplateConfig {
-    pub fn with_defaults(name: &str) -> Self {
+    pub fn default_with_name(name: &str) -> Self {
         TemplateConfig {
             name: String::from(name),
             on_load: OnLoadConfig {

@@ -7,8 +7,8 @@ pub struct AnimationConfig {
     sequences: Vec<AnimationSequence>,
 }
 
-impl AnimationConfig {
-    pub fn with_defaults() -> Self {
+impl Default for AnimationConfig {
+    fn default() -> Self {
         AnimationConfig { sequences: vec![] }
     }
 }

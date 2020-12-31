@@ -6,6 +6,12 @@ pub struct ElementsConfig {
     elements: Vec<ElementConfig>,
 }
 
+impl Default for ElementsConfig {
+    fn default() -> Self {
+        ElementsConfig { elements: vec![] }
+    }
+}
+
 impl ConfigValidate for ElementsConfig {
     fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
         for element_config in &self.elements {
