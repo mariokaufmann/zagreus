@@ -6,11 +6,21 @@ use crate::data::element::ElementsConfig;
 use crate::data::TemplateConfig;
 use crate::error::{simple_error, ZagreusError};
 use crate::TEMPLATE_CONFIG_FILE_NAME;
+use serde::Serialize;
 use std::collections::HashSet;
 use std::fs;
 use std::fs::File;
-use std::io::Write;
 use std::path::Path;
+
+/// A trait for creating useful default instances of template-related types, similar to the
+/// `core::default::Default` trait.
+pub trait TemplateDefault {
+    /// Returns the default value for a template-related type.
+    ///
+    /// # Arguments
+    /// * `template_name`: The name of the template for which this instance belongs
+    fn template_default(template_name: &str) -> Self;
+}
 
 /// Creates a new boilerplate template with the given name.
 ///
@@ -47,8 +57,13 @@ pub fn new_template(name: &str) -> Result<(), ZagreusError> {
 
 /// Checks whether the given template name only contains valid characters. The set of valid
 /// characters is defined by this function. Returns an error the name is invalid, with an error
-/// message containing the complete set of offending characters.
+/// message containing the complete set of offending characters. Also returns an error if the
+/// template name is empty.
 fn validate_template_name(template_name: &str) -> Result<(), ZagreusError> {
+    if template_name.is_empty() {
+        return simple_error("Template name must not be empty");
+    }
+
     let allowed_special_chars = ['-'];
     let illegal_chars: HashSet<char> = template_name
         .chars()
@@ -70,57 +85,54 @@ fn create_dirs_and_files(template_name: &str, template_dir: &Path) -> Result<(),
     fs::create_dir(template_dir.join(ASSETS_FOLDER_NAME))?;
 
     // Create boilerplate files.
-    create_template_config_file(template_name, template_dir)?;
-    create_animation_config_file(template_dir)?;
-    create_element_config_file(template_dir)?;
+    create_default_config::<TemplateConfig>(
+        template_dir,
+        TEMPLATE_CONFIG_FILE_NAME,
+        template_name,
+    )?;
+    create_default_config::<AnimationConfig>(
+        template_dir,
+        ANIMATION_CONFIG_INPUT_FILE_NAME,
+        template_name,
+    )?;
+    create_default_config::<ElementsConfig>(
+        template_dir,
+        ELEMENT_CONFIG_INPUT_FILE_NAME,
+        template_name,
+    )?;
 
     Ok(())
 }
 
-/// Creates the default template config file in the new template directory, populates the `name`
-/// field with the given template name.
-fn create_template_config_file(
-    template_name: &str,
+/// Creates a default config instance of type T and serializes it to a new file with the given name,
+/// at the root of the template directory. Returns an error if the config instance cannot be
+/// serialized or written to the corresponding file.
+fn create_default_config<T>(
     template_dir: &Path,
-) -> Result<(), ZagreusError> {
-    let template_config = TemplateConfig::default_with_name(template_name);
-    let serialized = serde_yaml::to_string(&template_config)?;
-    write_to_new_file(&template_dir.join(TEMPLATE_CONFIG_FILE_NAME), &serialized)?;
+    file_name: &str,
+    template_name: &str,
+) -> Result<(), ZagreusError>
+where
+    T: Serialize + TemplateDefault,
+{
+    let config = T::template_default(template_name);
+    write_to_new_file(&template_dir.join(file_name), &config)?;
     Ok(())
 }
 
-/// Creates the default element config file in the new template directory.
-fn create_element_config_file(template_dir: &Path) -> Result<(), ZagreusError> {
-    let element_config: ElementsConfig = Default::default();
-    let serialized = serde_yaml::to_string(&element_config)?;
-    write_to_new_file(
-        &template_dir.join(ELEMENT_CONFIG_INPUT_FILE_NAME),
-        &serialized,
-    )?;
-    Ok(())
-}
-
-/// Creates the default animation config file in the new template directory.
-fn create_animation_config_file(template_dir: &Path) -> Result<(), ZagreusError> {
-    let animation_config: AnimationConfig = Default::default();
-    let serialized = serde_yaml::to_string(&animation_config)?;
-    write_to_new_file(
-        &template_dir.join(ANIMATION_CONFIG_INPUT_FILE_NAME),
-        &serialized,
-    )?;
-    Ok(())
-}
-
-/// Creates a new file at the given path and writes the given content to that file. Returns an
-/// error if the file already exists, or if an IO error occurs.
-fn write_to_new_file(file_path: &Path, content: &str) -> Result<(), ZagreusError> {
+/// Creates a new file at the given path, serializes `config` to YAML, and writes the result into
+/// the newly created file. Returns an error of the file already exists or an IO error occurs.
+fn write_to_new_file<T>(file_path: &Path, config: &T) -> Result<(), ZagreusError>
+where
+    T: Serialize,
+{
     if file_path.exists() {
         // Reaching here is considered a bug: a new (i.e. empty) template directory should be
         // created first, and no file should be created more than once.
         return simple_error(&format!("File already exists: {:?}", file_path));
     }
-    let mut file = File::create(file_path)?;
-    file.write_all(content.as_bytes())?;
+    let file = File::create(file_path)?;
+    serde_yaml::to_writer(file, config)?;
     Ok(())
 }
 

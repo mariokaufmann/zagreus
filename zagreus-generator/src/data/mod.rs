@@ -5,6 +5,7 @@ use serde::Serialize;
 
 use crate::data::validation::{ConfigValidate, ValidationData};
 use crate::error::ZagreusError;
+use crate::new::TemplateDefault;
 
 pub mod animation;
 pub mod element;
@@ -21,12 +22,10 @@ pub struct TemplateConfig {
     pub dev_server: DevServerConfig,
 }
 
-impl TemplateConfig {
-    /// Creates a default `TemplateConfig` with the given template name, an empty `on_load`
-    /// animation sequence, and a `DevServerConfig` for `localhost`.
-    pub fn default_with_name(name: &str) -> Self {
+impl TemplateDefault for TemplateConfig {
+    fn template_default(template_name: &str) -> Self {
         TemplateConfig {
-            name: String::from(name),
+            name: String::from(template_name),
             on_load: OnLoadConfig {
                 animation_sequences: vec![],
             },

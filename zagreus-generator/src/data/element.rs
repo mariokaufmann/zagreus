@@ -1,13 +1,14 @@
 use crate::data::validation::{get_duplicate_elements, ConfigValidate, ValidationData};
 use crate::error::{error_with_message, simple_error, ZagreusError};
+use crate::new::TemplateDefault;
 
 #[derive(Serialize, Deserialize)]
 pub struct ElementsConfig {
     elements: Vec<ElementConfig>,
 }
 
-impl Default for ElementsConfig {
-    fn default() -> Self {
+impl TemplateDefault for ElementsConfig {
+    fn template_default(_: &str) -> Self {
         ElementsConfig { elements: vec![] }
     }
 }
