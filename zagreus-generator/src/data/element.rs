@@ -2,7 +2,6 @@ use crate::data::validation::{ConfigValidate, get_duplicate_elements, Validation
 use crate::error::{error_with_message, simple_error, ZagreusError};
 
 #[derive(Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct TemplateElements {
     elements: Vec<TemplateElement>,
 }
@@ -91,14 +90,12 @@ impl ConfigValidate for ElementsConfig {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct ElementConfig {
     id: String,
     align: AlignmentConfig,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct AlignmentConfig {
     #[serde(default)]
     horizontal: HorizontalAlignment,

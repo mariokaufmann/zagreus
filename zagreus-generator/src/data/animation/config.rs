@@ -52,7 +52,6 @@ pub struct AnimationStep {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Animation {
     id: String,
     name: String,

@@ -25,7 +25,6 @@ impl ConfigValidate for TemplateConfig {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct DevServerConfig {
     pub address: String,
     pub port: u16,
