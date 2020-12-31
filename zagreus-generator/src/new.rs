@@ -11,6 +11,12 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
+/// Creates a new boilerplate template with the given name.
+///
+/// Creates a new directory with the given name in the current working directory. In there,
+/// creates an empty assets directory, as well as skeletons for all the YAML config files required
+/// to build a template. Users may still need to provide additional files until the template can be
+/// built.
 pub fn new_template(name: &str) -> Result<(), ZagreusError> {
     let template_dir = Path::new(name);
 
@@ -37,6 +43,8 @@ pub fn new_template(name: &str) -> Result<(), ZagreusError> {
     Ok(())
 }
 
+/// Creates all directories and boilerplate files required for a new template, not including the
+/// new template directory itself. Returns an error if any of them cannot be created.
 fn create_dirs_and_files(template_name: &str, template_dir: &Path) -> Result<(), ZagreusError> {
     // Create assets subdirectory.
     fs::create_dir(template_dir.join(ASSETS_FOLDER_NAME))?;
@@ -49,6 +57,8 @@ fn create_dirs_and_files(template_name: &str, template_dir: &Path) -> Result<(),
     Ok(())
 }
 
+/// Creates the default template config file in the new template directory, populates the `name`
+/// field with the given template name.
 fn create_template_config_file(
     template_name: &str,
     template_dir: &Path,
@@ -59,6 +69,7 @@ fn create_template_config_file(
     Ok(())
 }
 
+/// Creates the default element config file in the new template directory.
 fn create_element_config_file(template_dir: &Path) -> Result<(), ZagreusError> {
     let element_config: ElementsConfig = Default::default();
     let serialized = serde_yaml::to_string(&element_config)?;
@@ -69,6 +80,7 @@ fn create_element_config_file(template_dir: &Path) -> Result<(), ZagreusError> {
     Ok(())
 }
 
+/// Creates the default animation config file in the new template directory.
 fn create_animation_config_file(template_dir: &Path) -> Result<(), ZagreusError> {
     let animation_config: AnimationConfig = Default::default();
     let serialized = serde_yaml::to_string(&animation_config)?;
@@ -79,12 +91,21 @@ fn create_animation_config_file(template_dir: &Path) -> Result<(), ZagreusError>
     Ok(())
 }
 
+/// Creates a new file at the given path and writes the given content to that file. Returns an
+/// error if the file already exists, or if an IO error occurs.
 fn write_to_new_file(file_path: &Path, content: &str) -> Result<(), ZagreusError> {
+    if file_path.exists() {
+        // Reaching here is considered a bug: a new (i.e. empty) template directory should be
+        // created first, and no file should be created more than once.
+        return simple_error(&format!("File already exists: {:?}", file_path));
+    }
     let mut file = File::create(file_path)?;
     file.write_all(content.as_bytes())?;
     Ok(())
 }
 
+/// Deletes the assets directory, template config file, element config file, animation config file,
+/// and newly created template directory. Returns an error if any of these cannot be removed.
 fn rollback(template_dir: &Path) -> Result<(), ZagreusError> {
     if !template_dir.exists() {
         // Nothing to roll back, no directory was created yet.
@@ -103,6 +124,8 @@ fn rollback(template_dir: &Path) -> Result<(), ZagreusError> {
     Ok(())
 }
 
+/// Removes the file or directory at the given path, if it exists. Returns an error if the inode
+/// doesn't exist, or if it is a directory and is not empty.
 fn remove_inode(path: &Path) -> Result<(), ZagreusError> {
     if !path.exists() {
         // Nothing to remove here.

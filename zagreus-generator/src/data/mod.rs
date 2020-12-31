@@ -22,6 +22,8 @@ pub struct TemplateConfig {
 }
 
 impl TemplateConfig {
+    /// Creates a default `TemplateConfig` with the given template name, an empty `on_load`
+    /// animation sequence, and a `DevServerConfig` for `localhost`.
     pub fn default_with_name(name: &str) -> Self {
         TemplateConfig {
             name: String::from(name),
