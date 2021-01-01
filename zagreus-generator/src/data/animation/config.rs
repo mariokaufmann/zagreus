@@ -29,8 +29,8 @@ impl ConfigValidate for AnimationConfig {
 
                 for animation in &step.animations {
                     if !validation_data
-                        .data_elements
-                        .has_data_element(&animation.id)
+                        .template_elements
+                        .has_template_element(&animation.id)
                     {
                         return Err(ZagreusError::from(format!(
                             "Animation config contains unknown element {}.",
@@ -59,7 +59,6 @@ pub struct AnimationStep {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Animation {
     id: String,
     name: String,
@@ -82,15 +81,16 @@ impl Default for AnimationDirection {
 
 #[cfg(test)]
 mod tests {
-    use crate::data::DataElements;
+    use crate::data::element::TemplateElements;
 
     use super::*;
 
     #[test]
     fn validate_animation_config_valid() {
-        let data_elements = DataElements::new(vec![String::from("id1"), String::from("id2")]);
+        let template_elements =
+            TemplateElements::from_ids(vec![String::from("id1"), String::from("id2")]);
         let validation_data = ValidationData {
-            data_elements: &data_elements,
+            template_elements: &template_elements,
         };
         let animation_config = AnimationConfig {
             sequences: vec![AnimationSequence {
@@ -120,9 +120,9 @@ mod tests {
 
     #[test]
     fn validate_animation_config_inexistant_element() {
-        let data_elements = DataElements::new(vec![String::from("id1")]);
+        let template_elements = TemplateElements::from_ids(vec![String::from("id1")]);
         let validation_data = ValidationData {
-            data_elements: &data_elements,
+            template_elements: &template_elements,
         };
         let animation_config = AnimationConfig {
             sequences: vec![AnimationSequence {
@@ -145,9 +145,9 @@ mod tests {
 
     #[test]
     fn validate_animation_config_duplicate() {
-        let data_elements = DataElements::new(vec![String::from("id1")]);
+        let template_elements = TemplateElements::from_ids(vec![String::from("id1")]);
         let validation_data = ValidationData {
-            data_elements: &data_elements,
+            template_elements: &template_elements,
         };
         let animation_config = AnimationConfig {
             sequences: vec![AnimationSequence {

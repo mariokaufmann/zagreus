@@ -1,7 +1,7 @@
-import {ElementConfig} from "../websocket/types";
+import {ElementConfig, TemplateElement} from "../websocket/types";
 import {AlignmentState, getZagreusState, ZagreusRuntimeState} from "../data/data";
 
-export const saveInitialAlignmentStates = (elementConfigs: ElementConfig[]) => {
+export const saveInitialAlignmentStates = (elements: TemplateElement[]) => {
     const state = getZagreusState();
 
     if (state.alignmentStates) {
@@ -10,7 +10,9 @@ export const saveInitialAlignmentStates = (elementConfigs: ElementConfig[]) => {
     }
 
     state.alignmentStates = {};
-    elementConfigs
+    elements
+        .filter(element => element.config !== null)
+        .map(element => element.config)
         .map(config => config.align)
         .filter(config => config.with && config.with.length > 0)
         .filter(config => config.horizontal === 'center' || config.vertical === 'center')

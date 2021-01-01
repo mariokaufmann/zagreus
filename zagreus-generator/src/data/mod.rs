@@ -44,7 +44,6 @@ impl ConfigValidate for TemplateConfig {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct DevServerConfig {
     pub address: String,
     pub port: u16,
@@ -56,24 +55,8 @@ pub struct OnLoadConfig {
     pub animation_sequences: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DataElements {
-    elements: Vec<String>,
-}
-
-impl DataElements {
-    pub fn new(elements: Vec<String>) -> DataElements {
-        DataElements { elements }
-    }
-
-    pub fn has_data_element(&self, element_name: &str) -> bool {
-        self.elements
-            .iter()
-            .any(|element| (*element).eq(element_name))
-    }
-}
-
+/// Reads the config of type `T` from the input file, validates it and outputs
+/// it to the output file.
 pub fn convert_config<T>(
     input_file_path: &Path,
     output_file_path: &Path,
@@ -89,9 +72,30 @@ where
     Ok(())
 }
 
+/// Reads the config of type `I` from the input file, validates it,
+/// maps it to a config of type `O` and outputs it to the output file.
+pub fn map_and_convert_config<I, O, F>(
+    input_file_path: &Path,
+    output_file_path: &Path,
+    validation_data: &ValidationData,
+    mapping_fun: F,
+) -> Result<(), ZagreusError>
+where
+    I: DeserializeOwned + ConfigValidate,
+    O: Serialize,
+    F: FnOnce(I) -> O,
+{
+    let config: I = load_config(input_file_path)?;
+    config.validate(validation_data)?;
+    let mapped_config = mapping_fun(config);
+    let output_file = std::fs::File::create(&output_file_path)?;
+    serde_json::to_writer_pretty(output_file, &mapped_config)?;
+    Ok(())
+}
+
 pub fn load_config<T>(config_file_path: &Path) -> Result<T, ZagreusError>
 where
-    T: DeserializeOwned + Serialize + ConfigValidate,
+    T: DeserializeOwned + ConfigValidate,
 {
     let input_file = std::fs::File::open(&config_file_path)?;
     let config: T = serde_yaml::from_reader(input_file)?;

@@ -2,6 +2,47 @@ use crate::data::validation::{get_duplicate_elements, ConfigValidate, Validation
 use crate::error::{error_with_message, simple_error, ZagreusError};
 use crate::new::TemplateDefault;
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct TemplateElements {
+    elements: Vec<TemplateElement>,
+}
+
+impl TemplateElements {
+    pub fn from_ids(mut element_ids: Vec<String>) -> TemplateElements {
+        let elements = element_ids
+            .drain(..)
+            .map(|id| TemplateElement { id, config: None })
+            .collect();
+        TemplateElements { elements }
+    }
+
+    pub fn has_template_element(&self, element_id: &str) -> bool {
+        self.elements
+            .iter()
+            .any(|element| (*element.id).eq(element_id))
+    }
+
+    /// Merges these template elements with their corresponding
+    /// element configs (if available)
+    pub fn merge_with_configs(&mut self, mut element_config: Vec<ElementConfig>) {
+        for element in &mut self.elements {
+            let config_index = element_config
+                .iter()
+                .position(|config| config.id.eq(&element.id));
+            if let Some(config_index) = config_index {
+                let config = element_config.remove(config_index);
+                element.config = Some(config);
+            }
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct TemplateElement {
+    id: String,
+    config: Option<ElementConfig>,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct ElementsConfig {
     elements: Vec<ElementConfig>,
@@ -13,12 +54,16 @@ impl TemplateDefault for ElementsConfig {
     }
 }
 
+pub fn merge_elements_with_config(elements: &mut TemplateElements, config: ElementsConfig) {
+    elements.merge_with_configs(config.elements);
+}
+
 impl ConfigValidate for ElementsConfig {
     fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
         for element_config in &self.elements {
             if !validation_data
-                .data_elements
-                .has_data_element(&element_config.id)
+                .template_elements
+                .has_template_element(&element_config.id)
             {
                 return Err(ZagreusError::from(format!(
                     "Element config contains unknown element {}.",
@@ -51,15 +96,13 @@ impl ConfigValidate for ElementsConfig {
     }
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct ElementConfig {
     id: String,
     align: AlignmentConfig,
 }
 
-#[derive(Serialize, Deserialize, Default)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Deserialize, Default, Clone)]
 pub struct AlignmentConfig {
     #[serde(default)]
     horizontal: HorizontalAlignment,
@@ -84,7 +127,11 @@ impl ConfigValidate for AlignmentConfig {
             ));
         }
 
-        if !self.with.is_empty() && !validation_data.data_elements.has_data_element(&self.with) {
+        if !self.with.is_empty()
+            && !validation_data
+                .template_elements
+                .has_template_element(&self.with)
+        {
             return Err(ZagreusError::from(format!(
                 "Element is configured to be aligned with unknown element {}.",
                 &self.with
@@ -95,7 +142,7 @@ impl ConfigValidate for AlignmentConfig {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum HorizontalAlignment {
     Center,
@@ -109,7 +156,7 @@ impl Default for HorizontalAlignment {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum VerticalAlignment {
     Center,
@@ -126,7 +173,6 @@ impl Default for VerticalAlignment {
 #[cfg(test)]
 mod tests {
     use crate::data::validation::ValidationData;
-    use crate::data::DataElements;
 
     use super::*;
 
@@ -142,9 +188,10 @@ mod tests {
 
     #[test]
     fn validate_element_config_valid() {
-        let data_elements = DataElements::new(vec![String::from("id1"), String::from("id2")]);
+        let data_elements =
+            TemplateElements::from_ids(vec![String::from("id1"), String::from("id2")]);
         let validation_data = ValidationData {
-            data_elements: &data_elements,
+            template_elements: &data_elements,
         };
         let element_config = ElementsConfig {
             elements: vec![
@@ -165,9 +212,9 @@ mod tests {
 
     #[test]
     fn validate_element_config_inexistent_element() {
-        let data_elements = DataElements::new(vec![String::from("id2")]);
+        let data_elements = TemplateElements::from_ids(vec![String::from("id2")]);
         let validation_data = ValidationData {
-            data_elements: &data_elements,
+            template_elements: &data_elements,
         };
         let element_config = ElementsConfig {
             elements: vec![ElementConfig {
@@ -182,9 +229,9 @@ mod tests {
 
     #[test]
     fn validate_element_config_center_no_align_with() {
-        let data_elements = DataElements::new(vec![String::from("id1")]);
+        let data_elements = TemplateElements::from_ids(vec![String::from("id1")]);
         let validation_data = ValidationData {
-            data_elements: &data_elements,
+            template_elements: &data_elements,
         };
         let element_config = ElementsConfig {
             elements: vec![ElementConfig {
@@ -199,9 +246,9 @@ mod tests {
 
     #[test]
     fn validate_element_config_center_invalid_align_with() {
-        let data_elements = DataElements::new(vec![String::from("id1")]);
+        let data_elements = TemplateElements::from_ids(vec![String::from("id1")]);
         let validation_data = ValidationData {
-            data_elements: &data_elements,
+            template_elements: &data_elements,
         };
         let element_config = ElementsConfig {
             elements: vec![ElementConfig {
@@ -216,9 +263,9 @@ mod tests {
 
     #[test]
     fn validate_element_config_center_duplicate() {
-        let data_elements = DataElements::new(vec![String::from("id1")]);
+        let data_elements = TemplateElements::from_ids(vec![String::from("id1")]);
         let validation_data = ValidationData {
-            data_elements: &data_elements,
+            template_elements: &data_elements,
         };
         let element_config = ElementsConfig {
             elements: vec![

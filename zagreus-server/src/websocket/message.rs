@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use crate::data::animation::config::AnimationSequence;
-use crate::data::config::ElementConfig;
+use crate::data::config::TemplateElement;
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "tag", content = "payload")]
@@ -29,7 +29,7 @@ pub enum TemplateMessage<'a> {
     #[serde(rename_all = "camelCase")]
     LoadElements {
         #[serde(borrow)]
-        elements: Cow<'a, Vec<ElementConfig>>,
+        elements: Cow<'a, Vec<TemplateElement>>,
     },
     #[serde(rename_all = "camelCase")]
     ExecuteAnimation {

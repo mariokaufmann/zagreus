@@ -1,4 +1,4 @@
-import {AnimationSequence, ElementConfig} from "../websocket/types";
+import {AnimationSequence, TemplateElement} from "../websocket/types";
 
 declare global {
     interface Window {
@@ -12,14 +12,14 @@ export interface AlignmentState {
 
 export interface ZagreusRuntimeState {
     animationsSequences: AnimationSequence[],
-    elementConfigs: ElementConfig[],
+    elements: TemplateElement[],
     alignmentStates: { [key in string]: AlignmentState },
 }
 
 if (!window.zagreusRuntimeState) {
     window.zagreusRuntimeState = {
         animationsSequences: [],
-        elementConfigs: [],
+        elements: [],
         alignmentStates: undefined,
     }
 }

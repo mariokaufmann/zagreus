@@ -4,34 +4,12 @@ import {AlignmentConfig, HorizontalAlignment, VerticalAlignment} from "../websoc
 export const setImageSource = (elementName: string, asset: string) => {
     const url = `assets/${asset}`;
     const element = document.getElementById(elementName);
-    if (element) {
-        if (element.tagName === 'use') {
-            replaceUseElement(<SVGUseElement><Element>element, elementName, url);
-        } else if (element.tagName === 'image') {
-            const imageElement = <SVGImageElement><Element>element;
-            const boundingBox = imageElement.getBoundingClientRect();
-            imageElement.setAttribute('href', url);
-            alignImage(imageElement, elementName, boundingBox);
-        }
+    if (element && element.tagName === 'image') {
+        const imageElement = <SVGImageElement><Element>element;
+        const boundingBox = imageElement.getBoundingClientRect();
+        imageElement.setAttribute('href', url);
+        alignImage(imageElement, elementName, boundingBox);
     }
-}
-
-// TODO remove this as soon as all use elements are flattened (see use.ts)
-const replaceUseElement = (element: SVGUseElement, elementName: string, url: string) => {
-    const boundingBox = element.getBoundingClientRect();
-    const parentElement = element.parentElement;
-
-    const imageElement = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-    const attributes = element.attributes;
-    for (let i = 0; i < attributes.length; i++) {
-        const attribute = attributes[i];
-        imageElement.setAttribute(attribute.name, attribute.value);
-    }
-    imageElement.setAttribute('href', url);
-    imageElement.setAttributeNS('http://www.w3.org/1999/xlink', 'href', url);
-    parentElement.replaceChild(imageElement, element);
-
-    alignImage(imageElement, elementName, boundingBox);
 }
 
 /**
@@ -46,12 +24,17 @@ const replaceUseElement = (element: SVGUseElement, elementName: string, url: str
 const alignImage = (element: SVGImageElement, elementName: string, originalImageBoundingBox: DOMRect) => {
     const state = getZagreusState();
 
-    const config = state.elementConfigs.find(config => config.id === elementName)?.align;
+    const templateElement = state.elements.find(element => element.id === elementName);
+    if (!templateElement) {
+        console.error(`Element ${elementName} is not configured in template.`);
+        return;
+    }
+    const alignmentConfig = templateElement.config?.align;
     let horizontalAlign: HorizontalAlignment = "left";
     let verticalAlign: VerticalAlignment = "top";
-    if (config) {
-        horizontalAlign = config.horizontal;
-        verticalAlign = config.vertical;
+    if (alignmentConfig) {
+        horizontalAlign = alignmentConfig.horizontal;
+        verticalAlign = alignmentConfig.vertical;
     }
 
     let newX;
@@ -64,7 +47,7 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     // } else if (horizontalAlign === 'center') {
     if (horizontalAlign === 'center') {
         const updatedImageBoundingBox = element.getBoundingClientRect();
-        const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
+        const alignWithBoundingBox = getAlignmentBoundingBox(state, alignmentConfig);
         if (alignWithBoundingBox) {
             newX = alignWithBoundingBox.x + (alignWithBoundingBox.width / 2) - (updatedImageBoundingBox.width / 2);
         }
@@ -80,14 +63,16 @@ const alignImage = (element: SVGImageElement, elementName: string, originalImage
     // } else if (verticalAlign === 'center') {
     if (verticalAlign === 'center') {
         const updatedImageBoundingBox = element.getBoundingClientRect();
-        const alignWithBoundingBox = getAlignmentBoundingBox(state, config);
+        const alignWithBoundingBox = getAlignmentBoundingBox(state, alignmentConfig);
         if (alignWithBoundingBox) {
             newY = alignWithBoundingBox.y + (alignWithBoundingBox.height / 2) - (updatedImageBoundingBox.height / 2);
         }
     }
 
-    element.setAttribute('x', String(newX));
-    element.setAttribute('y', String(newY));
+    if (newX && newY) {
+        element.setAttribute('x', String(newX));
+        element.setAttribute('y', String(newY));
+    }
 }
 
 const getAlignmentBoundingBox = (state: ZagreusRuntimeState, config: AlignmentConfig): DOMRect => {
