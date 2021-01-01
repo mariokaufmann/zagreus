@@ -32,11 +32,16 @@ pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
         Duration::from_millis(FILE_WATCHER_DEBOUNCE_DELAY),
     )?;
     loop {
+        // Build the template.
         if let Err(error) = build_once(&template_config, build_dir, upload) {
             // If a build error occurs, log the error and wait for the next file change.
             error!("{:?}", error);
         }
+
+        // Wait for a file change.
         file_watcher_rx.recv()?;
+
+        // Wait for further file changes if necessary, until all the required files are present.
         while let Err(error) = verify_required_files_present() {
             error!("{:?}", error);
             file_watcher_rx.recv()?;
