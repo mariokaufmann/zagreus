@@ -1,10 +1,17 @@
 use crate::data::validation::{get_duplicate_elements, ValidationData};
 use crate::data::ConfigValidate;
 use crate::error::ZagreusError;
+use crate::new::TemplateDefault;
 
 #[derive(Serialize, Deserialize)]
 pub struct AnimationConfig {
     sequences: Vec<AnimationSequence>,
+}
+
+impl TemplateDefault for AnimationConfig {
+    fn template_default(_: &str) -> Self {
+        AnimationConfig { sequences: vec![] }
+    }
 }
 
 impl ConfigValidate for AnimationConfig {

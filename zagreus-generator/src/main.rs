@@ -15,6 +15,7 @@ mod file_watcher;
 mod fs;
 mod jobs;
 mod logger;
+mod new;
 mod upload;
 
 const TEMPLATE_CONFIG_FILE_NAME: &str = "zagreus-template.yaml";
