@@ -17,6 +17,8 @@ pub fn new_template(name: String) -> Result<(), ZagreusError> {
 }
 
 pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
+    verify_required_files_present()?;
+
     let template_config = load_template_config()?;
     let build_dir = Path::new(BUILD_FOLDER_NAME);
 
@@ -35,6 +37,10 @@ pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
             error!("{:?}", error);
         }
         file_watcher_rx.recv()?;
+        while let Err(error) = verify_required_files_present() {
+            error!("{:?}", error);
+            file_watcher_rx.recv()?;
+        }
     }
 }
 
@@ -65,7 +71,6 @@ fn build_once(
     build_dir: &Path,
     upload: bool,
 ) -> Result<(), ZagreusError> {
-    verify_required_files_present()?;
     if let Err(error) = build::build_template(build_dir, &template_config) {
         return error_with_message(
             &format!("Could not build template {}", &template_config.name),
