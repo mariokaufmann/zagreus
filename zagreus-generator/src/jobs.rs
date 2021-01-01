@@ -1,4 +1,7 @@
-use crate::build::BUILD_FOLDER_NAME;
+use crate::build::{
+    ANIMATION_CONFIG_INPUT_FILE_NAME, BUILD_FOLDER_NAME, ELEMENT_CONFIG_INPUT_FILE_NAME,
+    INPUT_SVG_FILE_NAME,
+};
 use crate::data::TemplateConfig;
 use crate::error::{error_with_message, simple_error, ZagreusError};
 use crate::file_watcher;
@@ -35,11 +38,34 @@ pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
     }
 }
 
+/// Checks whether all the files required for building the template are present. Logs an error for
+/// each missing file. Returns an error if at least one file is missing, `Ok` else.
+fn verify_required_files_present() -> Result<(), ZagreusError> {
+    let required_files = [
+        TEMPLATE_CONFIG_FILE_NAME,
+        ELEMENT_CONFIG_INPUT_FILE_NAME,
+        ANIMATION_CONFIG_INPUT_FILE_NAME,
+        INPUT_SVG_FILE_NAME,
+    ];
+    match required_files
+        .iter()
+        .map(|file_name| Path::new(file_name))
+        .filter(|path| !path.exists())
+        .inspect(|missing_path| error!("Missing required file: {:?}", missing_path))
+        .count()
+    {
+        0 => Ok(()),
+        1 => simple_error("Unable to build template, missing a required input file"),
+        _ => simple_error("Unable to build template, missing multiple required input files"),
+    }
+}
+
 fn build_once(
     template_config: &TemplateConfig,
     build_dir: &Path,
     upload: bool,
 ) -> Result<(), ZagreusError> {
+    verify_required_files_present()?;
     if let Err(error) = build::build_template(build_dir, &template_config) {
         return error_with_message(
             &format!("Could not build template {}", &template_config.name),
