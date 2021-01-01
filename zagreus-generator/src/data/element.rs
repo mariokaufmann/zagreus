@@ -117,14 +117,14 @@ impl ConfigValidate for AlignmentConfig {
         if self.with.is_empty() {
             if self.horizontal == HorizontalAlignment::Center {
                 return Err(ZagreusError::from(
-                    "Element is horizontally center-aligned but no 'with' is configured."
+                    "Element is horizontally center-aligned but no with is configured."
                         .to_string(),
                 ));
             }
 
             if self.vertical == VerticalAlignment::Center {
                 return Err(ZagreusError::from(
-                    "Element is vertically center-aligned but no 'with' is configured.".to_string(),
+                    "Element is vertically center-aligned but no with is configured.".to_string(),
                 ));
             }
         } else {
@@ -142,7 +142,7 @@ impl ConfigValidate for AlignmentConfig {
                 && self.vertical != VerticalAlignment::Center
             {
                 return Err(ZagreusError::from(
-                    "An element can only have a 'with' element if it is center-aligned in at least one direction."
+                    "An element can only have a with element if it is center-aligned in at least one direction."
                         .to_string(),
                 ));
             }
