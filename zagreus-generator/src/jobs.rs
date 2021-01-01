@@ -40,6 +40,7 @@ fn build_once(
     build_dir: &Path,
     upload: bool,
 ) -> Result<(), ZagreusError> {
+    info!("Building template {}...", &template_config.name);
     if let Err(error) = build::build_template(build_dir, &template_config) {
         return error_with_message(
             &format!("Could not build template {}", &template_config.name),
