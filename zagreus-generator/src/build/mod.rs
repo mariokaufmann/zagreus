@@ -31,8 +31,6 @@ pub fn build_template(
     build_folder: &Path,
     template_config: &TemplateConfig,
 ) -> Result<(), ZagreusError> {
-    info!("Building template {}...", &template_config.name);
-
     if !build_folder.exists() {
         if let Err(err) = std::fs::create_dir(build_folder) {
             return error_with_message("Could not create build folder", err);
@@ -111,8 +109,6 @@ pub fn build_template(
     let assets_folder = PathBuf::from(ASSETS_FOLDER_NAME);
     let packed_file_path = get_zipped_template_file_path(build_folder);
     zip::pack_template(&packed_file_path, &build_files, &assets_folder).unwrap();
-
-    info!("Finished building template {}.", &template_config.name);
 
     Ok(())
 }
