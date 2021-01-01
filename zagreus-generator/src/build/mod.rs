@@ -14,6 +14,8 @@ mod zip;
 
 pub const BUILD_FOLDER_NAME: &str = "build";
 pub const ASSETS_FOLDER_NAME: &str = "assets";
+pub const ANIMATION_CONFIG_INPUT_FILE_NAME: &str = "animations.yaml";
+pub const ELEMENTS_OUTPUT_FILE_NAME: &str = "elements.json";
 
 const ZIPPED_TEMPLATE_FILE_NAME: &str = "template.zip";
 const INPUT_SVG_FILE_NAME: &str = "template.svg";
@@ -22,9 +24,7 @@ const RAW_HTML_FILE_NAME: &str = "index_raw.html";
 const HTML_FILE_NAME: &str = "index.html";
 
 const ELEMENT_CONFIG_INPUT_FILE_NAME: &str = "elements.yaml";
-const ANIMATION_CONFIG_INPUT_FILE_NAME: &str = "animations.yaml";
 
-const ELEMENTS_OUTPUT_FILE_NAME: &str = "elements.json";
 const TEMPLATE_CONFIG_OUTPUT_FILE_NAME: &str = "template.json";
 const ANIMATION_CONFIG_OUTPUT_FILE_NAME: &str = "animations.json";
 

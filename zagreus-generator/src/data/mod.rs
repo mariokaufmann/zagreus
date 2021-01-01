@@ -5,10 +5,14 @@ use serde::Serialize;
 
 use crate::data::validation::{ConfigValidate, ValidationData};
 use crate::error::ZagreusError;
+use crate::new::TemplateDefault;
 
 pub mod animation;
 pub mod element;
 pub mod validation;
+
+const DEFAULT_DEV_SERVER_ADDRESS: &str = "localhost";
+const DEFAULT_DEV_SERVER_PORT: u16 = 58179;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -16,6 +20,21 @@ pub struct TemplateConfig {
     pub name: String,
     pub on_load: OnLoadConfig,
     pub dev_server: DevServerConfig,
+}
+
+impl TemplateDefault for TemplateConfig {
+    fn template_default(template_name: &str) -> Self {
+        TemplateConfig {
+            name: String::from(template_name),
+            on_load: OnLoadConfig {
+                animation_sequences: vec![],
+            },
+            dev_server: DevServerConfig {
+                address: String::from(DEFAULT_DEV_SERVER_ADDRESS),
+                port: DEFAULT_DEV_SERVER_PORT,
+            },
+        }
+    }
 }
 
 impl ConfigValidate for TemplateConfig {
