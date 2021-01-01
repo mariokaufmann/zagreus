@@ -1,4 +1,4 @@
-use crate::data::validation::{ConfigValidate, get_duplicate_elements, ValidationData};
+use crate::data::validation::{get_duplicate_elements, ConfigValidate, ValidationData};
 use crate::error::{error_with_message, simple_error, ZagreusError};
 use crate::new::TemplateDefault;
 
@@ -117,8 +117,7 @@ impl ConfigValidate for AlignmentConfig {
         if self.with.is_empty() {
             if self.horizontal == HorizontalAlignment::Center {
                 return Err(ZagreusError::from(
-                    "Element is horizontally center-aligned but no with is configured."
-                        .to_string(),
+                    "Element is horizontally center-aligned but no with is configured.".to_string(),
                 ));
             }
 
