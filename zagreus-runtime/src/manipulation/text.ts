@@ -19,7 +19,7 @@ export const setTextOnFoundElement = (element: HTMLElement, text: string, elemen
 
     const templateElement = state.elements.find(element => element.id === elementName);
     if(!templateElement) {
-        console.error(`Element ${elementName} is not configured in template.`);
+        console.error(`Element ${elementName} is not present in template.`);
         return;
     }
     const alignmentConfig = templateElement.config?.align;

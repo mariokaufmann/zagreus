@@ -114,28 +114,37 @@ pub struct AlignmentConfig {
 
 impl ConfigValidate for AlignmentConfig {
     fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
-        if self.horizontal == HorizontalAlignment::Center && self.with.is_empty() {
-            return Err(ZagreusError::from(
-                "Element is horizontally center-aligned but no alignWith is configured."
-                    .to_string(),
-            ));
-        }
+        if self.with.is_empty() {
+            if self.horizontal == HorizontalAlignment::Center {
+                return Err(ZagreusError::from(
+                    "Element is horizontally center-aligned but no with is configured.".to_string(),
+                ));
+            }
 
-        if self.vertical == VerticalAlignment::Center && self.with.is_empty() {
-            return Err(ZagreusError::from(
-                "Element is vertically center-aligned but no alignWith is configured.".to_string(),
-            ));
-        }
-
-        if !self.with.is_empty()
-            && !validation_data
+            if self.vertical == VerticalAlignment::Center {
+                return Err(ZagreusError::from(
+                    "Element is vertically center-aligned but no with is configured.".to_string(),
+                ));
+            }
+        } else {
+            if !validation_data
                 .template_elements
                 .has_template_element(&self.with)
-        {
-            return Err(ZagreusError::from(format!(
-                "Element is configured to be aligned with unknown element {}.",
-                &self.with
-            )));
+            {
+                return Err(ZagreusError::from(format!(
+                    "Element is configured to be aligned with unknown element {}.",
+                    &self.with
+                )));
+            }
+
+            if self.horizontal != HorizontalAlignment::Center
+                && self.vertical != VerticalAlignment::Center
+            {
+                return Err(ZagreusError::from(
+                    "An element can only have a with element if it is center-aligned in at least one direction."
+                        .to_string(),
+                ));
+            }
         }
 
         Ok(())
@@ -278,6 +287,28 @@ mod tests {
                     align: AlignmentConfig::default(),
                 },
             ],
+        };
+
+        let result = element_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_with_not_center() {
+        let data_elements =
+            TemplateElements::from_ids(vec![String::from("id1"), String::from("id2")]);
+        let validation_data = ValidationData {
+            template_elements: &data_elements,
+        };
+        let element_config = ElementsConfig {
+            elements: vec![ElementConfig {
+                id: String::from("id1"),
+                align: AlignmentConfig {
+                    horizontal: HorizontalAlignment::Left,
+                    vertical: VerticalAlignment::Top,
+                    with: "id2".to_string(),
+                },
+            }],
         };
 
         let result = element_config.validate(&validation_data);
