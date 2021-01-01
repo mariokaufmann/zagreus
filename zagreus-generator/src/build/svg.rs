@@ -33,13 +33,10 @@ pub fn process_svg(
                     }
                 }
 
-                match transform_event(&evt) {
-                    Some(transformed_event) => {
-                        if let Err(err) = processed_template_writer.write(transformed_event) {
-                            error!("Could not write event to output SVG file: {}.", err);
-                        }
+                if let Some(transformed_event) = transform_event(&evt) {
+                    if let Err(err) = processed_template_writer.write(transformed_event) {
+                        error!("Could not write event to output SVG file: {}.", err);
                     }
-                    None => warn!("Could not transform event, it is skipped {:?}", evt),
                 }
             }
             Err(err) => {
@@ -55,6 +52,7 @@ pub fn process_svg(
 fn transform_event(event: &ReaderEvent) -> Option<WriterEvent> {
     match event {
         ReaderEvent::StartDocument { .. } => None,
+        ReaderEvent::EndDocument => None,
         ReaderEvent::StartElement {
             name,
             attributes,
