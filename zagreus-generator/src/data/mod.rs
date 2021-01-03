@@ -6,6 +6,8 @@ use serde::Serialize;
 use crate::data::validation::{ConfigValidate, ValidationData};
 use crate::error::ZagreusError;
 use crate::new::TemplateDefault;
+use crate::ZAGREUS_GENERATOR_VERSION;
+use std::fs::File;
 
 pub mod animation;
 pub mod element;
@@ -55,6 +57,21 @@ pub struct OnLoadConfig {
     pub animation_sequences: Vec<String>,
 }
 
+/// Contains meta information about the Zagreus generator and the build process.
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MetaInfo {
+    pub zagreus_generator_version: String,
+}
+
+impl MetaInfo {
+    pub fn new() -> Self {
+        MetaInfo {
+            zagreus_generator_version: String::from(ZAGREUS_GENERATOR_VERSION),
+        }
+    }
+}
+
 /// Reads the config of type `T` from the input file, validates it and outputs
 /// it to the output file.
 pub fn convert_config<T>(
@@ -100,4 +117,16 @@ where
     let input_file = std::fs::File::open(&config_file_path)?;
     let config: T = serde_yaml::from_reader(input_file)?;
     Ok(config)
+}
+
+/// Creates the meta data JSON file in the build directory. Returns an error of the file can't be
+/// created or written to, or if there is an error during serialization
+///
+/// # Arguments
+/// * `build_folder`: The path to the template's build folder.
+/// * `file_name`: The name of the meta data file.
+pub fn create_meta_file(build_folder: &Path, file_name: &str) -> Result<(), ZagreusError> {
+    let meta_file = File::create(build_folder.join(file_name))?;
+    serde_json::to_writer(meta_file, &MetaInfo::new())?;
+    Ok(())
 }

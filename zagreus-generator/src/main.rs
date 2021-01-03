@@ -19,6 +19,7 @@ mod new;
 mod upload;
 
 const TEMPLATE_CONFIG_FILE_NAME: &str = "zagreus-template.yaml";
+const ZAGREUS_GENERATOR_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() {
     let command = cli::get_command();
