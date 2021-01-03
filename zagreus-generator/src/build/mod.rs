@@ -26,6 +26,7 @@ const HTML_FILE_NAME: &str = "index.html";
 const ELEMENTS_OUTPUT_FILE_NAME: &str = "elements.json";
 const TEMPLATE_CONFIG_OUTPUT_FILE_NAME: &str = "template.json";
 const ANIMATION_CONFIG_OUTPUT_FILE_NAME: &str = "animations.json";
+const META_INFO_OUTPUT_FILE_NAME: &str = "meta.json";
 
 pub fn build_template(
     build_folder: &Path,
@@ -36,6 +37,9 @@ pub fn build_template(
             return error_with_message("Could not create build folder", err);
         }
     }
+
+    // Create the meta data file.
+    crate::data::create_meta_file(build_folder, META_INFO_OUTPUT_FILE_NAME)?;
 
     let input_template_file_path = Path::new(INPUT_SVG_FILE_NAME);
     let processed_template_file_path = build_folder.join(PROCESSED_SVG_FILE_NAME);
