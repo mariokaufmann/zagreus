@@ -108,9 +108,7 @@ mod tests {
         };
         let animation_config = AnimationConfig {
             on_load: OnLoadConfig {
-                animation_sequences: vec![
-                    String::from("id1")
-                ],
+                animation_sequences: vec![String::from("id1")],
             },
             sequences: vec![AnimationSequence {
                 name: String::from("sequence"),
