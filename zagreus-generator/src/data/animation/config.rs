@@ -4,17 +4,25 @@ use crate::error::ZagreusError;
 use crate::new::TemplateDefault;
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AnimationConfig {
+    on_load: OnLoadConfig,
     sequences: Vec<AnimationSequence>,
 }
 
 impl TemplateDefault for AnimationConfig {
     fn template_default(_: &str) -> Self {
-        AnimationConfig { sequences: vec![] }
+        AnimationConfig {
+            on_load: OnLoadConfig {
+                animation_sequences: vec![],
+            },
+            sequences: vec![],
+        }
     }
 }
 
 impl ConfigValidate for AnimationConfig {
+    // TODO: Validate on_load sequence.
     fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
         for sequence in &self.sequences {
             for step in &sequence.steps {
@@ -79,6 +87,12 @@ impl Default for AnimationDirection {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OnLoadConfig {
+    pub animation_sequences: Vec<String>,
+}
+
 #[cfg(test)]
 mod tests {
     use crate::data::element::TemplateElements;
@@ -93,6 +107,11 @@ mod tests {
             template_elements: &template_elements,
         };
         let animation_config = AnimationConfig {
+            on_load: OnLoadConfig {
+                animation_sequences: vec![
+                    String::from("id1")
+                ],
+            },
             sequences: vec![AnimationSequence {
                 name: String::from("sequence"),
                 steps: vec![AnimationStep {
@@ -125,6 +144,9 @@ mod tests {
             template_elements: &template_elements,
         };
         let animation_config = AnimationConfig {
+            on_load: OnLoadConfig {
+                animation_sequences: vec![],
+            },
             sequences: vec![AnimationSequence {
                 name: String::from("sequence"),
                 steps: vec![AnimationStep {
@@ -150,6 +172,9 @@ mod tests {
             template_elements: &template_elements,
         };
         let animation_config = AnimationConfig {
+            on_load: OnLoadConfig {
+                animation_sequences: vec![],
+            },
             sequences: vec![AnimationSequence {
                 name: String::from("sequence"),
                 steps: vec![AnimationStep {
@@ -174,4 +199,6 @@ mod tests {
         let result = animation_config.validate(&validation_data);
         assert!(result.is_err());
     }
+
+    // TODO: Add tests specific to on_load validation.
 }

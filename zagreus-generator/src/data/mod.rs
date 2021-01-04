@@ -20,7 +20,6 @@ const DEFAULT_DEV_SERVER_PORT: u16 = 58179;
 #[serde(rename_all = "camelCase")]
 pub struct TemplateConfig {
     pub name: String,
-    pub on_load: OnLoadConfig,
     pub dev_server: DevServerConfig,
 }
 
@@ -28,9 +27,6 @@ impl TemplateDefault for TemplateConfig {
     fn template_default(template_name: &str) -> Self {
         TemplateConfig {
             name: String::from(template_name),
-            on_load: OnLoadConfig {
-                animation_sequences: vec![],
-            },
             dev_server: DevServerConfig {
                 address: String::from(DEFAULT_DEV_SERVER_ADDRESS),
                 port: DEFAULT_DEV_SERVER_PORT,
@@ -49,12 +45,6 @@ impl ConfigValidate for TemplateConfig {
 pub struct DevServerConfig {
     pub address: String,
     pub port: u16,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct OnLoadConfig {
-    pub animation_sequences: Vec<String>,
 }
 
 /// Contains meta information about the Zagreus generator and the build process.
