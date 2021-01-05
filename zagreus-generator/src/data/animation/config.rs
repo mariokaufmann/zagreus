@@ -22,7 +22,6 @@ impl TemplateDefault for AnimationConfig {
 }
 
 impl ConfigValidate for AnimationConfig {
-    // TODO: Validate on_load sequence.
     fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
         // Validate animation sequences.
         for sequence in &self.sequences {
@@ -51,23 +50,23 @@ impl ConfigValidate for AnimationConfig {
         }
 
         // Validate on_load config.
-        let mut found_on_load_sequences = Vec::new();
-        for on_load in &self.on_load.animation_sequences {
+        let mut seen_on_load_sequences = Vec::new();
+        for on_load_seq in &self.on_load.animation_sequences {
             if self
                 .sequences
                 .iter()
-                .find(|sequence| &sequence.name == on_load)
+                .find(|sequence| &sequence.name == on_load_seq)
                 .is_none()
             {
                 return simple_error(&format!(
                     "Invalid on_load sequence: Animation sequence '{}' doesn't exist.",
-                    on_load
+                    on_load_seq
                 ));
             }
-            if found_on_load_sequences.contains(&on_load) {
-                return simple_error(&format!("Duplicate on_load sequence '{}'.", on_load));
+            if seen_on_load_sequences.contains(&on_load_seq) {
+                return simple_error(&format!("Duplicate on_load sequence '{}'.", on_load_seq));
             }
-            found_on_load_sequences.push(on_load);
+            seen_on_load_sequences.push(on_load_seq);
         }
 
         Ok(())
