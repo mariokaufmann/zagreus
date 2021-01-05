@@ -1,6 +1,6 @@
 use crate::data::validation::{get_duplicate_elements, ValidationData};
 use crate::data::ConfigValidate;
-use crate::error::ZagreusError;
+use crate::error::{simple_error, ZagreusError};
 use crate::new::TemplateDefault;
 
 #[derive(Serialize, Deserialize)]
@@ -24,6 +24,7 @@ impl TemplateDefault for AnimationConfig {
 impl ConfigValidate for AnimationConfig {
     // TODO: Validate on_load sequence.
     fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
+        // Validate animation sequences.
         for sequence in &self.sequences {
             for step in &sequence.steps {
                 // check for duplicate animations on the same element
@@ -48,6 +49,27 @@ impl ConfigValidate for AnimationConfig {
                 }
             }
         }
+
+        // Validate on_load config.
+        let mut found_on_load_sequences = Vec::new();
+        for on_load in &self.on_load.animation_sequences {
+            if self
+                .sequences
+                .iter()
+                .find(|sequence| &sequence.name == on_load)
+                .is_none()
+            {
+                return simple_error(&format!(
+                    "Invalid on_load sequence: Animation sequence '{}' doesn't exist.",
+                    on_load
+                ));
+            }
+            if found_on_load_sequences.contains(&on_load) {
+                return simple_error(&format!("Duplicate on_load sequence '{}'.", on_load));
+            }
+            found_on_load_sequences.push(on_load);
+        }
+
         Ok(())
     }
 }
@@ -108,7 +130,7 @@ mod tests {
         };
         let animation_config = AnimationConfig {
             on_load: OnLoadConfig {
-                animation_sequences: vec![String::from("id1")],
+                animation_sequences: vec![String::from("sequence")],
             },
             sequences: vec![AnimationSequence {
                 name: String::from("sequence"),
@@ -198,5 +220,86 @@ mod tests {
         assert!(result.is_err());
     }
 
-    // TODO: Add tests specific to on_load validation.
+    #[test]
+    fn validate_animation_config_no_on_load_sequences_valid() {
+        let template_elements = TemplateElements::from_ids(vec![String::from("id1")]);
+        let validation_data = ValidationData {
+            template_elements: &template_elements,
+        };
+        let animation_config = AnimationConfig {
+            on_load: OnLoadConfig {
+                animation_sequences: vec![],
+            },
+            sequences: vec![AnimationSequence {
+                name: String::from("sequence"),
+                steps: vec![AnimationStep {
+                    start: 0,
+                    duration: 0,
+                    animations: vec![Animation {
+                        id: String::from("id1"),
+                        name: String::from("ani1"),
+                        direction: AnimationDirection::Normal,
+                    }],
+                }],
+            }],
+        };
+        let result = animation_config.validate(&validation_data);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn validate_animation_config_nonexistent_on_load_sequence_invalid() {
+        let template_elements = TemplateElements::from_ids(vec![String::from("id1")]);
+        let validation_data = ValidationData {
+            template_elements: &template_elements,
+        };
+        let animation_config = AnimationConfig {
+            on_load: OnLoadConfig {
+                animation_sequences: vec![String::from("nonexistent_sequence")],
+            },
+            sequences: vec![AnimationSequence {
+                name: String::from("sequence"),
+                steps: vec![AnimationStep {
+                    start: 0,
+                    duration: 0,
+                    animations: vec![Animation {
+                        id: String::from("id1"),
+                        name: String::from("ani1"),
+                        direction: AnimationDirection::Normal,
+                    }],
+                }],
+            }],
+        };
+
+        let result = animation_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_animation_config_duplicate_on_load_sequence_invalid() {
+        let template_elements = TemplateElements::from_ids(vec![String::from("id1")]);
+        let validation_data = ValidationData {
+            template_elements: &template_elements,
+        };
+        let animation_config = AnimationConfig {
+            on_load: OnLoadConfig {
+                animation_sequences: vec![String::from("sequence"), String::from("sequence")],
+            },
+            sequences: vec![AnimationSequence {
+                name: String::from("sequence"),
+                steps: vec![AnimationStep {
+                    start: 0,
+                    duration: 0,
+                    animations: vec![Animation {
+                        id: String::from("id1"),
+                        name: String::from("ani1"),
+                        direction: AnimationDirection::Normal,
+                    }],
+                }],
+            }],
+        };
+
+        let result = animation_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
 }
