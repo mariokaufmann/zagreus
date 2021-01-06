@@ -42,7 +42,7 @@ impl ServerController {
         match locked_registry.get_template(template_name) {
             Some(template) => {
                 let message = TemplateMessage::LoadAnimations {
-                    animations: Cow::Borrowed(&template.animations),
+                    animations: Cow::Borrowed(&template.animations.sequences),
                 };
                 self.websocket_server
                     .send_message_to_template_clients(&template_name, &message)
@@ -55,7 +55,7 @@ impl ServerController {
                     .await;
                 let message = TemplateMessage::OnLoad {
                     animation_sequences: Cow::Borrowed(
-                        &template.template.on_load.animation_sequences,
+                        &template.animations.on_load.animation_sequences,
                     ),
                 };
                 self.websocket_server
@@ -103,7 +103,7 @@ impl ServerController {
 
         // send new animations
         let message = TemplateMessage::LoadAnimations {
-            animations: Cow::Borrowed(&template.animations),
+            animations: Cow::Borrowed(&template.animations.sequences),
         };
         server
             .send_message_to_template_clients(&template.name, &message)
@@ -111,7 +111,7 @@ impl ServerController {
 
         // send on load config
         let message = TemplateMessage::OnLoad {
-            animation_sequences: Cow::Borrowed(&template.template.on_load.animation_sequences),
+            animation_sequences: Cow::Borrowed(&template.animations.on_load.animation_sequences),
         };
         server
             .send_message_to_template_clients(&template.name, &message)

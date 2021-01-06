@@ -2,7 +2,7 @@ use std::path::Path;
 
 use serde::de::DeserializeOwned;
 
-use crate::data::animation::config::{AnimationConfig, AnimationSequence};
+use crate::data::animation::config::AnimationConfig;
 use crate::data::config::{TemplateConfig, TemplateElement, TemplateElements};
 use crate::error::ZagreusError;
 use crate::fs::get_template_folder;
@@ -16,7 +16,7 @@ const TEMPLATE_CONFIG_FILE_NAME: &str = "template.json";
 
 pub struct Template {
     pub name: String,
-    pub animations: Vec<AnimationSequence>,
+    pub animations: AnimationConfig,
     pub elements: Vec<TemplateElement>,
     pub template: TemplateConfig,
 }
@@ -32,7 +32,7 @@ impl Template {
 
         let template = Template {
             name: String::from(template_name),
-            animations: animation_config.sequences,
+            animations: animation_config,
             elements: element_configs.elements,
             template: template_config,
         };
