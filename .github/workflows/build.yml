@@ -60,6 +60,7 @@ jobs:
         run: ${{ matrix.script-name }}
         working-directory: ./package
       - name: Upload artifact
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.artifact }}
