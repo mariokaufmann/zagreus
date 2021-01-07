@@ -1,5 +1,7 @@
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AnimationConfig {
+    pub on_load: OnLoadConfig,
     pub sequences: Vec<AnimationSequence>,
 }
 
@@ -29,4 +31,10 @@ pub struct Animation {
 pub enum AnimationDirection {
     Normal,
     Reverse,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OnLoadConfig {
+    pub animation_sequences: Vec<String>,
 }
