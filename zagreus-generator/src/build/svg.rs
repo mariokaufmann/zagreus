@@ -5,7 +5,7 @@ use xml::reader::XmlEvent as ReaderEvent;
 use xml::writer::XmlEvent as WriterEvent;
 
 use crate::data::element::TemplateElements;
-use crate::error::ZagreusError;
+use crate::error::{error_with_message, ZagreusError};
 
 pub fn process_svg(
     input_file_path: &Path,
@@ -40,8 +40,7 @@ pub fn process_svg(
                 }
             }
             Err(err) => {
-                error!("Could not read XML event: {}.", err);
-                break;
+                return error_with_message("Could not read XML event: {}.", err);
             }
         }
     }
