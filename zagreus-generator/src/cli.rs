@@ -31,7 +31,7 @@ impl ZagreusCommand {
 pub enum ZagreusSubcommand {
     #[structopt(name = "new", about = "Generates a new boilerplate template.")]
     New {
-        #[structopt(help = "Name of the new template")]
+        #[structopt(help = "Name of the new template, allowed characters: [a-zA-Z0-9-]")]
         name: String,
     },
 
