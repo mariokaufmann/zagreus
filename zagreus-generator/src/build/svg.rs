@@ -91,4 +91,15 @@ mod tests {
 
         assert_eq!(actual_contents, expected_contents);
     }
+
+    #[test]
+    fn process_empty_svg() {
+        let temp_folder = TempFolder::new().unwrap();
+        let input_file_path = Path::new("fixtures/svg/empty.svg");
+        let actual_output_path = temp_folder.join("output.svg");
+
+        let result = process_svg(input_file_path, &actual_output_path);
+
+        assert!(result.is_err());
+    }
 }
