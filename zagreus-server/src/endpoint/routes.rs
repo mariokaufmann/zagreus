@@ -209,7 +209,7 @@ async fn upload_template(
                 let buffer = part
                     .stream()
                     .try_fold(Vec::<u8>::new(), |mut vec, data| {
-                        vec.extend_from_slice(data.bytes());
+                        vec.extend_from_slice(data.chunk());
                         futures::future::ready(Ok(vec))
                     })
                     .await;

@@ -1,5 +1,5 @@
-use serde::export::Formatter;
 use zip::result::ZipError;
+use std::fmt::Formatter;
 
 #[derive(Debug)]
 pub struct ZagreusError {
