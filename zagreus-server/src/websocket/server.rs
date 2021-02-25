@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
 
 use futures::FutureExt;
 use futures::StreamExt;
@@ -11,7 +11,7 @@ use crate::websocket::message::TemplateMessage;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 type UserConnections =
-Arc<RwLock<HashMap<usize, crate::websocket::connection::WebsocketConnection>>>;
+    Arc<RwLock<HashMap<usize, crate::websocket::connection::WebsocketConnection>>>;
 
 pub struct WebsocketServer {
     next_user_id: AtomicUsize,

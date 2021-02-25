@@ -1,5 +1,5 @@
-use zip::result::ZipError;
 use std::fmt::Formatter;
+use zip::result::ZipError;
 
 #[derive(Debug)]
 pub struct ZagreusError {
