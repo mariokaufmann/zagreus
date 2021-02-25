@@ -1,7 +1,7 @@
-use serde::export::Formatter;
 use std::path::StripPrefixError;
 use std::sync::mpsc::RecvError;
 use zip::result::ZipError;
+use std::fmt::Formatter;
 
 pub fn error_with_message<T>(
     message: &str,
