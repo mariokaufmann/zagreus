@@ -1,4 +1,4 @@
-use serde::export::Formatter;
+use std::fmt::Formatter;
 use std::path::StripPrefixError;
 use std::sync::mpsc::RecvError;
 use zip::result::ZipError;

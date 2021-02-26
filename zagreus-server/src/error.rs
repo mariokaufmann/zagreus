@@ -1,4 +1,4 @@
-use serde::export::Formatter;
+use std::fmt::Formatter;
 use zip::result::ZipError;
 
 #[derive(Debug)]

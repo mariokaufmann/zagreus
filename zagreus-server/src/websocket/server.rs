@@ -2,11 +2,13 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
-use futures::{FutureExt, StreamExt};
+use futures::FutureExt;
+use futures::StreamExt;
 use tokio::sync::RwLock;
 
 use crate::websocket::connection::WebsocketConnection;
 use crate::websocket::message::TemplateMessage;
+use tokio_stream::wrappers::UnboundedReceiverStream;
 
 type UserConnections =
     Arc<RwLock<HashMap<usize, crate::websocket::connection::WebsocketConnection>>>;
@@ -35,13 +37,15 @@ impl WebsocketServer {
 
         // sending
         let (sender_tx, sender_rx) = tokio::sync::mpsc::unbounded_channel();
-        let sending_stream = sender_rx.take_while(|result| match result {
-            Ok(_) => futures::future::ready(true),
-            Err(err) => {
-                error!("Could not forward message to websocket sink: {}.", err);
-                futures::future::ready(false)
-            }
-        });
+        let sender_rx = UnboundedReceiverStream::new(sender_rx);
+        let sending_stream =
+            tokio_stream::StreamExt::take_while(sender_rx, |result| match result {
+                Ok(_) => true,
+                Err(err) => {
+                    error!("Could not forward message to websocket sink: {}.", err);
+                    false
+                }
+            });
         tokio::task::spawn(sending_stream.forward(websocket_sink).map(|result| {
             if let Err(err) = result {
                 error!("Could not send message on websocket: {}.", err);
