@@ -50,6 +50,11 @@ jobs:
           npm ci --no-optional
           npm run build
         working-directory: ./zagreus-runtime
+      - name: Build zagreus swagger docs
+        run: |
+          npm ci --no-optional
+          npm run build
+        working-directory: ./zagreus-swagger-docs
       - name: Build zagreus generator
         run: cargo build --release
         working-directory: ./zagreus-generator

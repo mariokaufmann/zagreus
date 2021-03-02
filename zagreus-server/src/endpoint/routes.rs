@@ -79,6 +79,11 @@ pub fn get_routes(
             RUNTIME_SOURCE_MAP_FILE_NAME
         )));
 
+    const SWAGGER_DOCS_FOLDER_NAME: &str = "swagger-docs";
+    let swagger_docs_folder_filter = static_file_filter
+        .and(warp::path(SWAGGER_DOCS_FOLDER_NAME))
+        .and(warp::fs::dir(format!("./{}", SWAGGER_DOCS_FOLDER_NAME)));
+
     // REST API
     let api_filter = warp::path("api");
 
@@ -180,6 +185,7 @@ pub fn get_routes(
     let filters = ws_filter
         .or(runtime_file_filter)
         .or(runtime_source_map_file_filter)
+        .or(swagger_docs_folder_filter)
         .or(template_file_filter)
         .or(version_filter)
         .or(upload_template_filter)

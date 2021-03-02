@@ -44,7 +44,9 @@ async fn main() {
 }
 
 async fn start_with_config(configuration_manager: ConfigurationManager<ZagreusServerConfig>) {
+    info!("Starting zagreus server...");
     let configuration = configuration_manager.get_configuration();
+    info!("API docs are available at http://localhost:58179/static/swagger-docs/?url=spec.yaml");
     let ws_server = Arc::new(WebsocketServer::new());
     let (template_event_tx, template_event_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut template_registry =
