@@ -1,5 +1,15 @@
-import {ElementConfig, TemplateElement} from "../websocket/types";
+import {TemplateElement} from "../websocket/types";
 import {AlignmentState, getZagreusState, ZagreusRuntimeState} from "../data/data";
+
+export const scaleBoundingBoxToViewBox = (state: ZagreusRuntimeState, boundingBox: DOMRect): DOMRect => {
+    const viewBoxScaling = state.viewBoxScaling;
+    return <DOMRect>{
+        x: boundingBox.x * viewBoxScaling,
+        y: boundingBox.y * viewBoxScaling,
+        width: boundingBox.width * viewBoxScaling,
+        height: boundingBox.height * viewBoxScaling,
+    };
+}
 
 export const saveInitialAlignmentStates = (elements: TemplateElement[]) => {
     const state = getZagreusState();
@@ -9,6 +19,7 @@ export const saveInitialAlignmentStates = (elements: TemplateElement[]) => {
         return;
     }
 
+    state.viewBoxScaling = getViewBoxScaling();
     state.alignmentStates = {};
     elements
         .filter(element => element.config !== null)
@@ -26,17 +37,36 @@ const saveAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: s
         return;
     }
 
-    state.alignmentStates[elementName] = getInitialAlignmentStateForElement(elementName);
+    state.alignmentStates[elementName] = getInitialAlignmentStateForElement(state, elementName,);
 }
 
-const getInitialAlignmentStateForElement = (elementName: string): AlignmentState => {
+const getInitialAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: string): AlignmentState => {
     const element = document.getElementById(elementName);
     if (!element) {
         console.error(`Could not find alignment element ${elementName}.`);
         return undefined;
     }
 
+    const boundingBox = element.getBoundingClientRect();
+
     return {
-        elementBoundingBox: element.getBoundingClientRect(),
+        elementBoundingBox: scaleBoundingBoxToViewBox(state, boundingBox),
     }
+}
+
+/**
+ * The view box of the SVG element does not necessarily need to have the same pixel width and height as the SVG element
+ * itself has. Therefore we need to know the scaling factor.
+ */
+const getViewBoxScaling = (): number => {
+    const svgElement = getZagreusSvgElement();
+    return svgElement.viewBox.baseVal.width / svgElement.width.baseVal.value;
+}
+
+const getZagreusSvgElement = (): SVGSVGElement => {
+    const elements = document.querySelectorAll('#zagreus-svg-container svg');
+    if (elements.length !== 1) {
+        console.error("Expected exactly one SVG container element, found " + elements.length);
+    }
+    return <SVGSVGElement>elements[0];
 }

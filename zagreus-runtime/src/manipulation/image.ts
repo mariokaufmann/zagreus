@@ -1,5 +1,6 @@
 import {getZagreusState, ZagreusRuntimeState} from "../data/data";
 import {AlignmentConfig} from "../websocket/types";
+import {scaleBoundingBoxToViewBox} from "./manipulation";
 
 export const setImageSource = (elementName: string, asset: string) => {
     const url = `assets/${asset}`;
@@ -30,7 +31,7 @@ const alignImage = (element: SVGImageElement, elementName: string) => {
     const alignmentConfig = templateElement.config?.align;
     if (alignmentConfig) {
         // left, right, top and bottom alignment does not have any effect on images
-        const updatedImageBoundingBox = element.getBoundingClientRect();
+        const updatedImageBoundingBox = scaleBoundingBoxToViewBox(state, element.getBoundingClientRect());
         const alignWithBoundingBox = getAlignmentBoundingBox(state, alignmentConfig);
         if (!alignWithBoundingBox) {
             return;
