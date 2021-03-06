@@ -14,6 +14,7 @@ export interface ZagreusRuntimeState {
     animationsSequences: AnimationSequence[],
     elements: TemplateElement[],
     alignmentStates: { [key in string]: AlignmentState },
+    viewBoxScaling: number,
 }
 
 if (!window.zagreusRuntimeState) {
@@ -21,6 +22,7 @@ if (!window.zagreusRuntimeState) {
         animationsSequences: [],
         elements: [],
         alignmentStates: undefined,
+        viewBoxScaling: 1,
     }
 }
 
