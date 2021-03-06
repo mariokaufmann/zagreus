@@ -18,7 +18,7 @@ This centers the element both horizontally and vertically in the background elem
 
 ## Add asset
 To be able to use our second icon as image we can add it as an asset. We are going to use [the icon of a dragon](./img/dragon.png). Add the file to the _asset_ folder in your template directory. Alternatively, you can also add it to the asset folder of the template directly on the server. Check out the documentation about assets for more information (TODO).
-Rebuild the template and upload it to the server.
+Rebuild the template and upload it to the server. If the zagreus generator is still running in watch mode this should happen automatically once you add the file to the _asset_ folder.
 
 # Set image content dynamically
-Go to the server UI (TODO navigate to image and set it). You can now see that the logo was replaced with a dragon.
+Go to the server API documentation (read the chapter about dynamic text if you haven't already). Search for the _data/image_ endpoint. The property asset in the payload determines, which file is set as the image source. Try setting the image source of the _ScoreboardLogoImage_ element to the dragon image (`"asset" : "dragon.png"`). You can now see that the logo was replaced with a dragon.
