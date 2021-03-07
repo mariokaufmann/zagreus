@@ -35,6 +35,8 @@ Open the file _animations.yaml_ and change it so it looks like the following cod
 
 ```yaml
 ---
+onLoad:
+  animationSequences: []
 sequences:
   - name: ScoreboardShow
     steps:
@@ -63,6 +65,7 @@ sequences:
 With this we define two animation sequences, one for showing the scoreboard and one for hiding it. An sequence is made
 up of one or more steps that are executed one after the other in the order they are defined. Rebuild the template and
 upload it to the server (this is done automatically if you have started the generator in _watch_ mode).
+For more detailed information on how to configure animations check out the [animation documentation](../config/animation.md).
 
 # Execute animation
 

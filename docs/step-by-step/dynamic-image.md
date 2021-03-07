@@ -17,7 +17,7 @@ Similar to the text element we need to configure the image so that it is aligned
 This centers the element both horizontally and vertically in the background element.
 
 ## Add asset
-To be able to use our second icon as image we can add it as an asset. We are going to use [the icon of a dragon](./img/dragon.png). Add the file to the _asset_ folder in your template directory. Alternatively, you can also add it to the asset folder of the template directly on the server. Check out the documentation about assets for more information (TODO).
+To be able to use our second icon as image we can add it as an asset. We are going to use [the icon of a dragon](./img/dragon.png). Add the file to the _asset_ folder in your template directory.
 Rebuild the template and upload it to the server. If the zagreus generator is still running in watch mode this should happen automatically once you add the file to the _asset_ folder.
 
 # Set image content dynamically
