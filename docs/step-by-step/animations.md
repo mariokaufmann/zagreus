@@ -1,5 +1,4 @@
 # Animation
-
 We want to be able to animate the scoreboard. More precisely we want to show and hide the scoreboard by letting it fly
 in and out from the upper border of the screen.
 
@@ -12,7 +11,7 @@ Create a file _animations.css_ in the folder _asset_ and add the following snipp
 ```css
 @keyframes moveScoreboardDown {
     from {
-        transform: translateY(-400px);
+        transform: translateY(-100px);
     }
     to {
         transform: translateY(0);
@@ -21,7 +20,7 @@ Create a file _animations.css_ in the folder _asset_ and add the following snipp
 
 @keyframes moveScoreboardTimeDown {
     from {
-        transform: translateY(-100px);
+        transform: translateY(-10px);
     }
     to {
         transform: translateY(0);
@@ -36,6 +35,8 @@ Open the file _animations.yaml_ and change it so it looks like the following cod
 
 ```yaml
 ---
+onLoad:
+  animationSequences: []
 sequences:
   - name: ScoreboardShow
     steps:
@@ -64,10 +65,11 @@ sequences:
 With this we define two animation sequences, one for showing the scoreboard and one for hiding it. An sequence is made
 up of one or more steps that are executed one after the other in the order they are defined. Rebuild the template and
 upload it to the server (this is done automatically if you have started the generator in _watch_ mode).
+For more detailed information on how to configure animations check out the [animation documentation](../config/animation.md).
 
 # Execute animation
 
-To see our animation sequence in action we can execute it from the server UI (TODO go to UI execute hide animation). You
+To see our animation sequence in action we can execute it from the API documentation (read the chapter about dynamic text if you haven't already). To execute, use the _data/animation/_ endpoint. Try executing the _ScoreboardHide_ animation. You
 should see the scoreboard disappear. Now execute the _ScoreboardShow_ animation sequence. The scoreboard should come
 back flying from the top. Since our show animation sequence consists of two steps the scoreboard will first fly in and
 then the element displaying the time will move once the first movement is finished.
@@ -78,17 +80,13 @@ We designed the scoreboard in the position in which it will end up when it is sh
 scoreboard to be initially hidden when the template is first loaded. It would be very inconvenient if we had to design
 the scoreboard in its hidden position. Zagreus allows us list animation sequences that should be played when the
 template initially loads. This is done before the visual elements in the template are actually visible, thus making this
-a great feature for bringing all template elements into place before the template finishes loading. Open the file _zagreus-template.yaml_ and add the _ScoreboardHide_ as a _on load_ animation like so:
+a great feature for bringing all template elements into place before the template finishes loading. Open the file _animations.yaml_ and add the _ScoreboardHide_ as a _on load_ animation like so:
 
 ```yaml
 ---
-name: my-template
 onLoad:
   animationSequences:
     - "ScoreboardHide"
-devServer:
-  address: localhost
-  port: 4300
 ```
 
 If you reload the template now the scoreboard should initially be invisible and only show up once you execute the _ScoreboardShow_ animation.

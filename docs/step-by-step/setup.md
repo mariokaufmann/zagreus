@@ -17,5 +17,5 @@ With the zagreus generator we can generate a new template project. For this, we 
 zagreus-generator new my-template
 ```
 The zagreus generator will create a sub directory with the the name `my-template` and inside that directory set up a zagreus template project with the same name. The project consists of a few _.yaml_ configuration files and an asset subdirectory.
-The file `zagreus-template.yaml` contains basic configuration options for the template such as its name for example. To find out what other configuration options are available please visit (TODO).
+The file `zagreus-template.yaml` contains basic configuration options for the template such as its name for example. To find out what other configuration options are available please visit the [template config documentation](../config/template.md).
 
