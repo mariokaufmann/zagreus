@@ -70,3 +70,17 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: package/zagreus.zip
+  release:
+    runs-on: [ self-hosted, Linux ]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: release/
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+          with:
+            files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
