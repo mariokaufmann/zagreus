@@ -11,7 +11,7 @@ jobs:
             artifact: zagreus-linux
           - label: Windows
             script-name: .\package.ps1
-            artifact: zagreus-win
+            artifact: zagreus-windows
     runs-on: [ self-hosted, '${{ matrix.label }}' ]
     steps:
       - uses: actions/checkout@v2
@@ -69,7 +69,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.artifact }}
-          path: package/zagreus.zip
+          path: package/${{ matrix.artifact }}.zip
   release:
     runs-on: [ self-hosted, Linux ]
     if: startsWith(github.ref, 'refs/tags/v')
