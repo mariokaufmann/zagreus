@@ -53,7 +53,7 @@ pub fn build_template(
     html::write_raw_html(
         &processed_template_file_path,
         &raw_html_path,
-        &template_config.name,
+        &template_config,
         collected_stylesheets,
     );
 

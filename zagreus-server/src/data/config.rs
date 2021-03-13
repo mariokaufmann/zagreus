@@ -1,6 +1,10 @@
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct TemplateConfig {}
+pub struct TemplateConfig {
+    pub name: String,
+    pub width: u16,
+    pub height: u16,
+}
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct TemplateElements {

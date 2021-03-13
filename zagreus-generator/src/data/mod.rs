@@ -15,18 +15,24 @@ pub mod validation;
 
 const DEFAULT_DEV_SERVER_ADDRESS: &str = "localhost";
 const DEFAULT_DEV_SERVER_PORT: u16 = 58179;
+const DEFAULT_WIDTH: u16 = 1920;
+const DEFAULT_HEIGHT: u16 = 1080;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TemplateConfig {
     pub name: String,
     pub dev_server: DevServerConfig,
+    pub width: u16,
+    pub height: u16,
 }
 
 impl TemplateDefault for TemplateConfig {
     fn template_default(template_name: &str) -> Self {
         TemplateConfig {
             name: String::from(template_name),
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
             dev_server: DevServerConfig {
                 address: String::from(DEFAULT_DEV_SERVER_ADDRESS),
                 port: DEFAULT_DEV_SERVER_PORT,
