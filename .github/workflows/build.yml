@@ -4,15 +4,15 @@ jobs:
   build:
     strategy:
       matrix:
-        label: [ Linux, Windows ]
+        label: [ ubuntu-latest, windows-latest ]
         include:
-          - label: Linux
+          - label: ubuntu-latest
             script-name: chmod +x ./package.sh && ./package.sh
             artifact: zagreus-linux
-          - label: Windows
+          - label: windows-latest
             script-name: .\package.ps1
             artifact: zagreus-windows
-    runs-on: [ self-hosted, '${{ matrix.label }}' ]
+    runs-on: [ '${{ matrix.label }}' ]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -71,7 +71,7 @@ jobs:
           name: ${{ matrix.artifact }}
           path: package/${{ matrix.artifact }}.zip
   release:
-    runs-on: [ self-hosted, Linux ]
+    runs-on: [ ubuntu-latest ]
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build
     steps:
