@@ -2,7 +2,7 @@
 In this section we will setup zagreus (if you haven't already) and create a zagreus template project. This tutorial assumes that you have a basic familiarity with the terminal / shell on your operating system.
 
 ## Setup zagreus
-To install zagreus, you need to download the latest release from Github (TODO link). Unzip the archive to a location of your choosing. We recommend to add that location to the `PATH` environment variable on your system.
+To install zagreus, you need to download the latest release from [the releases page](https://github.com/mariokaufmann/zagreus/releases/latest). Unzip the archive to a location of your choosing. We recommend to add that location to the `PATH` environment variable on your system.
 
 ## Zagreus generator
 The zagreus generator is a command-line utility to create, build and pack zagreus templates. If you have added the zagreus installation directory to the `PATH` you can start a terminal and use the generator without having to provide its absolue path:
