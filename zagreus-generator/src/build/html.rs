@@ -5,16 +5,18 @@ use std::path::Path;
 
 use xml::reader::XmlEvent as ReaderEvent;
 
+use crate::data::TemplateConfig;
+
 const HTML_PART_1: &str = "<html><head><meta charset=\"UTF-8\" />";
-const HTML_PART_2: &str =
-    "</head><body><div id=\"zagreus-svg-container\" class=\"zagreus-hidden\">";
-const HTML_PART_3: &str =
+const HTML_PART_2: &str = "</head><body>";
+const HTML_PART_3: &str = "<div id=\"zagreus-svg-container\" class=\"zagreus-hidden\">";
+const HTML_PART_4: &str =
     "</div><script src=\"/static/zagreus-runtime.js\"></script></body></html>";
 
 pub fn write_raw_html(
     processed_template_path: &Path,
     raw_html_path: &Path,
-    template_name: &str,
+    template_config: &TemplateConfig,
     mut stylesheets: HashSet<String>,
 ) {
     let mut raw_html_file = File::create(raw_html_path).unwrap();
@@ -24,7 +26,13 @@ pub fn write_raw_html(
 
     // write base tag
     raw_html_file
-        .write_all(format!("<base href=\"/static/template/{}/\" />", template_name).as_bytes())
+        .write_all(
+            format!(
+                "<base href=\"/static/template/{}/\" />",
+                template_config.name
+            )
+            .as_bytes(),
+        )
         .unwrap();
     // sort stylesheet names for a stable conversion
     let mut stylesheets: Vec<String> = stylesheets.drain().collect();
@@ -43,9 +51,19 @@ pub fn write_raw_html(
 
     raw_html_file.write_all(HTML_PART_2.as_bytes()).unwrap();
     raw_html_file
-        .write_all(processed_template_data.as_slice())
+        .write_all(
+            format!(
+                "<style>html {{transform-box: fill-box;width: {}px;height: {}px}}  html, body {{margin: 0;padding: 0;}}  .zagreus-hidden {{visibility: hidden;}}</style>",
+                template_config.width, template_config.height
+            )
+            .as_bytes(),
+        )
         .unwrap();
     raw_html_file.write_all(HTML_PART_3.as_bytes()).unwrap();
+    raw_html_file
+        .write_all(processed_template_data.as_slice())
+        .unwrap();
+    raw_html_file.write_all(HTML_PART_4.as_bytes()).unwrap();
 }
 
 // This step is mainly there to pretty print the RAW HTML
@@ -70,6 +88,7 @@ mod tests {
     use std::path::Path;
 
     use crate::fs::temp::TempFolder;
+    use crate::new::TemplateDefault;
 
     use super::*;
 
@@ -80,6 +99,7 @@ mod tests {
         let expected_output_path = Path::new("fixtures/html/valid_raw.html");
         let actual_output_path = temp_folder.join("index_raw.html");
 
+        let template_config = TemplateConfig::template_default("test-template");
         let stylesheets: HashSet<String> = [
             String::from("assets/main.css"),
             String::from("assets/animations.css"),
@@ -90,7 +110,7 @@ mod tests {
         write_raw_html(
             processed_template_path,
             &actual_output_path,
-            "test-template",
+            &template_config,
             stylesheets,
         );
 
