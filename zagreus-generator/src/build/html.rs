@@ -87,6 +87,7 @@ pub fn process_raw_html(raw_html_path: &Path, processed_html_path: &Path) {
 mod tests {
     use std::path::Path;
 
+    use crate::build::tests::assert_equal_ignoring_newlines;
     use crate::fs::temp::TempFolder;
     use crate::new::TemplateDefault;
 
@@ -117,7 +118,7 @@ mod tests {
         let actual_contents = std::fs::read_to_string(actual_output_path).unwrap();
         let expected_contents = std::fs::read_to_string(expected_output_path).unwrap();
 
-        assert_eq!(actual_contents, expected_contents);
+        assert_equal_ignoring_newlines(actual_contents, expected_contents);
     }
 
     #[test]
@@ -132,6 +133,6 @@ mod tests {
         let actual_contents = std::fs::read_to_string(actual_output_path).unwrap();
         let expected_contents = std::fs::read_to_string(expected_output_path).unwrap();
 
-        assert_eq!(actual_contents, expected_contents);
+        assert_equal_ignoring_newlines(actual_contents, expected_contents);
     }
 }

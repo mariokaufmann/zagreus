@@ -74,6 +74,7 @@ fn transform_event(event: &ReaderEvent) -> Option<WriterEvent> {
 
 #[cfg(test)]
 mod tests {
+    use crate::build::tests::assert_equal_ignoring_newlines;
     use crate::fs::temp::TempFolder;
 
     use super::*;
@@ -90,6 +91,6 @@ mod tests {
         let actual_contents = std::fs::read_to_string(actual_output_path).unwrap();
         let expected_contents = std::fs::read_to_string(expected_output_path).unwrap();
 
-        assert_eq!(actual_contents, expected_contents);
+        assert_equal_ignoring_newlines(actual_contents, expected_contents);
     }
 }

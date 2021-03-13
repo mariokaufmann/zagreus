@@ -1,9 +1,9 @@
 use std::path::{Path, PathBuf};
 
 use crate::data::animation::config::AnimationConfig;
-use crate::data::element::{merge_elements_with_config, ElementsConfig, TemplateElements};
-use crate::data::validation::ValidationData;
+use crate::data::element::{ElementsConfig, merge_elements_with_config, TemplateElements};
 use crate::data::TemplateConfig;
+use crate::data::validation::ValidationData;
 use crate::error::{error_with_message, ZagreusError};
 
 mod asset;
@@ -119,4 +119,17 @@ pub fn build_template(
 
 pub fn get_zipped_template_file_path(build_folder: &Path) -> PathBuf {
     build_folder.join(ZIPPED_TEMPLATE_FILE_NAME)
+}
+
+#[cfg(test)]
+mod tests {
+    pub(crate) fn assert_equal_ignoring_newlines(left: String, right: String) {
+        let left = remove_newlines(left);
+        let right = remove_newlines(right);
+        assert_eq!(left, right);
+    }
+
+    fn remove_newlines(text: String) -> String {
+        text.chars().filter(|x| *x != '\n' && *x != '\r').collect()
+    }
 }
