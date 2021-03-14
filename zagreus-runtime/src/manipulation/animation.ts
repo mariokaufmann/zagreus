@@ -9,7 +9,7 @@ export const applyAnimation = (sequenceName: string): void => {
     }
 };
 
-const scheduleAnimationSequence = (steps: AnimationStep[]) => {
+const scheduleAnimationSequence = (steps: AnimationStep[]): void => {
     steps.forEach((step, index) => {
         const start = getStartForAnimationStep(steps, index);
         if (start > 0) {
@@ -20,11 +20,11 @@ const scheduleAnimationSequence = (steps: AnimationStep[]) => {
     });
 };
 
-const applyAnimationStep = (step: AnimationStep) => {
+const applyAnimationStep = (step: AnimationStep): void => {
     step.animations.forEach(element => applyAnimationToElement(element.id, element.name, element.direction, step.duration));
 };
 
-const applyAnimationToElement = (id: string, animationName: string, animationDirection: AnimationDirection, duration: number) => {
+const applyAnimationToElement = (id: string, animationName: string, animationDirection: AnimationDirection, duration: number): void => {
     const element = document.getElementById(id);
     if (element) {
         if (element.style.animationName === animationName) {

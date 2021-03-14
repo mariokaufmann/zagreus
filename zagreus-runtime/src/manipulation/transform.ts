@@ -9,11 +9,11 @@ import {TemplateElement} from '../websocket/types';
  1) this removes any skewX(), skewY() values the element might have
  2) at the moment this is only done for the 2D transformation matrix style of the transform attribute
  */
-export const flattenTransforms = (elements: TemplateElement[]) => {
+export const flattenTransforms = (elements: TemplateElement[]) :void=> {
     elements.forEach(flattenTransform);
 };
 
-const flattenTransform = (templateElement: TemplateElement) => {
+const flattenTransform = (templateElement: TemplateElement) :void=> {
     const element = document.getElementById(templateElement.id);
     if (!element) {
         console.error(`Could not find element ${templateElement.id} when flattening transforms.`);
@@ -56,7 +56,7 @@ const flattenTransform = (templateElement: TemplateElement) => {
     element.removeAttribute('transform');
 };
 
-const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fraction: number) => {
+const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fraction: number):void => {
     let attributeValue = element.getAttribute(attributeName);
     if (!attributeValue || attributeValue.length === 0) {
         console.error(`Expected to find attribute ${attributeName} on element ${element.id} but didn't find it.`);

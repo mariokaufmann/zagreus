@@ -64,6 +64,7 @@ export class TemplateWebsocket {
         console.error('Error on websocket.');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private onClose(event: CloseEvent): void {
         if (this.wasOpen) {
             this.wasOpen = false;

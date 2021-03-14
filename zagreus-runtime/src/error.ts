@@ -1,7 +1,7 @@
 import {WebsocketSender} from './websocket/websocket-sender';
 import {LogErrorPayload, TaggedEnumType, TemplateMessage} from './websocket/types';
 
-export const installErrorHandler = (websocketSender: WebsocketSender) => {
+export const installErrorHandler = (websocketSender: WebsocketSender):void => {
     window.addEventListener('error', evt => {
         const error = <Error>evt.error;
         const message: TaggedEnumType<TemplateMessage, LogErrorPayload> = {

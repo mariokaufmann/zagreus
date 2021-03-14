@@ -52,6 +52,7 @@ const templateMessageHandlers: EnumTypeHandler<TemplateMessage, WebsocketSender>
     'SetImageSource': (payload: SetImageSourcePayload) => {
         setImageSource(payload.id, payload.asset);
     },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     'LogError': () => {
     },
 };

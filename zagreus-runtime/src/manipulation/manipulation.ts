@@ -11,7 +11,7 @@ export const scaleBoundingBoxToViewBox = (state: ZagreusRuntimeState, boundingBo
     };
 };
 
-export const saveInitialAlignmentStates = (elements: TemplateElement[]) => {
+export const saveInitialAlignmentStates = (elements: TemplateElement[]) :void=> {
     const state = getZagreusState();
 
     if (state.alignmentStates) {
@@ -30,7 +30,7 @@ export const saveInitialAlignmentStates = (elements: TemplateElement[]) => {
         .forEach(config => saveAlignmentStateForElement(state, config.with));
 };
 
-const saveAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: string) => {
+const saveAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: string):void => {
     const alignmentState = state.alignmentStates[elementName];
     if (alignmentState) {
         // only measure once

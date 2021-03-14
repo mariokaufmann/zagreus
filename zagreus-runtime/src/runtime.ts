@@ -3,7 +3,7 @@ import {WebsocketSender} from './websocket/websocket-sender';
 import {WebsocketHandler} from './websocket/websocket-handler';
 import {installErrorHandler} from './error';
 
-function runWebsocket() {
+function runWebsocket():void {
     const locationPathName = window.location.pathname;
     const pathname = locationPathName.endsWith('/') ? locationPathName.substring(0, locationPathName.length - 1) : locationPathName;
     const templateName = pathname.substring(locationPathName.lastIndexOf('/') + 1);
