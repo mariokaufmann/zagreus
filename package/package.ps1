@@ -12,4 +12,5 @@ New-Item -ItemType Directory -Path .\target | Out-Null
 Copy-Item ..\zagreus-runtime\dist\zagreus-runtime.js .\target
 Copy-Item ..\zagreus-generator\target\release\zagreus-generator.exe target\
 Copy-Item ..\zagreus-server\target\release\zagreus-server.exe target\
+Copy-Item ..\zagreus-server\swagger-docs target\ -Recurse
 Compress-Archive -Path .\target\* -DestinationPath .\zagreus-windows.zip
