@@ -14,7 +14,13 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
-    "quotes": "error",
+    "quotes": [
+      "error",
+      "single",
+      {
+        "avoidEscape": true
+      }
+    ],
     "no-multiple-empty-lines": "error",
     "no-trailing-spaces": "error",
     "semi": "error",

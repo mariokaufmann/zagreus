@@ -1,4 +1,4 @@
-import {TemplateElement} from "../websocket/types";
+import {TemplateElement} from '../websocket/types';
 
 /**
  For dynamic elements that have the ability to respect absolute positioning attributes (x/y and width/height) we want to remove
@@ -11,7 +11,7 @@ import {TemplateElement} from "../websocket/types";
  */
 export const flattenTransforms = (elements: TemplateElement[]) => {
     elements.forEach(flattenTransform);
-}
+};
 
 const flattenTransform = (templateElement: TemplateElement) => {
     const element = document.getElementById(templateElement.id);
@@ -54,7 +54,7 @@ const flattenTransform = (templateElement: TemplateElement) => {
 
     // remove transform
     element.removeAttribute('transform');
-}
+};
 
 const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fraction: number) => {
     let attributeValue = element.getAttribute(attributeName);
@@ -67,4 +67,4 @@ const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fr
 
     const newValue = Number(attributeValue) * fraction;
     element.setAttribute(attributeName, `${newValue}px`);
-}
+};

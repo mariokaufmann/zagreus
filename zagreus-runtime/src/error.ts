@@ -1,5 +1,5 @@
-import {WebsocketSender} from "./websocket/websocket-sender";
-import {LogErrorPayload, TaggedEnumType, TemplateMessage} from "./websocket/types";
+import {WebsocketSender} from './websocket/websocket-sender';
+import {LogErrorPayload, TaggedEnumType, TemplateMessage} from './websocket/types';
 
 export const installErrorHandler = (websocketSender: WebsocketSender) => {
     window.addEventListener('error', evt => {
@@ -9,10 +9,10 @@ export const installErrorHandler = (websocketSender: WebsocketSender) => {
             payload: {
                 stack: error.stack,
                 message: error.message,
-            }
+            },
         };
         websocketSender.sendMessage(message);
     }, {
-        capture: true
+        capture: true,
     });
-}
+};
