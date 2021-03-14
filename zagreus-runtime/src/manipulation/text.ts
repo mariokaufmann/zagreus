@@ -1,8 +1,8 @@
-import {getZagreusState} from "../data/data";
-import {HorizontalAlignment} from "../websocket/types";
-import {scaleBoundingBoxToViewBox} from "./manipulation";
+import {getZagreusState} from '../data/data';
+import {HorizontalAlignment} from '../websocket/types';
+import {scaleBoundingBoxToViewBox} from './manipulation';
 
-export const setTextOnElement = (elementName: string, text: string) => {
+export const setTextOnElement = (elementName: string, text: string):void => {
     let element = document.getElementById(elementName);
     if (element) {
         setTextOnFoundElement(element, text, elementName);
@@ -13,9 +13,9 @@ export const setTextOnElement = (elementName: string, text: string) => {
     if (element) {
         setTextOnFoundElement(element, text, elementName);
     }
-}
+};
 
-export const setTextOnFoundElement = (element: HTMLElement, text: string, elementName: string) => {
+export const setTextOnFoundElement = (element: HTMLElement, text: string, elementName: string):void => {
     const state = getZagreusState();
 
     const templateElement = state.elements.find(element => element.id === elementName);
@@ -25,21 +25,21 @@ export const setTextOnFoundElement = (element: HTMLElement, text: string, elemen
     }
     const alignmentConfig = templateElement.config?.align;
 
-    let align: HorizontalAlignment = "left";
+    let align: HorizontalAlignment = 'left';
     if (alignmentConfig) {
         align = alignmentConfig.horizontal;
     }
 
-    if (align === "center") {
+    if (align === 'center') {
         setTextAndAlignCenter(element, text, alignmentConfig.with);
-    } else if (align === "right") {
+    } else if (align === 'right') {
         setTextAndAlignRight(element, text);
-    } else if (align === "left") {
+    } else if (align === 'left') {
         setTextAndAlignLeft(element, text);
     }
-}
+};
 
-export const setTextAndAlignCenter = (element: HTMLElement, text: string, alignWithElementName: string) => {
+export const setTextAndAlignCenter = (element: HTMLElement, text: string, alignWithElementName: string):void => {
     const state = getZagreusState();
     element.textContent = text;
 
@@ -49,15 +49,15 @@ export const setTextAndAlignCenter = (element: HTMLElement, text: string, alignW
         return;
     }
     const boundingRect = alignmentState.elementBoundingBox;
-    element.style.textAnchor = "middle";
+    element.style.textAnchor = 'middle';
     element.setAttribute('x', String(boundingRect.x + (boundingRect.width / 2)));
 };
 
-export const setTextAndAlignLeft = (element: HTMLElement, text: string) => {
+export const setTextAndAlignLeft = (element: HTMLElement, text: string):void => {
     element.textContent = text;
 };
 
-export const setTextAndAlignRight = (element: HTMLElement, text: string) => {
+export const setTextAndAlignRight = (element: HTMLElement, text: string):void => {
     const state = getZagreusState();
     const boundingBox = scaleBoundingBoxToViewBox(state, element.getBoundingClientRect());
     element.textContent = text;
@@ -67,4 +67,4 @@ export const setTextAndAlignRight = (element: HTMLElement, text: string) => {
         const lowerRightCorner = boundingBox.x + boundingBox.width;
         element.setAttribute('x', String(lowerRightCorner));
     }
-}
+};

@@ -9,15 +9,15 @@ export type EnumTypeHandler<T extends string, D> = {
 };
 
 export type TemplateMessage =
-    "SetText"
-    | "LogError"
-    | "OnLoad"
-    | "AddClass"
-    | "RemoveClass"
-    | "LoadAnimations"
-    | "LoadElements"
-    | "ExecuteAnimation"
-    | "SetImageSource";
+    'SetText'
+    | 'LogError'
+    | 'OnLoad'
+    | 'AddClass'
+    | 'RemoveClass'
+    | 'LoadAnimations'
+    | 'LoadElements'
+    | 'ExecuteAnimation'
+    | 'SetImageSource';
 
 export type SetTextPayload = { id: string, text: string };
 export type OnLoadPayload = { animationSequences: string[] };
@@ -45,7 +45,7 @@ export interface Animation {
     direction: AnimationDirection;
 }
 
-export type AnimationDirection = "normal" | "reverse";
+export type AnimationDirection = 'normal' | 'reverse';
 
 export interface TemplateElement {
     id: string,
@@ -63,5 +63,5 @@ export interface AlignmentConfig {
     with: string,
 }
 
-export type HorizontalAlignment = "center" | "left" | "right";
-export type VerticalAlignment = "center" | "top" | "bottom";
+export type HorizontalAlignment = 'center' | 'left' | 'right';
+export type VerticalAlignment = 'center' | 'top' | 'bottom';

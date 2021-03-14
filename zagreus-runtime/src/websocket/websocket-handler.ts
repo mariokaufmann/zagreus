@@ -1,4 +1,4 @@
-import {WebsocketSender} from "./websocket-sender";
+import {WebsocketSender} from './websocket-sender';
 import {
     EnumTypeHandler,
     ExecuteAnimationPayload,
@@ -9,50 +9,51 @@ import {
     SetImageSourcePayload,
     SetTextPayload,
     TaggedEnumType,
-    TemplateMessage
-} from "./types";
-import {setTextOnElement} from "../manipulation/text";
-import {addClassOnElement, removeClassOnElement, showZagreusSvgContainer} from "../manipulation/css";
-import {getZagreusState} from "../data/data";
-import {applyAnimation, getMaxTimeoutFromSequences} from "../manipulation/animation";
-import {setImageSource} from "../manipulation/image";
-import {saveInitialAlignmentStates} from "../manipulation/manipulation";
-import {flattenTransforms} from "../manipulation/transform";
-import {flattenUseElements} from "../manipulation/use";
+    TemplateMessage,
+} from './types';
+import {setTextOnElement} from '../manipulation/text';
+import {addClassOnElement, removeClassOnElement, showZagreusSvgContainer} from '../manipulation/css';
+import {getZagreusState} from '../data/data';
+import {applyAnimation, getMaxTimeoutFromSequences} from '../manipulation/animation';
+import {setImageSource} from '../manipulation/image';
+import {saveInitialAlignmentStates} from '../manipulation/manipulation';
+import {flattenTransforms} from '../manipulation/transform';
+import {flattenUseElements} from '../manipulation/use';
 
 const templateMessageHandlers: EnumTypeHandler<TemplateMessage, WebsocketSender> = {
-    "SetText": (payload: SetTextPayload) => {
+    'SetText': (payload: SetTextPayload) => {
         setTextOnElement(payload.id, payload.text);
     },
-    "AddClass": (payload: ManipulateClassPayload) => {
+    'AddClass': (payload: ManipulateClassPayload) => {
         addClassOnElement(payload.id, payload.class);
     },
-    "RemoveClass": (payload: ManipulateClassPayload) => {
+    'RemoveClass': (payload: ManipulateClassPayload) => {
         removeClassOnElement(payload.id, payload.class);
     },
-    "LoadAnimations": (payload: LoadAnimationsPayload) => {
+    'LoadAnimations': (payload: LoadAnimationsPayload) => {
         const state = getZagreusState();
         state.animationsSequences = payload.animations;
     },
-    "LoadElements": (payload: LoadElementsPayload) => {
+    'LoadElements': (payload: LoadElementsPayload) => {
         const state = getZagreusState();
         state.elements = payload.elements;
         saveInitialAlignmentStates(state.elements);
         flattenUseElements(state.elements);
         flattenTransforms(state.elements);
     },
-    "ExecuteAnimation": (payload: ExecuteAnimationPayload) => {
+    'ExecuteAnimation': (payload: ExecuteAnimationPayload) => {
         applyAnimation(payload.animationSequence);
     },
-    "OnLoad": (payload: OnLoadPayload) => {
+    'OnLoad': (payload: OnLoadPayload) => {
         payload.animationSequences.forEach(sequence => applyAnimation(sequence));
         const maxTimeout = getMaxTimeoutFromSequences(payload.animationSequences);
         setTimeout(() => showZagreusSvgContainer(), maxTimeout);
     },
-    "SetImageSource": (payload: SetImageSourcePayload) => {
+    'SetImageSource': (payload: SetImageSourcePayload) => {
         setImageSource(payload.id, payload.asset);
     },
-    "LogError": () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    'LogError': () => {
     },
 };
 

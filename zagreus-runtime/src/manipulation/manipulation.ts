@@ -1,5 +1,5 @@
-import {TemplateElement} from "../websocket/types";
-import {AlignmentState, getZagreusState, ZagreusRuntimeState} from "../data/data";
+import {TemplateElement} from '../websocket/types';
+import {AlignmentState, getZagreusState, ZagreusRuntimeState} from '../data/data';
 
 export const scaleBoundingBoxToViewBox = (state: ZagreusRuntimeState, boundingBox: DOMRect): DOMRect => {
     const viewBoxScaling = state.viewBoxScaling;
@@ -9,9 +9,9 @@ export const scaleBoundingBoxToViewBox = (state: ZagreusRuntimeState, boundingBo
         width: boundingBox.width * viewBoxScaling,
         height: boundingBox.height * viewBoxScaling,
     };
-}
+};
 
-export const saveInitialAlignmentStates = (elements: TemplateElement[]) => {
+export const saveInitialAlignmentStates = (elements: TemplateElement[]) :void=> {
     const state = getZagreusState();
 
     if (state.alignmentStates) {
@@ -30,7 +30,7 @@ export const saveInitialAlignmentStates = (elements: TemplateElement[]) => {
         .forEach(config => saveAlignmentStateForElement(state, config.with));
 };
 
-const saveAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: string) => {
+const saveAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: string):void => {
     const alignmentState = state.alignmentStates[elementName];
     if (alignmentState) {
         // only measure once
@@ -38,7 +38,7 @@ const saveAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: s
     }
 
     state.alignmentStates[elementName] = getInitialAlignmentStateForElement(state, elementName,);
-}
+};
 
 const getInitialAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: string): AlignmentState => {
     const element = document.getElementById(elementName);
@@ -51,8 +51,8 @@ const getInitialAlignmentStateForElement = (state: ZagreusRuntimeState, elementN
 
     return {
         elementBoundingBox: scaleBoundingBoxToViewBox(state, boundingBox),
-    }
-}
+    };
+};
 
 /**
  * The view box of the SVG element does not necessarily need to have the same pixel width and height as the SVG element
@@ -61,12 +61,12 @@ const getInitialAlignmentStateForElement = (state: ZagreusRuntimeState, elementN
 const getViewBoxScaling = (): number => {
     const svgElement = getZagreusSvgElement();
     return svgElement.viewBox.baseVal.width / svgElement.width.baseVal.value;
-}
+};
 
 const getZagreusSvgElement = (): SVGSVGElement => {
     const elements = document.querySelectorAll('#zagreus-svg-container svg');
     if (elements.length !== 1) {
-        console.error("Expected exactly one SVG container element, found " + elements.length);
+        console.error('Expected exactly one SVG container element, found ' + elements.length);
     }
     return <SVGSVGElement>elements[0];
-}
+};

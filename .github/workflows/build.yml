@@ -29,6 +29,11 @@ jobs:
           rustup component add rustfmt
           cargo fmt --quiet -- --check
         working-directory: ./zagreus-server
+      - name: Lint zagreus runtime
+        run: |
+          npm ci --no-optional
+          npm run lint
+        working-directory: ./zagreus-runtime
       - name: Test zagreus generator
         run: cargo test
         working-directory: ./zagreus-generator

@@ -1,4 +1,4 @@
-import {AnimationSequence, TemplateElement} from "../websocket/types";
+import {AnimationSequence, TemplateElement} from '../websocket/types';
 
 declare global {
     interface Window {
@@ -23,11 +23,11 @@ if (!window.zagreusRuntimeState) {
         elements: [],
         alignmentStates: undefined,
         viewBoxScaling: 1,
-    }
+    };
 }
 
 export const getZagreusState = (): ZagreusRuntimeState => {
     return window.zagreusRuntimeState;
-}
+};
 
 

@@ -7,15 +7,17 @@
     "serve": "webpack serve",
     "copyScript": "cpy dist/zagreus-runtime.js* ../zagreus-server/",
     "build": "webpack && npm run copyScript",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint src"
   },
   "author": "Mario Kaufmann <mario.kaufmann@bluemail.ch>",
   "license": "ISC",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "4.17.0",
+    "@typescript-eslint/parser": "4.17.0",
     "cpy-cli": "3.1.1",
     "eslint": "7.19.0",
     "ts-loader": "8.0.15",
-    "typescript": "4.1.3",
+    "typescript": "4.1.5",
     "webpack": "5.21.1",
     "webpack-cli": "4.5.0",
     "webpack-dev-server": "3.11.2"

@@ -1,5 +1,5 @@
-import {TemplateWebsocket} from "./template-websocket";
-import {TaggedEnumType, TemplateMessage} from "./types";
+import {TemplateWebsocket} from './template-websocket';
+import {TaggedEnumType, TemplateMessage} from './types';
 
 export class WebsocketSender {
     constructor(private websocket: TemplateWebsocket) {

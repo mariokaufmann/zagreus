@@ -1,8 +1,8 @@
-import {getZagreusState, ZagreusRuntimeState} from "../data/data";
-import {AlignmentConfig} from "../websocket/types";
-import {scaleBoundingBoxToViewBox} from "./manipulation";
+import {getZagreusState, ZagreusRuntimeState} from '../data/data';
+import {AlignmentConfig} from '../websocket/types';
+import {scaleBoundingBoxToViewBox} from './manipulation';
 
-export const setImageSource = (elementName: string, asset: string) => {
+export const setImageSource = (elementName: string, asset: string):void => {
     const url = `assets/${asset}`;
     const element = document.getElementById(elementName);
     if (element && element.tagName === 'image') {
@@ -10,7 +10,7 @@ export const setImageSource = (elementName: string, asset: string) => {
         imageElement.setAttribute('href', url);
         alignImage(imageElement, elementName);
     }
-}
+};
 
 /**
  * Align the image according to its alignment config. If the element is center aligned another element must be
@@ -20,7 +20,7 @@ export const setImageSource = (elementName: string, asset: string) => {
  * @param element the image element to align
  * @param elementName the name (id) of the element to align
  */
-const alignImage = (element: SVGImageElement, elementName: string) => {
+const alignImage = (element: SVGImageElement, elementName: string) :void=> {
     const state = getZagreusState();
 
     const templateElement = state.elements.find(element => element.id === elementName);
@@ -47,7 +47,7 @@ const alignImage = (element: SVGImageElement, elementName: string) => {
             element.setAttribute('y', String(newY));
         }
     }
-}
+};
 
 const getAlignmentBoundingBox = (state: ZagreusRuntimeState, config: AlignmentConfig): DOMRect => {
     const alignmentState = state.alignmentStates[config.with];
@@ -56,4 +56,4 @@ const getAlignmentBoundingBox = (state: ZagreusRuntimeState, config: AlignmentCo
         return;
     }
     return alignmentState.elementBoundingBox;
-}
+};

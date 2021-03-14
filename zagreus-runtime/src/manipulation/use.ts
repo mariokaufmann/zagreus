@@ -1,4 +1,4 @@
-import {ElementConfig, TemplateElement} from "../websocket/types";
+import {TemplateElement} from '../websocket/types';
 
 /**
  SVG documents can contain <use> elements. These reference another element. Through this mechanism, the same element
@@ -6,16 +6,16 @@ import {ElementConfig, TemplateElement} from "../websocket/types";
  For our purposes it is more convenient to duplicate these elements so we can manipulate each copy individually. To do
  this, we clone the referenced element and give the clone the id of the use element.
  */
-export const flattenUseElements = (elements: TemplateElement[]) => {
+export const flattenUseElements = (elements: TemplateElement[]): void => {
     elements
         .map(element => document.getElementById(element.id))
         .filter(element => element !== null)
         .filter(element => element.tagName === 'use')
         .map(element => <SVGUseElement><Element>element)
         .forEach(flattenUseElement);
-}
+};
 
-const flattenUseElement = (useElement: SVGUseElement) => {
+const flattenUseElement = (useElement: SVGUseElement): void => {
     let referencedElementId = useElement.getAttribute('href');
     if (!referencedElementId) {
         referencedElementId = useElement.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
@@ -47,4 +47,4 @@ const flattenUseElement = (useElement: SVGUseElement) => {
     }
 
     useParentElement.replaceChild(clonedElement, useElement);
-}
+};

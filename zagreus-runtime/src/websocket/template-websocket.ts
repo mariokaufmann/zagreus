@@ -1,5 +1,5 @@
-import {WebsocketHandler} from "./websocket-handler";
-import {TaggedEnumType, TemplateMessage} from "./types";
+import {WebsocketHandler} from './websocket-handler';
+import {TaggedEnumType, TemplateMessage} from './types';
 
 const reconnectionTimeoutMillis = 2000;
 
@@ -61,9 +61,10 @@ export class TemplateWebsocket {
     }
 
     private static onError(): void {
-        console.error("Error on websocket.");
+        console.error('Error on websocket.');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private onClose(event: CloseEvent): void {
         if (this.wasOpen) {
             this.wasOpen = false;
