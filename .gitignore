@@ -3,3 +3,4 @@ target/
 **/*.iml
 package/zagreus-windows.zip
 package/zagreus-linux.zip
+package/zagreus-macos.zip

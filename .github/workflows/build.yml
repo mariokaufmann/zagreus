@@ -7,10 +7,13 @@ jobs:
         label: [ ubuntu-latest, windows-latest ]
         include:
           - label: ubuntu-latest
-            script-name: chmod +x ./package.sh && ./package.sh
+            script: chmod +x ./package.sh && ./package.sh linux
             artifact: zagreus-linux
+          - label: macos-latest
+            script: chmod +x ./package.sh && ./package.sh macos
+            artifact: zagreus-macos
           - label: windows-latest
-            script-name: .\package.ps1
+            script: .\package.ps1
             artifact: zagreus-windows
     runs-on: [ '${{ matrix.label }}' ]
     steps:
@@ -67,7 +70,7 @@ jobs:
         run: cargo build --release
         working-directory: ./zagreus-server
       - name: Package
-        run: ${{ matrix.script-name }}
+        run: ${{ matrix.script }}
         working-directory: ./package
       - name: Upload artifact
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
