@@ -8,6 +8,9 @@ pub fn collect_stylesheets<P: AsRef<Path>>(
     base_folder: P,
 ) -> Result<HashSet<String>, ZagreusError> {
     let assets_folder = base_folder.as_ref().join(ASSETS_FOLDER_NAME);
+    if !assets_folder.exists() {
+        return Ok(HashSet::new());
+    }
     let read_dir = std::fs::read_dir(assets_folder)?;
     let entries = read_dir
         .into_iter()
