@@ -57,7 +57,8 @@ pub fn pack_template(
                                 debug!("Packing asset directory {}.", output_file_name);
                                 zip_writer.add_directory(output_file_name, get_file_options())?;
                             } else {
-                                debug!("Packing asset {}.", path.display());
+                                // zip file entries must contain '/' independent of OS according to the spec
+                                let output_file_name = output_file_name.replace("\\", "/");
                                 write_zip_file(
                                     &mut zip_writer,
                                     path,
