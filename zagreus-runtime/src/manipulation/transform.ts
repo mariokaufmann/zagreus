@@ -9,11 +9,11 @@ import {TemplateElement} from '../websocket/types';
  1) this removes any skewX(), skewY() values the element might have
  2) at the moment this is only done for the 2D transformation matrix style of the transform attribute
  */
-export const flattenTransforms = (elements: TemplateElement[]) :void=> {
+export const flattenTransforms = (elements: TemplateElement[]): void => {
     elements.forEach(flattenTransform);
 };
 
-const flattenTransform = (templateElement: TemplateElement) :void=> {
+const flattenTransform = (templateElement: TemplateElement): void => {
     const element = document.getElementById(templateElement.id);
     if (!element) {
         console.error(`Could not find element ${templateElement.id} when flattening transforms.`);
@@ -49,14 +49,14 @@ const flattenTransform = (templateElement: TemplateElement) :void=> {
 
     setScaledPixelAttribute(element, 'width', scaleX);
     setScaledPixelAttribute(element, 'height', scaleY);
-    element.setAttribute('x', translateX.toString());
-    element.setAttribute('y', translateY.toString());
+    setTranslatedPixelAttribute(element, 'x', translateX);
+    setTranslatedPixelAttribute(element, 'y', translateY);
 
     // remove transform
     element.removeAttribute('transform');
 };
 
-const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fraction: number):void => {
+const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fraction: number): void => {
     let attributeValue = element.getAttribute(attributeName);
     if (!attributeValue || attributeValue.length === 0) {
         console.error(`Expected to find attribute ${attributeName} on element ${element.id} but didn't find it.`);
@@ -67,4 +67,15 @@ const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fr
 
     const newValue = Number(attributeValue) * fraction;
     element.setAttribute(attributeName, `${newValue}px`);
+};
+
+const setTranslatedPixelAttribute = (element: HTMLElement, attributeName: string, translationValue: number): void => {
+    const attributeValue = element.getAttribute(attributeName);
+    if (!attributeValue || attributeValue.length === 0) {
+        console.error(`Expected to find attribute ${attributeName} on element ${element.id} but didn't find it.`);
+        return;
+    }
+
+    const newValue = attributeValue + translationValue;
+    element.setAttribute(attributeValue, newValue.toString());
 };

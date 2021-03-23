@@ -41,10 +41,18 @@ const flattenUseElement = (useElement: SVGUseElement): void => {
 
     // copy some attributes over
     clonedElement.setAttribute('id', useElement.id);
-    const transform = useElement.getAttribute('transform');
-    if (transform) {
-        clonedElement.setAttribute('transform', transform);
-    }
+    copyAttribute(useElement, clonedElement, 'transform');
+    copyAttribute(useElement, clonedElement, 'x');
+    copyAttribute(useElement, clonedElement, 'y');
+    copyAttribute(useElement, clonedElement, 'width');
+    copyAttribute(useElement, clonedElement, 'height');
 
     useParentElement.replaceChild(clonedElement, useElement);
+};
+
+const copyAttribute = (useElement: SVGUseElement, clonedElement: HTMLElement, attributeName: string): void => {
+    const value = useElement.getAttribute(attributeName);
+    if (value) {
+        clonedElement.setAttribute(attributeName, value);
+    }
 };
