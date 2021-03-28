@@ -1,4 +1,5 @@
 import {TemplateElement} from '../websocket/types';
+import {reportErrorMessage} from '../error';
 
 /**
  For dynamic elements that have the ability to respect absolute positioning attributes (x/y and width/height) we want to remove
@@ -16,7 +17,7 @@ export const flattenTransforms = (elements: TemplateElement[]): void => {
 const flattenTransform = (templateElement: TemplateElement): void => {
     const element = document.getElementById(templateElement.id);
     if (!element) {
-        console.error(`Could not find element ${templateElement.id} when flattening transforms.`);
+        reportErrorMessage(`Could not find element ${templateElement.id} when flattening transforms.`);
         return;
     }
 
@@ -59,7 +60,7 @@ const flattenTransform = (templateElement: TemplateElement): void => {
 const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fraction: number): void => {
     let attributeValue = element.getAttribute(attributeName);
     if (!attributeValue || attributeValue.length === 0) {
-        console.error(`Expected to find attribute ${attributeName} on element ${element.id} but didn't find it.`);
+        reportErrorMessage(`Expected to find attribute ${attributeName} on element ${element.id} but didn't find it.`);
         return;
     }
     // strip 'px' postfix
@@ -72,10 +73,10 @@ const setScaledPixelAttribute = (element: HTMLElement, attributeName: string, fr
 const setTranslatedPixelAttribute = (element: HTMLElement, attributeName: string, translationValue: number): void => {
     const attributeValue = element.getAttribute(attributeName);
     if (!attributeValue || attributeValue.length === 0) {
-        console.error(`Expected to find attribute ${attributeName} on element ${element.id} but didn't find it.`);
+        reportErrorMessage(`Expected to find attribute ${attributeName} on element ${element.id} but didn't find it.`);
         return;
     }
 
-    const newValue = attributeValue + translationValue;
-    element.setAttribute(attributeValue, newValue.toString());
+    const newValue: number = Number(attributeValue) + translationValue;
+    element.setAttribute(attributeName, newValue.toString());
 };

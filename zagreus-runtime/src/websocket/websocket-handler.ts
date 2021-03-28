@@ -62,7 +62,6 @@ export class WebsocketHandler {
     }
 
     handleMessage(message: string): void {
-        console.log(message);
         const parsedMessage: TaggedEnumType<TemplateMessage> = JSON.parse(message);
         templateMessageHandlers[parsedMessage.tag](parsedMessage.payload, this.sender);
     }

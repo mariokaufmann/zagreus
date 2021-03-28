@@ -10,11 +10,14 @@ export interface AlignmentState {
     elementBoundingBox: DOMRect,
 }
 
+export type ErrorReporter = (error: Error) => void;
+
 export interface ZagreusRuntimeState {
     animationsSequences: AnimationSequence[],
     elements: TemplateElement[],
     alignmentStates: { [key in string]: AlignmentState },
     viewBoxScaling: number,
+    errorReporter: ErrorReporter,
 }
 
 if (!window.zagreusRuntimeState) {
@@ -23,6 +26,7 @@ if (!window.zagreusRuntimeState) {
         elements: [],
         alignmentStates: undefined,
         viewBoxScaling: 1,
+        errorReporter: undefined,
     };
 }
 

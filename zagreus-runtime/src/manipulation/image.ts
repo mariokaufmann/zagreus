@@ -1,6 +1,7 @@
 import {getZagreusState, ZagreusRuntimeState} from '../data/data';
 import {AlignmentConfig} from '../websocket/types';
 import {scaleBoundingBoxToViewBox} from './manipulation';
+import {reportErrorMessage} from '../error';
 
 export const setImageSource = (elementName: string, asset: string):void => {
     const url = `assets/${asset}`;
@@ -25,7 +26,7 @@ const alignImage = (element: SVGImageElement, elementName: string) :void=> {
 
     const templateElement = state.elements.find(element => element.id === elementName);
     if (!templateElement) {
-        console.error(`Element ${elementName} is not present in template.`);
+        reportErrorMessage(`Element ${elementName} is not present in template.`);
         return;
     }
     const alignmentConfig = templateElement.config?.align;
@@ -52,7 +53,7 @@ const alignImage = (element: SVGImageElement, elementName: string) :void=> {
 const getAlignmentBoundingBox = (state: ZagreusRuntimeState, config: AlignmentConfig): DOMRect => {
     const alignmentState = state.alignmentStates[config.with];
     if (!alignmentState) {
-        console.error(`Align with element ${config.with} could not be found.`);
+        reportErrorMessage(`Align with element ${config.with} could not be found.`);
         return;
     }
     return alignmentState.elementBoundingBox;

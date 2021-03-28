@@ -1,6 +1,7 @@
 import {getZagreusState} from '../data/data';
 import {HorizontalAlignment} from '../websocket/types';
 import {scaleBoundingBoxToViewBox} from './manipulation';
+import {reportErrorMessage} from '../error';
 
 export const setTextOnElement = (elementName: string, text: string):void => {
     let element = document.getElementById(elementName);
@@ -20,7 +21,7 @@ export const setTextOnFoundElement = (element: HTMLElement, text: string, elemen
 
     const templateElement = state.elements.find(element => element.id === elementName);
     if (!templateElement) {
-        console.error(`Element ${elementName} is not present in template.`);
+        reportErrorMessage(`Element ${elementName} is not present in template.`);
         return;
     }
     const alignmentConfig = templateElement.config?.align;
@@ -45,7 +46,7 @@ export const setTextAndAlignCenter = (element: HTMLElement, text: string, alignW
 
     const alignmentState = state.alignmentStates[alignWithElementName];
     if (!alignmentState) {
-        console.error(`Align with element ${alignWithElementName} could not be found.`);
+        reportErrorMessage(`Align with element ${alignWithElementName} could not be found.`);
         return;
     }
     const boundingRect = alignmentState.elementBoundingBox;
