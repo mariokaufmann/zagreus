@@ -24,8 +24,14 @@ An element animation defines how a CSS animation is defined to a specific elemen
     to { transform: translateY(0); }
 }
 ```
-- direction: either `normal` or `reverse`. Indicates whether the animation should be played forwards or backwards
-
+- direction: Indicates in which direction the animation should be run. This can be any of the following values:
+  - `normal`: the animation will run forwards
+  - `reverse`: the animation will run backwards
+  - `alternate`: the animation will first run forwards and then backwards if it is run more than once (see `iterations`)
+  - `alternate-reverse`: the animation will first run backwards and then forwards if it is run more than once (see `iterations`)
+    
+- iterations: how many times the animation should be run. Can either be natural number (e.g. `7`) or `infinite` indicating that the animation will repeat forever
+    
 ## On load
 Under `onLoad -> animationSequences` it is possible to list animation sequences that should be executed when the template loads. This can be used to bring the template into a useful initial state.
 

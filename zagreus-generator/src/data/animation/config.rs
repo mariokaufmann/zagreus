@@ -45,6 +45,17 @@ impl ConfigValidate for AnimationConfig {
                             &animation.id
                         )));
                     }
+
+                    // check if iterations property has a valid value
+                    if !animation.iterations.eq("infinite") {
+                        let parsed_iteration_count = animation.iterations.parse::<u16>();
+                        if parsed_iteration_count.is_err() {
+                            return Err(ZagreusError::from(format!(
+                                "Animation config contains invalid iterations value {}.",
+                                &animation.iterations
+                            )));
+                        }
+                    }
                 }
             }
         }
@@ -91,15 +102,23 @@ pub struct AnimationStep {
 pub struct Animation {
     id: String,
     name: String,
+    #[serde(default = "get_default_animation_iteration_count")]
+    iterations: String,
     #[serde(default)]
     direction: AnimationDirection,
 }
 
+fn get_default_animation_iteration_count() -> String {
+    "1".to_owned()
+}
+
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "kebab-case")]
 pub enum AnimationDirection {
     Normal,
     Reverse,
+    Alternate,
+    AlternateReverse,
 }
 
 impl Default for AnimationDirection {
@@ -141,11 +160,13 @@ mod tests {
                             id: String::from("id1"),
                             name: String::from("ani1"),
                             direction: AnimationDirection::Normal,
+                            iterations: String::from("1"),
                         },
                         Animation {
                             id: String::from("id2"),
                             name: String::from("ani2"),
                             direction: AnimationDirection::Normal,
+                            iterations: String::from("infinite"),
                         },
                     ],
                 }],
@@ -175,6 +196,7 @@ mod tests {
                         id: String::from("id2"),
                         name: String::from("ani2"),
                         direction: AnimationDirection::Normal,
+                        iterations: String::from("1"),
                     }],
                 }],
             }],
@@ -204,11 +226,13 @@ mod tests {
                             id: String::from("id1"),
                             name: String::from("ani1"),
                             direction: AnimationDirection::Normal,
+                            iterations: String::from("1"),
                         },
                         Animation {
                             id: String::from("id1"),
                             name: String::from("ani2"),
                             direction: AnimationDirection::Normal,
+                            iterations: String::from("1"),
                         },
                     ],
                 }],
@@ -238,6 +262,7 @@ mod tests {
                         id: String::from("id1"),
                         name: String::from("ani1"),
                         direction: AnimationDirection::Normal,
+                        iterations: String::from("1"),
                     }],
                 }],
             }],
@@ -265,6 +290,7 @@ mod tests {
                         id: String::from("id1"),
                         name: String::from("ani1"),
                         direction: AnimationDirection::Normal,
+                        iterations: String::from("1"),
                     }],
                 }],
             }],
@@ -293,6 +319,36 @@ mod tests {
                         id: String::from("id1"),
                         name: String::from("ani1"),
                         direction: AnimationDirection::Normal,
+                        iterations: String::from("1"),
+                    }],
+                }],
+            }],
+        };
+
+        let result = animation_config.validate(&validation_data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_animation_config_invalid_iteration_count() {
+        let template_elements = TemplateElements::from_ids(vec![String::from("id1")]);
+        let validation_data = ValidationData {
+            template_elements: &template_elements,
+        };
+        let animation_config = AnimationConfig {
+            on_load: OnLoadConfig {
+                animation_sequences: vec![],
+            },
+            sequences: vec![AnimationSequence {
+                name: String::from("sequence"),
+                steps: vec![AnimationStep {
+                    start: 0,
+                    duration: 0,
+                    animations: vec![Animation {
+                        id: String::from("id1"),
+                        name: String::from("ani1"),
+                        direction: AnimationDirection::Normal,
+                        iterations: String::from("invalid"),
                     }],
                 }],
             }],

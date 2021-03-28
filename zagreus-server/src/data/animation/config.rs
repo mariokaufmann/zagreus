@@ -23,14 +23,17 @@ pub struct AnimationStep {
 pub struct Animation {
     id: String,
     name: String,
+    iterations: String,
     direction: AnimationDirection,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "kebab-case")]
 pub enum AnimationDirection {
     Normal,
     Reverse,
+    Alternate,
+    AlternateReverse,
 }
 
 #[derive(Serialize, Deserialize)]

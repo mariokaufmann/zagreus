@@ -43,9 +43,12 @@ export interface Animation {
     id: string,
     name: string,
     direction: AnimationDirection;
+    iterations: AnimationIterationCount;
 }
 
-export type AnimationDirection = 'normal' | 'reverse';
+export type AnimationDirection = 'normal' | 'reverse' | 'alternate' | 'alternate-reverse';
+
+export type AnimationIterationCount = 'infinite' | number;
 
 export interface TemplateElement {
     id: string,
