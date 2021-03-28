@@ -10,7 +10,7 @@ use crate::error::ZagreusError;
 pub fn pack_template(
     zipped_template_file: &Path,
     build_file_names: &[PathBuf],
-    assets_folder: &PathBuf,
+    assets_folder: &Path,
 ) -> Result<(), ZagreusError> {
     debug!("Packing template.");
     let zipped_file = std::fs::File::create(zipped_template_file)?;
