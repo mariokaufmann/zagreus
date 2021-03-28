@@ -1,5 +1,5 @@
 use std::io::Read;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::error::ZagreusError;
 
@@ -15,7 +15,7 @@ where
     T: Default + serde::Serialize + serde::de::DeserializeOwned,
 {
     pub fn load(
-        application_folder: &PathBuf,
+        application_folder: &Path,
         config_file_name: &str,
     ) -> Result<ConfigurationManager<T>, ZagreusError> {
         let configuration_loader = ConfigurationLoader::new(&application_folder, config_file_name);
@@ -40,8 +40,8 @@ struct ConfigurationLoader {
 }
 
 impl ConfigurationLoader {
-    pub fn new(application_folder: &PathBuf, config_file_name: &str) -> ConfigurationLoader {
-        let mut config_file_path = application_folder.clone();
+    pub fn new(application_folder: &Path, config_file_name: &str) -> ConfigurationLoader {
+        let mut config_file_path = application_folder.to_owned();
         config_file_path.push(config_file_name);
         ConfigurationLoader { config_file_path }
     }

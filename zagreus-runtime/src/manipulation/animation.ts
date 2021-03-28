@@ -1,4 +1,4 @@
-import {AnimationDirection, AnimationSequence, AnimationStep} from '../websocket/types';
+import {AnimationDirection, AnimationIterationCount, AnimationSequence, AnimationStep} from '../websocket/types';
 import {getZagreusState, ZagreusRuntimeState} from '../data/data';
 
 export const applyAnimation = (sequenceName: string): void => {
@@ -21,10 +21,11 @@ const scheduleAnimationSequence = (steps: AnimationStep[]): void => {
 };
 
 const applyAnimationStep = (step: AnimationStep): void => {
-    step.animations.forEach(element => applyAnimationToElement(element.id, element.name, element.direction, step.duration));
+    step.animations.forEach(element => applyAnimationToElement(element.id, element.name, element.iterations, element.direction, step.duration));
 };
 
-const applyAnimationToElement = (id: string, animationName: string, animationDirection: AnimationDirection, duration: number): void => {
+const applyAnimationToElement = (id: string, animationName: string, animationIterationCount: AnimationIterationCount,
+                                 animationDirection: AnimationDirection, duration: number): void => {
     const element = document.getElementById(id);
     if (element) {
         if (element.style.animationName === animationName) {
@@ -34,7 +35,7 @@ const applyAnimationToElement = (id: string, animationName: string, animationDir
         }
         element.style.transformBox = 'fill-box';
         element.style.transformOrigin = '0 0';
-        element.style.animation = `${duration}ms linear 0s 1 ${animationDirection} forwards running ${animationName}`;
+        element.style.animation = `${duration}ms linear 0s ${animationIterationCount} ${animationDirection} forwards running ${animationName}`;
     }
 };
 
