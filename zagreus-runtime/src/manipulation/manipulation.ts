@@ -1,5 +1,6 @@
 import {TemplateElement} from '../websocket/types';
 import {AlignmentState, getZagreusState, ZagreusRuntimeState} from '../data/data';
+import {reportErrorMessage} from '../error';
 
 export const scaleBoundingBoxToViewBox = (state: ZagreusRuntimeState, boundingBox: DOMRect): DOMRect => {
     const viewBoxScaling = state.viewBoxScaling;
@@ -11,7 +12,7 @@ export const scaleBoundingBoxToViewBox = (state: ZagreusRuntimeState, boundingBo
     };
 };
 
-export const saveInitialAlignmentStates = (elements: TemplateElement[]) :void=> {
+export const saveInitialAlignmentStates = (elements: TemplateElement[]): void => {
     const state = getZagreusState();
 
     if (state.alignmentStates) {
@@ -30,7 +31,7 @@ export const saveInitialAlignmentStates = (elements: TemplateElement[]) :void=> 
         .forEach(config => saveAlignmentStateForElement(state, config.with));
 };
 
-const saveAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: string):void => {
+const saveAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: string): void => {
     const alignmentState = state.alignmentStates[elementName];
     if (alignmentState) {
         // only measure once
@@ -43,7 +44,7 @@ const saveAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: s
 const getInitialAlignmentStateForElement = (state: ZagreusRuntimeState, elementName: string): AlignmentState => {
     const element = document.getElementById(elementName);
     if (!element) {
-        console.error(`Could not find alignment element ${elementName}.`);
+        reportErrorMessage(`Could not find alignment element ${elementName}.`);
         return undefined;
     }
 
@@ -66,7 +67,7 @@ const getViewBoxScaling = (): number => {
 const getZagreusSvgElement = (): SVGSVGElement => {
     const elements = document.querySelectorAll('#zagreus-svg-container svg');
     if (elements.length !== 1) {
-        console.error('Expected exactly one SVG container element, found ' + elements.length);
+        reportErrorMessage('Expected exactly one SVG container element, found ' + elements.length);
     }
     return <SVGSVGElement>elements[0];
 };

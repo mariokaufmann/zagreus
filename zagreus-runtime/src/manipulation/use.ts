@@ -1,4 +1,5 @@
 import {TemplateElement} from '../websocket/types';
+import {reportErrorMessage} from '../error';
 
 /**
  SVG documents can contain <use> elements. These reference another element. Through this mechanism, the same element
@@ -21,7 +22,7 @@ const flattenUseElement = (useElement: SVGUseElement): void => {
         referencedElementId = useElement.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
     }
     if (!referencedElementId) {
-        console.error(`Element ${useElement.id} does not have link to referenced element.`);
+        reportErrorMessage(`Element ${useElement.id} does not have link to referenced element.`);
         return;
     }
 
@@ -32,7 +33,7 @@ const flattenUseElement = (useElement: SVGUseElement): void => {
 
     const referencedElement = document.getElementById(referencedElementId);
     if (!referencedElement) {
-        console.error(`Use element ${useElement.id} references invalid element ${referencedElementId}.`);
+        reportErrorMessage(`Use element ${useElement.id} references invalid element ${referencedElementId}.`);
         return;
     }
 
