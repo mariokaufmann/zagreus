@@ -22,3 +22,5 @@ Rebuild the template and upload it to the server. If the zagreus generator is st
 
 # Set image content dynamically
 Go to the server API documentation (read the chapter about dynamic text if you haven't already). Search for the _data/image_ endpoint. The property asset in the payload determines, which file is set as the image source. Try setting the image source of the _ScoreboardLogoImage_ element to the dragon image (`"asset" : "dragon.png"`). You can now see that the logo was replaced with a dragon.
+
+Next step: [Animation](animations.md)

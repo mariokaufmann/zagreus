@@ -32,3 +32,5 @@ If you get an error when building the template make sure that the indentation of
 If you go back to the scoreboard, reload the page and set the text again you should now see that the text is centered. Add the same configuration for the _ScoreboardScoreText_ element, this time aligning to the _ScoreboardMainBackground_.
 
 To find out more about the configuration of individual elements you can check out the [elements documentation](../config/element.md).
+
+Next step: [Dynamic styling](dynamic-styling.md)

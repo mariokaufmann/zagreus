@@ -20,3 +20,6 @@ time and the score.
 4. [Dynamic styling](dynamic-styling.md)
 5. [Dynamic images](dynamic-image.md)
 6. [Animation](animations.md)
+
+## First step
+First we setup zagreus. [Setup](setup.md)

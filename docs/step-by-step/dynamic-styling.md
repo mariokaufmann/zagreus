@@ -15,3 +15,5 @@ Add the following snippet to _main.css_:
 This defines a CSS class named _hidden_. The class is not applied anywhere but is now present in the template. Adding or removing a CSS class is one of the ways we can influence an element's appearance dynamically.
 To do that, reopen the API documentation if you have closed it (read the chapter about dynamic text if you haven't already). Search for the _data/class/add_ endpoint. Set the template name as previously, use ScoreboardTime for the id and set the value of the _class_ property to _hidden_.
 When adding and removing the class you should now see the game time appear and disappear.
+
+Next step: [Dynamic images](dynamic-image.md)

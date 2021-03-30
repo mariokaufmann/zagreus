@@ -34,3 +34,5 @@ zagreus-generator upload
 ```
 After a moment you should see a success message indicating that the template _my-template_ was uploaded to the server. If you go back to the browser and open a new tab with the URL http://localhost:58179/static/template/my-template, the template will open. Make sure that you the browser viewport (the visible area of the website) is 1920 by 1080 pixels or larger. If it isn't zoom out a bit. Only then you'll be able to see the full template.
 By now you should be able to see the graphic you designed in the browser tab. As we haven't added any animation or interactivity yet there is not much more to see at the moment.
+
+Next step: [Dynamic text](dynamic-text.md)
