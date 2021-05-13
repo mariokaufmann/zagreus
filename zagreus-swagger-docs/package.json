@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "swagger-ui-dist": "3.45.0"
+    "swagger-ui-dist": "3.48.0"
   },
   "devDependencies": {
     "cpy-cli": "3.1.1"
