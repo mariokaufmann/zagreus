@@ -137,7 +137,6 @@ pub fn get_routes(
                 |template_name: String,
                  payload: ManipulateClassDto,
                  server: Arc<WebsocketServer>| async move {
-                    info!("Removing class");
                     let message = TemplateMessage::RemoveClass {
                         id: &payload.id,
                         class: &payload.class,

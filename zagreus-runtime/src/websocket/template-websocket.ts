@@ -13,7 +13,6 @@ export class TemplateWebsocket {
     }
 
     run(): void {
-        console.log('Starting websocket');
         this.handleStateChange();
     }
 
@@ -73,7 +72,6 @@ export class TemplateWebsocket {
     }
 
     private onMessage(message: string): void {
-        console.log(`Websocket message: ${message}`);
         if (this.messageHandler) {
             this.messageHandler.handleMessage(message);
         }
