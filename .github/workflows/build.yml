@@ -74,7 +74,7 @@ jobs:
         working-directory: ./package
       - name: Prepare E2E tests
         if: ${{ matrix.label == 'ubuntu-latest' }}
-        run: ./prepare_e2e.sh
+        run: chmod +x ./prepare_e2e.sh && ./prepare_e2e.sh
         working-directory: ./e2e-test
       - name: E2E tests
         if: ${{ matrix.label == 'ubuntu-latest' }}
