@@ -23,7 +23,7 @@ mod logger;
 mod template;
 mod websocket;
 
-const ZAGREUS_VERSION: &str = "0.0.1";
+const ZAGREUS_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 const APPLICATION_NAME: &str = "zagreus-server";
 const CONFIG_FILE_NAME: &str = "config.json";

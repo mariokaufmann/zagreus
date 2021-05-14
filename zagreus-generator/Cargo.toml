@@ -1,6 +1,6 @@
 [package]
 name = "zagreus-generator"
-version = "0.0.1"
+version = "0.0.4"
 authors = ["Mario Kaufmann <mario.kaufmann@bluemail.ch>"]
 edition = "2018"
 
