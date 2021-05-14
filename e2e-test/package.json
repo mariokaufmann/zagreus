@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "cypress": "cypress open",
-    "e2e" : "cypress run"
+    "e2e": "cypress run"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "cypress": "7.3.0",
+    "cypress-log-to-output": "^1.1.2",
     "typescript": "^4.2.4"
   }
 }
