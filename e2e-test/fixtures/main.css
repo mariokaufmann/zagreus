@@ -1,0 +1,30 @@
+@keyframes moveUp {
+    from {
+        transform: translateY(400px);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes extendVertically {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.hidden {
+    visibility: hidden;
+}

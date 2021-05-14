@@ -72,6 +72,15 @@ jobs:
       - name: Package
         run: ${{ matrix.script }}
         working-directory: ./package
+      - name: Prepare E2E tests
+        if: ${{ matrix.label == 'ubuntu-latest' }}
+        run: ./prepare_e2e.sh
+        working-directory: ./e2e-test
+      - name: E2E tests
+        if: ${{ matrix.label == 'ubuntu-latest' }}
+        uses: cypress-io/github-action@v2
+        with:
+          project: ./e2e-test
       - name: Upload artifact
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/upload-artifact@v2
