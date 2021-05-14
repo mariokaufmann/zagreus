@@ -4,13 +4,13 @@ use futures::{StreamExt, TryStreamExt};
 use warp::Buf;
 use warp::Filter;
 
-use crate::{ServerTemplateRegistry, ZAGREUS_VERSION};
 use crate::config::ZagreusServerConfig;
 use crate::controller::ServerController;
 use crate::error::ZagreusError;
 use crate::fs::get_templates_data_folder;
 use crate::websocket::message::TemplateMessage;
 use crate::websocket::server::WebsocketServer;
+use crate::{ServerTemplateRegistry, ZAGREUS_VERSION};
 
 #[derive(Deserialize, Serialize)]
 struct SetTextDto {
@@ -38,7 +38,7 @@ pub fn get_routes(
     ws_server: Arc<WebsocketServer>,
     template_registry: ServerTemplateRegistry,
     configuration: &ZagreusServerConfig,
-) -> Result<impl Filter<Extract=impl warp::Reply, Error=warp::Rejection> + Clone, ZagreusError>
+) -> Result<impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone, ZagreusError>
 {
     let websocket_server_data = warp::any().map(move || ws_server.clone());
     let template_registry_server_data = warp::any().map(move || template_registry.clone());
