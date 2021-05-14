@@ -12,6 +12,11 @@ describe('E2E test', () => {
     it('should pass test scenario', () => {
         cy.visit('/static/template/e2e-template')
 
+        cy.request('POST', '/api/template/e2e-template/data/class/remove', {
+            id: 'LowerThirdRightAlignedText',
+            'class': 'hidden',
+        });
+
         cy.get('#zagreus-svg-container').should('have.class', 'zagreus-hidden');
         // wait until zagreus runtime has initialized
         cy.get('#zagreus-svg-container').should('not.have.class', 'zagreus-hidden');
