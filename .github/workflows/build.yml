@@ -76,7 +76,9 @@ jobs:
         if: ${{ matrix.label == 'ubuntu-latest' }}
         uses: cypress-io/github-action@v2
         with:
-          start: chmod +x ./prepare_e2e.sh && ./prepare_e2e.sh
+          start: |
+            chmod +x ./prepare_e2e.sh
+            ./prepare_e2e.sh
           working-directory: e2e-test
       - name: Upload artifact
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}
