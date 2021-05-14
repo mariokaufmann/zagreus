@@ -1,5 +1,5 @@
 cp -f ../package/zagreus-linux.zip .
-unzip zagreus-linux.zip -d ./unpack -q
+unzip -q zagreus-linux.zip -d ./unpack
 
 ./unpack/zagreus-generator new e2e-template
 
