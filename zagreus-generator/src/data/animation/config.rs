@@ -63,11 +63,10 @@ impl ConfigValidate for AnimationConfig {
         // Validate on_load config.
         let mut seen_on_load_sequences = Vec::new();
         for on_load_seq in &self.on_load.animation_sequences {
-            if self
+            if !self
                 .sequences
                 .iter()
-                .find(|sequence| &sequence.name == on_load_seq)
-                .is_none()
+                .any(|sequence| &sequence.name == on_load_seq)
             {
                 return simple_error(&format!(
                     "Invalid on_load sequence: Animation sequence '{}' doesn't exist.",
