@@ -18,7 +18,7 @@ where
         application_folder: &Path,
         config_file_name: &str,
     ) -> Result<ConfigurationManager<T>, ZagreusError> {
-        let configuration_loader = ConfigurationLoader::new(&application_folder, config_file_name);
+        let configuration_loader = ConfigurationLoader::new(application_folder, config_file_name);
 
         let configuration;
         if configuration_loader.config_exists() {

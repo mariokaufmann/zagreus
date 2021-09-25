@@ -45,13 +45,13 @@ impl ServerController {
                     animations: Cow::Borrowed(&template.animations.sequences),
                 };
                 self.websocket_server
-                    .send_message_to_template_clients(&template_name, &message)
+                    .send_message_to_template_clients(template_name, &message)
                     .await;
                 let message = TemplateMessage::LoadElements {
                     elements: Cow::Borrowed(&template.elements),
                 };
                 self.websocket_server
-                    .send_message_to_template_clients(&template_name, &message)
+                    .send_message_to_template_clients(template_name, &message)
                     .await;
                 let message = TemplateMessage::OnLoad {
                     animation_sequences: Cow::Borrowed(

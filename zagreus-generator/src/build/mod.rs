@@ -45,7 +45,7 @@ pub fn build_template(
     let processed_template_file_path = build_folder.join(PROCESSED_SVG_FILE_NAME);
 
     let template_elements =
-        svg::process_svg(&input_template_file_path, &processed_template_file_path)?;
+        svg::process_svg(input_template_file_path, &processed_template_file_path)?;
 
     let collected_stylesheets = asset::collect_stylesheets(Path::new("./")).unwrap();
 
@@ -53,7 +53,7 @@ pub fn build_template(
     html::write_raw_html(
         &processed_template_file_path,
         &raw_html_path,
-        &template_config,
+        template_config,
         collected_stylesheets,
     );
 

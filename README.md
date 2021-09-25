@@ -30,5 +30,5 @@ The basic workflow for creating and playing out a graphics template with zagreus
    ```
     zagreus-generator upload
    ```
-8. Load the teamplate in your playout/streaming software (URL http://localhost:58179/static/template/my-template)
+8. Load the template in your playout/streaming software (URL http://localhost:58179/static/template/my-template)
 9. Control template with HTTP API (for example through the Swagger UI at http://localhost:58179/static/swagger-docs/?url=spec.yaml)

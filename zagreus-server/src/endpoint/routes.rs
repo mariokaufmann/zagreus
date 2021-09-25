@@ -239,7 +239,7 @@ async fn send_template_message(
     message: TemplateMessage<'_>,
 ) -> Result<impl warp::Reply, warp::reject::Rejection> {
     server
-        .send_message_to_template_clients(&template_name, &message)
+        .send_message_to_template_clients(template_name, &message)
         .await;
     Ok(warp::reply())
 }
