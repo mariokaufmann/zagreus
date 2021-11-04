@@ -2,13 +2,13 @@
 name = "zagreus-generator"
 version = "0.0.4"
 authors = ["Mario Kaufmann <mario.kaufmann@bluemail.ch>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 log = "0.4.11"
-reqwest = { version = "0.11.4", features = ["blocking", "multipart"] }
+reqwest = { version = "0.11.6", features = ["blocking", "multipart"] }
 serde = "1.0.130"
 serde_derive = "1.0.130"
 serde_json = "1.0.68"
@@ -16,7 +16,7 @@ serde_yaml = "0.8.21"
 xml-rs = "0.8.4"
 zip = "0.5.13"
 walkdir = "2.3.2"
-structopt = "0.3.23"
+structopt = "0.3.25"
 notify = "4.0.17"
 
 [dependencies.log4rs]
