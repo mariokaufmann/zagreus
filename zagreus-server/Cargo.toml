@@ -2,7 +2,7 @@
 name = "zagreus-server"
 version = "0.0.4"
 authors = ["Mario Kaufmann <mario.kaufmann@bluemail.ch>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 log = "0.4.11"
@@ -12,8 +12,8 @@ rand = "0.8.4"
 serde = "1.0.130"
 serde_derive = "1.0.130"
 serde_json = "1.0.68"
-tokio = { version = "1.12.0", features = ["macros", "rt-multi-thread", "sync", "time"] }
-tokio-stream = "0.1.7"
+tokio = { version = "1.13.0", features = ["macros", "rt-multi-thread", "sync", "time"] }
+tokio-stream = "0.1.8"
 warp = "0.3.1"
 zip = "0.5.13"
 
@@ -23,5 +23,5 @@ default-features = false
 features = ["console_appender", "rolling_file_appender", "fixed_window_roller", "size_trigger", "compound_policy"]
 
 [dev-dependencies]
-tokio-tungstenite = "0.14.0"
-tungstenite = "0.13.0"
+tokio-tungstenite = "0.15.0"
+tungstenite = "0.16.0"
