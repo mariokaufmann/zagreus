@@ -60,7 +60,7 @@ fn verify_required_files_present() -> Result<(), ZagreusError> {
     ];
     match required_files
         .iter()
-        .map(|file_name| Path::new(file_name))
+        .map(Path::new)
         .filter(|path| !path.exists())
         .inspect(|missing_path| error!("Missing required file: {:?}", missing_path))
         .count()
