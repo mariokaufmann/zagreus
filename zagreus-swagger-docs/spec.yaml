@@ -4,7 +4,7 @@ info:
   version: 0.0.1
   description: description of the zagreus server HTTP API
   license:
-    name: GNU General Public License v3.0
+    name: MIT License
     url: 'https://github.com/mariokaufmann/zagreus/blob/main/LICENSE'
   x-logo:
     url: ''
