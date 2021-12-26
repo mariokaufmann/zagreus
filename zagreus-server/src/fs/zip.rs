@@ -6,7 +6,7 @@ use crate::fs::get_template_folder;
 
 pub fn unpack_template_files(
     template_name: &str,
-    file_buffer: Vec<u8>,
+    file_buffer: &[u8],
     data_folder: &Path,
 ) -> Result<(), ZagreusError> {
     debug!("Starting to unpack template: {}", template_name);

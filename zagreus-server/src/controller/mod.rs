@@ -33,7 +33,11 @@ impl ServerController {
         }
     }
 
-    pub async fn add_websocket_client(&self, socket: warp::ws::WebSocket, template_name: &str) {
+    pub async fn add_websocket_client(
+        &self,
+        socket: axum::extract::ws::WebSocket,
+        template_name: &str,
+    ) {
         self.websocket_server
             .add_client_socket(socket, template_name)
             .await;

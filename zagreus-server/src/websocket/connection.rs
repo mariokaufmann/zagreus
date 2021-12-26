@@ -3,13 +3,13 @@ use tokio::sync::mpsc::UnboundedSender;
 use crate::websocket::message::TemplateMessage;
 
 pub struct WebsocketConnection {
-    message_sender: UnboundedSender<Result<warp::ws::Message, warp::Error>>,
+    message_sender: UnboundedSender<Result<axum::extract::ws::Message, axum::Error>>,
     template_name: String,
 }
 
 impl WebsocketConnection {
     pub fn new(
-        message_sender: UnboundedSender<Result<warp::ws::Message, warp::Error>>,
+        message_sender: UnboundedSender<Result<axum::extract::ws::Message, axum::Error>>,
         template_name: String,
     ) -> WebsocketConnection {
         WebsocketConnection {
@@ -25,7 +25,7 @@ impl WebsocketConnection {
     pub fn send_message(&self, message: &TemplateMessage) {
         match serde_json::to_string(message) {
             Ok(serialized_message) => {
-                let ws_message = warp::ws::Message::text(serialized_message);
+                let ws_message = axum::extract::ws::Message::Text(serialized_message);
                 if let Err(err) = self.message_sender.send(Ok(ws_message)) {
                     error!("Could not send websocket message on channel: {}.", err);
                 }

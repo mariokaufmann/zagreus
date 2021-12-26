@@ -97,7 +97,7 @@ impl TemplateRegistry {
         self.templates.get(template_name)
     }
 
-    pub fn upload_packed_template(&mut self, template_name: &str, packed_buffer: Vec<u8>) {
+    pub fn upload_packed_template(&mut self, template_name: &str, packed_buffer: &[u8]) {
         match crate::fs::zip::unpack_template_files(template_name, packed_buffer, &self.data_folder)
         {
             Ok(()) => {

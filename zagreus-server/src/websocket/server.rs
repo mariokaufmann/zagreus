@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
+use futures::stream::SplitStream;
 use futures::FutureExt;
 use futures::StreamExt;
 use tokio::sync::RwLock;
@@ -26,7 +27,11 @@ impl WebsocketServer {
         }
     }
 
-    pub async fn add_client_socket(&self, websocket: warp::ws::WebSocket, template_name: &str) {
+    pub async fn add_client_socket(
+        &self,
+        websocket: axum::extract::ws::WebSocket,
+        template_name: &str,
+    ) {
         let id = self.next_user_id.fetch_add(1, Ordering::SeqCst);
         info!(
             "Connected to new websocket client with id {} and template {}.",
@@ -65,14 +70,14 @@ impl WebsocketServer {
 
     async fn handle_user_messages(
         id: usize,
-        mut stream: futures::stream::SplitStream<warp::ws::WebSocket>,
+        mut stream: SplitStream<axum::extract::ws::WebSocket>,
         connections: UserConnections,
     ) {
         loop {
             match stream.next().await {
                 Some(message_result) => match message_result {
                     Ok(message) => {
-                        match serde_json::from_slice::<TemplateMessage>(message.as_bytes()) {
+                        match serde_json::from_slice::<TemplateMessage>(&message.into_data()) {
                             Ok(parsed_message) => {
                                 if let TemplateMessage::LogError { message, stack } = parsed_message
                                 {

@@ -1,5 +1,4 @@
 use std::fmt::Formatter;
-use zip::result::ZipError;
 
 #[derive(Debug)]
 pub struct ZagreusError {
@@ -35,9 +34,17 @@ impl From<serde_json::error::Error> for ZagreusError {
 }
 
 impl From<zip::result::ZipError> for ZagreusError {
-    fn from(error: ZipError) -> Self {
+    fn from(error: zip::result::ZipError) -> Self {
         Self {
             error_message: format!("ZIP error occurred: {:?}.", error),
+        }
+    }
+}
+
+impl From<axum::extract::multipart::MultipartError> for ZagreusError {
+    fn from(error: axum::extract::multipart::MultipartError) -> Self {
+        Self {
+            error_message: format!("Multipart error occurred: {:?}.", error),
         }
     }
 }
