@@ -44,7 +44,6 @@ async fn map_rewrite_template_url(req: Request<Body>) -> Result<Request<Body>, B
             if !last_part.contains('.') {
                 let (mut parts, body) = req.into_parts();
                 let new_uri: Uri = format!("{}/", uri).parse()?;
-                info!("rewrote to : {}", new_uri);
                 parts.uri = new_uri;
                 return Ok(Request::from_parts(parts, body));
             }
