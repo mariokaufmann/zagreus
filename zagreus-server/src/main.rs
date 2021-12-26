@@ -5,6 +5,7 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
+use std::net::SocketAddr;
 use std::sync::Arc;
 
 use crate::config::loader::ConfigurationManager;
@@ -60,15 +61,21 @@ async fn start_with_config(configuration_manager: ConfigurationManager<ZagreusSe
         template_registry.clone(),
     ));
 
-    match endpoint::routes::get_routes(
-        server_controller,
-        ws_server,
-        template_registry,
+    match endpoint::routes::get_router(
         configuration,
+        ws_server.clone(),
+        server_controller.clone(),
+        template_registry.clone(),
     ) {
-        Ok(routes) => warp::serve(routes).run(([0, 0, 0, 0], 58179)).await,
-        Err(err) => {
-            error!("Could not configure server routes: {}.", err);
+        Ok(router) => {
+            let addr = SocketAddr::from(([0, 0, 0, 0], 58179));
+            if let Err(err) = axum_server::bind(addr)
+                .serve(router.into_make_service())
+                .await
+            {
+                error!("Could not start server: {}", err);
+            }
         }
+        Err(err) => error!("Could not configure server routes: {}", err),
     }
 }
