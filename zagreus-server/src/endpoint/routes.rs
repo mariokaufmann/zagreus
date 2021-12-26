@@ -60,7 +60,6 @@ pub fn get_router(
 ) -> Result<Router, ZagreusError> {
     let mut router = Router::new().route("/api/version", axum::routing::get(get_server_version));
 
-    const SWAGGER_DOCS_FOLDER_NAME: &str = "swagger-docs";
     let templates_data_folder = get_templates_data_folder(&configuration.data_folder)?;
     let static_router = Router::new().nest(
         "/static",
@@ -96,13 +95,11 @@ pub fn get_router(
                 }),
             )
             .nest(
-                SWAGGER_DOCS_FOLDER_NAME,
-                axum::routing::get_service(tower_http::services::ServeDir::new(
-                    SWAGGER_DOCS_FOLDER_NAME,
-                ))
-                .handle_error(|err| async move {
-                    error!("error occurred when serving swagger docs: {}.", err)
-                }),
+                "/swagger-docs",
+                axum::routing::get_service(tower_http::services::ServeDir::new("swagger-docs"))
+                    .handle_error(|err| async move {
+                        error!("error occurred when serving swagger docs: {}.", err)
+                    }),
             ),
     );
     router = router.merge(static_router);
