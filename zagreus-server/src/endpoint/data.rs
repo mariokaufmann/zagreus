@@ -60,8 +60,7 @@ pub(crate) async fn remove_class(
 }
 
 pub(crate) async fn execute_animation(
-    Path(template_name): Path<String>,
-    Path(animation_name): Path<String>,
+    Path((template_name, animation_name)): Path<(String, String)>,
     Extension(server): Extension<Arc<WebsocketServer>>,
 ) -> impl IntoResponse {
     let message = TemplateMessage::ExecuteAnimation {
