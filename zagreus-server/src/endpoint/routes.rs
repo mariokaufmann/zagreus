@@ -145,9 +145,10 @@ pub fn get_router(
     let assets_router = Router::new()
         .route(
             "/api/template/:template_name/asset",
-            axum::routing::get(endpoint::asset::get_asset_filenames).post(),
+            axum::routing::get(endpoint::asset::get_asset_filenames)
+                .post(endpoint::asset::upload_asset),
         )
-        .layer(AddExtensionLayer::new(templates_data_folder.clone()));
+        .layer(AddExtensionLayer::new(templates_data_folder));
     router = router.merge(assets_router);
 
     let middleware_stack = ServiceBuilder::new()
