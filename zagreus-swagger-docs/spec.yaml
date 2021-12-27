@@ -47,6 +47,41 @@ paths:
           $ref: '#/components/responses/200'
     parameters:
       - $ref: '#/components/parameters/templateName'
+  '/api/template/{templateName}/asset':
+    summary: Manage template assets
+    get:
+      description: Returns the filenames for the currently uploaded assets for the template with the given name.
+      tags:
+        - template
+      operationId: getAssets
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+    post:
+      description: Uploads the given asset to the specified template so that it can be used in the template.
+      requestBody:
+        description: The asset file to upload.
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                file:
+                  format: binary
+                  type: string
+      tags:
+        - template
+      operationId: uploadAsset
+      responses:
+        '200':
+          content:
+            application/json:
+              example: ["asset1.png", "main.css"]
+          description: Asssets retrieved successfully.
+    parameters:
+      - $ref: '#/components/parameters/templateName'
   '/api/template/{templateName}/data/text':
     summary: Set the text content of a text element
     description: 'Searches for an element with the given id and sets its text content to the given value'

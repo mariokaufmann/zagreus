@@ -13,7 +13,7 @@ use crate::endpoint::{data, get_server_version, template};
 use crate::error::ZagreusError;
 use crate::fs::get_templates_data_folder;
 use crate::websocket::server::WebsocketServer;
-use crate::ServerTemplateRegistry;
+use crate::{endpoint, ServerTemplateRegistry};
 
 #[derive(Deserialize, Serialize)]
 struct SetTextDto {
@@ -67,7 +67,7 @@ pub fn get_router(
             .nest(
                 "/template",
                 axum::routing::get_service(tower_http::services::ServeDir::new(
-                    templates_data_folder,
+                    &templates_data_folder,
                 ))
                 .handle_error(|err| async move {
                     error!("error occurred when serving template files: {}.", err)
@@ -140,6 +140,15 @@ pub fn get_router(
         )
         .layer(AddExtensionLayer::new(template_registry));
     router = router.merge(upload_template_router);
+
+    // route for manipulating assets
+    let assets_router = Router::new()
+        .route(
+            "/api/template/:template_name/asset",
+            axum::routing::get(endpoint::asset::get_asset_filenames).post(),
+        )
+        .layer(AddExtensionLayer::new(templates_data_folder.clone()));
+    router = router.merge(assets_router);
 
     let middleware_stack = ServiceBuilder::new()
         .layer(HandleErrorLayer::new(|error| async move {

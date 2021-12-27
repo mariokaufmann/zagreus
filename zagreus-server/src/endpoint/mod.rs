@@ -1,6 +1,7 @@
 use crate::ZAGREUS_VERSION;
 use axum::response::IntoResponse;
 
+pub mod asset;
 pub mod data;
 pub mod routes;
 pub mod template;
