@@ -61,9 +61,13 @@ describe('E2E test', () => {
                 });
                 cy.get('#LowerThirdLogo').should('be.visible');
                 cy.get('#LowerThirdLogo').should('have.attr', 'href').and('equal', 'assets/dog.svg');
+
+                cy.request('/api/template/e2e-template/asset').then(response => {
+                    let assets = response.body;
+                    expect(assets).to.deep.equal(['dog.svg', 'dragon.png', 'main.css', 'test.png']);
+                });
             });
         })
-
     })
 
 });
