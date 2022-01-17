@@ -5,7 +5,7 @@ authors = ["Mario Kaufmann <mario.kaufmann@bluemail.ch>"]
 edition = "2021"
 
 [dependencies]
-axum = { version = "0.4.3", features = ["json", "http1", "http2", "ws", "multipart"]}
+axum = { version = "0.4.4", features = ["json", "http1", "http2", "ws", "multipart"]}
 axum-server = "0.3.3"
 log = "0.4.14"
 futures = "0.3.19"
@@ -13,7 +13,7 @@ hyper = "0.14.16"
 rand = "0.8.4"
 serde = "1.0.133"
 serde_derive = "1.0.133"
-serde_json = "1.0.74"
+serde_json = "1.0.75"
 tokio = { version = "1.15.0", features = ["macros", "rt-multi-thread", "sync", "time"] }
 tokio-stream = "0.1.8"
 tower = { version = "0.4.11", features = ["filter"]}
