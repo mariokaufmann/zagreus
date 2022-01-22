@@ -17,10 +17,18 @@ Similar to the text element we need to configure the image so that it is aligned
 This centers the element both horizontally and vertically in the background element.
 
 ## Add asset
-To be able to use our second icon as image we can add it as an asset. We are going to use [the icon of a dragon](./img/dragon.png). Add the file to the _asset_ folder in your template directory.
+To be able to use our second icon as image we can add it as an asset. We are going to use [the icon of a dragon](./img/dragon.png). You can add the asset either at template build time or at runtime through the HTTP API.
+
+### Adding the asset at template build time
+Add the file to the _asset_ folder in your template directory.
 Rebuild the template and upload it to the server. If the zagreus generator is still running in watch mode this should happen automatically once you add the file to the _asset_ folder.
 
+### Adding the asset at runtime
+Sometimes it can also be useful to add an asset dynamically when the template is already built (for example if the assets are not known yet when building the template). This can be achieved through the server API. Go to the server API documentation (reference the chapter about dynamic text for more information about it). Search for the _/asset_ endpoints. The GET request retrieves the file names of all assets that are currently uploaded for the given template. With the POST request one can upload an asset dynamically. Enter `dragon.png` as asset name and select the icon from the documentation UI (you can also use a file of yours). Then click execute and the asset should be uploaded.
+
+_Important: Since the asset was uploaded dynamically it will be removed once the template is uploaded to the server again. To make sure that the asset is always available it is best to build it together with the template._
+
 # Set image content dynamically
-Go to the server API documentation (read the chapter about dynamic text if you haven't already). Search for the _data/image_ endpoint. The property asset in the payload determines, which file is set as the image source. Try setting the image source of the _ScoreboardLogoImage_ element to the dragon image (`"asset" : "dragon.png"`). You can now see that the logo was replaced with a dragon.
+Go to the server API documentation. Search for the _data/image_ endpoint. The property asset in the payload determines, which file is set as the image source. Try setting the image source of the _ScoreboardLogoImage_ element to the dragon image (`"asset" : "dragon.png"`). You can now see that the logo was replaced with a dragon.
 
 Next step: [Animation](animations.md)
