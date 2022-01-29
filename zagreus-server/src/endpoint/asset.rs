@@ -1,5 +1,4 @@
-use std::ffi::OsString;
-use std::fs::{DirEntry, ReadDir};
+use std::fs::DirEntry;
 use std::path::{Path, PathBuf};
 
 use axum::body::Bytes;
@@ -28,12 +27,10 @@ pub(crate) async fn get_asset_filenames(
     templates_data_folder.push(ASSETS_FOLDER_NAME);
 
     let template_assets_folder = templates_data_folder;
+    let traversal_result = traverse(&template_assets_folder);
 
-    match std::fs::read_dir(&template_assets_folder) {
-        Ok(files) => {
-            let entries = traverse(files);
-            (StatusCode::OK, Json(json!(entries)))
-        }
+    match traversal_result {
+        Ok(entries) => (StatusCode::OK, Json(json!(entries))),
         Err(err) => {
             error!(
                 "Could not read assets directory {}: {}.",
@@ -62,25 +59,33 @@ enum DirEntryNode {
     },
 }
 
-fn traverse(files: ReadDir) -> Vec<DirEntryNode> {
-    files
+fn traverse(path: &Path) -> Result<Vec<DirEntryNode>, ZagreusError> {
+    let files = std::fs::read_dir(path)?;
+    Ok(files
         .filter_map(|entry| entry.ok())
         .map(|entry| {
-            let path = entry.path();
-            let name = get_file_name(entry).unwrap(); // TODO: Don't use unwrap.
-            match path.is_file() {
-                true => DirEntryNode::File { name },
-                false => DirEntryNode::Dir {
-                    name,
-                    children: traverse(std::fs::read_dir(path).unwrap()),
-                }, // TODO: Don't use unwrap.
+            let child_path = entry.path();
+            let child_name = get_filename(entry)?;
+            match child_path.is_file() {
+                true => Ok(DirEntryNode::File { name: child_name }),
+                false => Ok(DirEntryNode::Dir {
+                    name: child_name,
+                    children: traverse(&child_path)?,
+                }),
             }
         })
-        .collect()
+        .filter_map(|entry: Result<DirEntryNode, ZagreusError>| entry.ok())
+        .collect())
 }
 
-fn get_file_name(entry: DirEntry) -> Result<String, OsString> {
-    entry.file_name().into_string()
+fn get_filename(entry: DirEntry) -> Result<String, ZagreusError> {
+    match entry.file_name().into_string() {
+        Ok(filename) => Ok(filename),
+        Err(_) => Err(ZagreusError::from(format!(
+            "Failed to process filename: {:?}",
+            entry.file_name()
+        ))),
+    }
 }
 
 const ASSET_NAME_FIELD: &str = "name";
