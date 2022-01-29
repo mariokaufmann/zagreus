@@ -15,7 +15,7 @@ const MAX_LOG_SIZE_BYTES: u64 = 5_000_000;
 const LOG_FILE_COUNT: u32 = 5;
 
 /// init logger configuration or panic if something fails (since we cannot log yet)
-pub fn init_logger() {
+pub fn init_logger(is_verbose: bool) {
     let log_folder_path = crate::fs::get_log_folder_path(APPLICATION_NAME).unwrap_or_else(|err| {
         panic!("Could not get log file path: {}", err);
     });
@@ -52,10 +52,18 @@ pub fn init_logger() {
             Root::builder()
                 .appender(CONSOLE_LOGGER_NAME)
                 .appender(FILE_LOGGER_NAME)
-                .build(LevelFilter::Info),
+                .build(level_filter(is_verbose)),
         )
         .unwrap_or_else(|err| {
             panic!("Could not construct logging config: {}", err);
         });
     log4rs::init_config(config).unwrap();
+}
+
+fn level_filter(is_verbose: bool) -> LevelFilter {
+    if is_verbose {
+        LevelFilter::Trace
+    } else {
+        LevelFilter::Info
+    }
 }

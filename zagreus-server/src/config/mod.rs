@@ -36,7 +36,7 @@ fn get_default_server_port() -> u16 {
     DEFAULT_SERVER_PORT
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ZagreusServerConfig {
     #[serde(default = "get_default_server_port")]
