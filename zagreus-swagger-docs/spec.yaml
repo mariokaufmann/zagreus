@@ -56,7 +56,13 @@ paths:
       operationId: getAssets
       responses:
         '200':
-          $ref: '#/components/responses/200'
+          description: 'Assets returned successfully'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssetResponse'
     post:
       description: Uploads the given asset to the specified template so that it can be used in the template.
       requestBody:
@@ -219,6 +225,17 @@ components:
   responses:
     '200':
       description: Operation succeeded
+  schemas:
+    AssetResponse:
+      description: "An asset described by its name and optionally child assets (if it's a folder)."
+      type: object
+      properties:
+        name:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetResponse'
 tags:
   - name: general
     description: General operations
