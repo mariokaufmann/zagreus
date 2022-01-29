@@ -47,7 +47,11 @@ async fn main() {
 async fn start_with_config(configuration_manager: ConfigurationManager<ZagreusServerConfig>) {
     info!("Starting zagreus server...");
     let configuration = configuration_manager.get_configuration();
-    info!("API docs are available at http://localhost:58179/static/swagger-docs/?url=spec.yaml");
+    let server_port = configuration.server_port;
+    info!(
+        "API docs are available at http://localhost:{}/static/swagger-docs/?url=spec.yaml",
+        server_port
+    );
     let ws_server = Arc::new(WebsocketServer::new());
     let (template_event_tx, template_event_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut template_registry =
@@ -68,7 +72,7 @@ async fn start_with_config(configuration_manager: ConfigurationManager<ZagreusSe
         template_registry.clone(),
     ) {
         Ok(router) => {
-            let addr = SocketAddr::from(([0, 0, 0, 0], 58179));
+            let addr = SocketAddr::from(([0, 0, 0, 0], server_port));
             if let Err(err) = axum_server::bind(addr)
                 .serve(router.into_make_service())
                 .await
