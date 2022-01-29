@@ -12,7 +12,7 @@ cp -f ./fixtures/animations.yaml e2e-template/
 cp -f ./fixtures/main.css e2e-template/assets/
 cp -f ./fixtures/dragon.png e2e-template/assets/
 
-cd unpack/ && ./zagreus-server --server-port 8080 --data-folder-path ../zagreus-data &
+cd unpack/ && ./zagreus-server --server-port 8080 --data-folder../zagreus-data &
 
 cd e2e-template/
 ../unpack/zagreus-generator build --upload
