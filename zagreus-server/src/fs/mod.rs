@@ -4,6 +4,7 @@ use crate::error::ZagreusError;
 
 #[cfg(test)]
 pub mod temp;
+pub mod util;
 pub mod zip;
 
 pub const TEMPLATES_DATA_SUBFOLDER_NAME: &str = "templates";

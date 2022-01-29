@@ -8,6 +8,7 @@ use axum::Json;
 use serde_json::json;
 
 use crate::error::ZagreusError;
+use crate::fs;
 
 pub const ASSETS_FOLDER_NAME: &str = "assets";
 
@@ -26,17 +27,10 @@ pub(crate) async fn get_asset_filenames(
     templates_data_folder.push(ASSETS_FOLDER_NAME);
 
     let template_assets_folder = templates_data_folder;
+    let traversal_result = fs::util::traverse(&template_assets_folder);
 
-    match std::fs::read_dir(&template_assets_folder) {
-        Ok(files) => {
-            let entries: Vec<String> = files
-                .filter_map(|entry| entry.ok())
-                .map(|entry| entry.file_name())
-                .map(|file_name| file_name.into_string())
-                .filter_map(|file_name| file_name.ok())
-                .collect();
-            (StatusCode::OK, Json(json!(entries)))
-        }
+    match traversal_result {
+        Ok(entries) => (StatusCode::OK, Json(json!(entries))),
         Err(err) => {
             error!(
                 "Could not read assets directory {}: {}.",

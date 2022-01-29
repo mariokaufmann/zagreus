@@ -64,7 +64,10 @@ describe('E2E test', () => {
 
                 cy.request('/api/template/e2e-template/asset').then(response => {
                     let assets = response.body;
-                    expect(assets).to.deep.equal(['dog.svg', 'dragon.png', 'main.css']);
+                    expect(assets.length).to.equal(3);
+                    expect(assets).to.deep.contain({name: 'main.css'});
+                    expect(assets).to.deep.contain({name: 'dog.svg'});
+                    expect(assets).to.deep.contain({name: 'dragon.png'});
                 });
             });
         })
