@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::ffi::OsString;
 use std::fs::{DirEntry, ReadDir};
 use std::path::{Path, PathBuf};
@@ -48,25 +49,32 @@ pub(crate) async fn get_asset_filenames(
     }
 }
 
+// TODO: Consider factoring out into a file helper module.
+
 #[derive(Serialize)]
-struct DirTreeNode {
-    name: String,
-    children: Option<Vec<DirTreeNode>>
+#[serde(untagged)]
+enum DirEntryType {
+    File, // TODO: Deserialize to empty array.
+    Dir(DirEntries),
 }
 
-fn traverse(files: ReadDir) -> Vec<DirTreeNode> {
-    files
-        .filter_map(|entry| entry.ok())
-        .map(|entry| {
-            let path = entry.path();
-            let name = get_file_name(entry).unwrap(); // TODO: Don't use unwrap.
-            let children = match path.is_file() {
-                true => None,
-                false => Some(traverse(std::fs::read_dir(path).unwrap())) // TODO Don't use unwrap.
-            };
-            DirTreeNode { name, children }
-        })
-        .collect()
+type DirEntries = HashMap<String, DirEntryType>;
+
+fn traverse(files: ReadDir) -> DirEntries {
+    // TODO: Is there a more elegant way to use streams only, instead of keeping the map outside?
+    let mut entry_map = HashMap::new();
+    files.filter_map(|entry| entry.ok()).for_each(|entry| {
+        let path = entry.path();
+        let name = get_file_name(entry).unwrap(); // TODO: Don't use unwrap.
+
+        let child_node = match path.is_file() {
+            true => DirEntryType::File,
+            false => DirEntryType::Dir(traverse(std::fs::read_dir(path).unwrap())), // TODO: Don't use unwrap.
+        };
+
+        entry_map.insert(name, child_node);
+    });
+    entry_map
 }
 
 fn get_file_name(entry: DirEntry) -> Result<String, OsString> {
