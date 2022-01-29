@@ -1,3 +1,4 @@
+use std::ffi::OsString;
 use std::fs::{DirEntry, ReadDir};
 use std::path::{Path, PathBuf};
 
@@ -30,12 +31,7 @@ pub(crate) async fn get_asset_filenames(
 
     match std::fs::read_dir(&template_assets_folder) {
         Ok(files) => {
-            let entries: Vec<String> = list_recursively(files)
-                .iter()
-                .map(|entry| entry.file_name())
-                .map(|filename| filename.into_string())
-                .filter_map(|filename| filename.ok())
-                .collect();
+            let entries = traverse(files);
             (StatusCode::OK, Json(json!(entries)))
         }
         Err(err) => {
@@ -52,24 +48,29 @@ pub(crate) async fn get_asset_filenames(
     }
 }
 
-fn list_recursively(files: ReadDir) -> Vec<DirEntry> {
+#[derive(Serialize)]
+struct DirTreeNode {
+    name: String,
+    children: Option<Vec<DirTreeNode>>
+}
+
+fn traverse(files: ReadDir) -> Vec<DirTreeNode> {
     files
         .filter_map(|entry| entry.ok())
-        .flat_map(|entry| {
-            if is_file(&entry) {
-                vec![entry]
-            } else {
-                list_recursively(std::fs::read_dir(entry.path()).unwrap())
-            }
+        .map(|entry| {
+            let path = entry.path();
+            let name = get_file_name(entry).unwrap(); // TODO: Don't use unwrap.
+            let children = match path.is_file() {
+                true => None,
+                false => Some(traverse(std::fs::read_dir(path).unwrap())) // TODO Don't use unwrap.
+            };
+            DirTreeNode { name, children }
         })
         .collect()
 }
 
-fn is_file(dir_entry: &DirEntry) -> bool {
-    match dir_entry.metadata() {
-        Ok(metadata) => metadata.is_file(),
-        Err(_) => false,
-    }
+fn get_file_name(entry: DirEntry) -> Result<String, OsString> {
+    entry.file_name().into_string()
 }
 
 const ASSET_NAME_FIELD: &str = "name";
