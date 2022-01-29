@@ -12,7 +12,7 @@ where
 
 impl<T> ConfigurationManager<T>
 where
-    T: Default + serde::Serialize + serde::de::DeserializeOwned,
+    T: Default + Clone + serde::Serialize + serde::de::DeserializeOwned,
 {
     pub fn load(
         application_folder: &Path,
@@ -30,8 +30,8 @@ where
         Ok(ConfigurationManager { configuration })
     }
 
-    pub fn get_configuration(&self) -> &T {
-        &self.configuration
+    pub fn get_configuration(self) -> T {
+        self.configuration
     }
 }
 

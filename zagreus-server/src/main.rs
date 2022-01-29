@@ -8,12 +8,14 @@ extern crate serde_derive;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
+use crate::cli::{get_command, ZagreusServerCommand};
 use crate::config::loader::ConfigurationManager;
 use crate::config::ZagreusServerConfig;
 use crate::controller::ServerController;
 use crate::template::registry::TemplateRegistry;
 use crate::websocket::server::WebsocketServer;
 
+mod cli;
 mod config;
 mod controller;
 mod data;
@@ -33,20 +35,24 @@ type ServerTemplateRegistry = Arc<tokio::sync::RwLock<TemplateRegistry>>;
 
 #[tokio::main]
 async fn main() {
+    let command = get_command();
     let application_folder = fs::get_application_folder(APPLICATION_NAME).unwrap_or_else(|err| {
         panic!("Could not get application folder: {}", err);
     });
-    logger::init_logger();
+    logger::init_logger(command.verbose);
 
     match ConfigurationManager::<ZagreusServerConfig>::load(&application_folder, CONFIG_FILE_NAME) {
-        Ok(manager) => start_with_config(manager).await,
+        Ok(manager) => {
+            let mut configuration = manager.get_configuration();
+            override_configuration_with_cli_flags(&mut configuration, command);
+            start_with_config(configuration).await
+        }
         Err(err) => error!("Could not load configuration: {}.", err),
     }
 }
 
-async fn start_with_config(configuration_manager: ConfigurationManager<ZagreusServerConfig>) {
+async fn start_with_config(configuration: ZagreusServerConfig) {
     info!("Starting zagreus server...");
-    let configuration = configuration_manager.get_configuration();
     let server_port = configuration.server_port;
     info!(
         "API docs are available at http://localhost:{}/static/swagger-docs/?url=spec.yaml",
@@ -66,7 +72,7 @@ async fn start_with_config(configuration_manager: ConfigurationManager<ZagreusSe
     ));
 
     match endpoint::routes::get_router(
-        configuration,
+        &configuration,
         ws_server.clone(),
         server_controller.clone(),
         template_registry.clone(),
@@ -81,5 +87,18 @@ async fn start_with_config(configuration_manager: ConfigurationManager<ZagreusSe
             }
         }
         Err(err) => error!("Could not configure server routes: {}", err),
+    }
+}
+
+fn override_configuration_with_cli_flags(
+    configuration: &mut ZagreusServerConfig,
+    command: ZagreusServerCommand,
+) {
+    if let Some(data_folder) = command.data_folder {
+        configuration.data_folder = data_folder;
+    }
+
+    if let Some(server_port) = command.server_port {
+        configuration.server_port = server_port;
     }
 }
