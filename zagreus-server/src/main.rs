@@ -95,7 +95,7 @@ fn override_configuration_with_cli_flags(
     command: ZagreusServerCommand,
 ) {
     if let Some(data_folder) = command.data_folder {
-        configuration.data_folder = data_folder.clone();
+        configuration.data_folder = data_folder;
     }
 
     if let Some(server_port) = command.server_port {
