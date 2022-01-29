@@ -50,7 +50,7 @@ paths:
   '/api/template/{templateName}/asset':
     summary: Manage template assets
     get:
-      description: Returns the filenames for the currently uploaded assets for the template with the given name.
+      description: Returns a recursive list of the currently uploaded asset files for the template with the given name.
       tags:
         - template
       operationId: getAssets
