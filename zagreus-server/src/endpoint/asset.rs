@@ -1,3 +1,4 @@
+use std::fs::{DirEntry, ReadDir};
 use std::path::{Path, PathBuf};
 
 use axum::body::Bytes;
@@ -29,11 +30,11 @@ pub(crate) async fn get_asset_filenames(
 
     match std::fs::read_dir(&template_assets_folder) {
         Ok(files) => {
-            let entries: Vec<String> = files
-                .filter_map(|entry| entry.ok())
+            let entries: Vec<String> = list_recursively(files)
+                .iter()
                 .map(|entry| entry.file_name())
-                .map(|file_name| file_name.into_string())
-                .filter_map(|file_name| file_name.ok())
+                .map(|filename| filename.into_string())
+                .filter_map(|filename| filename.ok())
                 .collect();
             (StatusCode::OK, Json(json!(entries)))
         }
@@ -48,6 +49,26 @@ pub(crate) async fn get_asset_filenames(
                 Json(json!("Could not read template assets.")),
             )
         }
+    }
+}
+
+fn list_recursively(files: ReadDir) -> Vec<DirEntry> {
+    files
+        .filter_map(|entry| entry.ok())
+        .flat_map(|entry| {
+            if is_file(&entry) {
+                vec![entry]
+            } else {
+                list_recursively(std::fs::read_dir(entry.path()).unwrap())
+            }
+        })
+        .collect()
+}
+
+fn is_file(dir_entry: &DirEntry) -> bool {
+    match dir_entry.metadata() {
+        Ok(metadata) => metadata.is_file(),
+        Err(_) => false,
     }
 }
 
