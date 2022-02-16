@@ -3,8 +3,9 @@
   "version": "0.0.5",
   "description": "",
   "scripts": {
-    "build": "npm run copy-swagger && npm run copy-spec",
+    "build": "npm run copy-swagger && npm run copy-spec && npm run copy-index",
     "copy-spec": "cpy spec.yaml ../zagreus-server/swagger-docs/",
+    "copy-index": "cpy index.html ../zagreus-server/swagger-docs/",
     "copy-swagger": "cpy node_modules/swagger-ui-dist/* ../zagreus-server/swagger-docs/"
   },
   "author": "",
