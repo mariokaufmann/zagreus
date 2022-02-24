@@ -58,7 +58,7 @@ pub fn pack_template(
                                 zip_writer.add_directory(output_file_name, get_file_options())?;
                             } else {
                                 // zip file entries must contain '/' independent of OS according to the spec
-                                let output_file_name = output_file_name.replace("\\", "/");
+                                let output_file_name = output_file_name.replace('\\', "/");
                                 write_zip_file(
                                     &mut zip_writer,
                                     path,
