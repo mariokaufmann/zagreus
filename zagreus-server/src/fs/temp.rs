@@ -2,8 +2,6 @@ use std::path::PathBuf;
 
 use anyhow::anyhow;
 
-use crate::error::ZagreusError;
-
 const TEMP_FOLDER_NAME: &str = "zagreus_temp";
 
 pub fn prepare_temp_folder() -> anyhow::Result<PathBuf> {
