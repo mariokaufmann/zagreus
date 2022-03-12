@@ -4,7 +4,7 @@ use crate::data::animation::config::AnimationConfig;
 use crate::data::element::{merge_elements_with_config, ElementsConfig, TemplateElements};
 use crate::data::validation::ValidationData;
 use crate::data::TemplateConfig;
-use crate::error::{error_with_message, ZagreusError};
+use crate::error::error_with_message;
 
 mod asset;
 mod html;
@@ -28,10 +28,7 @@ const TEMPLATE_CONFIG_OUTPUT_FILE_NAME: &str = "template.json";
 const ANIMATION_CONFIG_OUTPUT_FILE_NAME: &str = "animations.json";
 const META_INFO_OUTPUT_FILE_NAME: &str = "meta.json";
 
-pub fn build_template(
-    build_folder: &Path,
-    template_config: &TemplateConfig,
-) -> Result<(), ZagreusError> {
+pub fn build_template(build_folder: &Path, template_config: &TemplateConfig) -> anyhow::Result<()> {
     if !build_folder.exists() {
         if let Err(err) = std::fs::create_dir(build_folder) {
             return error_with_message("Could not create build folder", err);

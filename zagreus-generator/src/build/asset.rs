@@ -2,11 +2,8 @@ use std::collections::HashSet;
 use std::path::Path;
 
 use crate::build::ASSETS_FOLDER_NAME;
-use crate::error::ZagreusError;
 
-pub fn collect_stylesheets<P: AsRef<Path>>(
-    base_folder: P,
-) -> Result<HashSet<String>, ZagreusError> {
+pub fn collect_stylesheets<P: AsRef<Path>>(base_folder: P) -> anyhow::Result<HashSet<String>> {
     let assets_folder = base_folder.as_ref().join(ASSETS_FOLDER_NAME);
     if !assets_folder.exists() {
         return Ok(HashSet::new());

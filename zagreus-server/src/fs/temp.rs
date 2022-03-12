@@ -1,22 +1,24 @@
 use std::path::PathBuf;
 
+use anyhow::anyhow;
+
 use crate::error::ZagreusError;
 
 const TEMP_FOLDER_NAME: &str = "zagreus_temp";
 
-pub fn prepare_temp_folder() -> Result<PathBuf, ZagreusError> {
+pub fn prepare_temp_folder() -> anyhow::Result<PathBuf> {
     let mut temp_dir = std::env::temp_dir();
     let folder_suffix = rand::random::<u16>();
     let folder_name = format!("{}{}", TEMP_FOLDER_NAME, folder_suffix);
     temp_dir.push(folder_name);
     if temp_dir.exists() {
-        return Err(ZagreusError::from("The path already exists.".to_owned()));
+        return Err(anyhow!("The path already exists."));
     }
     std::fs::create_dir(&temp_dir)?;
     Ok(temp_dir)
 }
 
-pub fn delete_temp_folder(path: &PathBuf) -> Result<(), ZagreusError> {
+pub fn delete_temp_folder(path: &PathBuf) -> anyhow::Result<()> {
     if path.exists() {
         std::fs::remove_dir_all(path)?;
     }

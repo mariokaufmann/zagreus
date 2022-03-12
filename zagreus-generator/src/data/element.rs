@@ -1,5 +1,7 @@
+use anyhow::anyhow;
+
 use crate::data::validation::{get_duplicate_elements, ConfigValidate, ValidationData};
-use crate::error::{error_with_message, simple_error, ZagreusError};
+use crate::error::{error_with_message, simple_error};
 use crate::new::TemplateDefault;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -59,13 +61,13 @@ pub fn merge_elements_with_config(elements: &mut TemplateElements, config: Eleme
 }
 
 impl ConfigValidate for ElementsConfig {
-    fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
+    fn validate(&self, validation_data: &ValidationData) -> anyhow::Result<()> {
         for element_config in &self.elements {
             if !validation_data
                 .template_elements
                 .has_template_element(&element_config.id)
             {
-                return Err(ZagreusError::from(format!(
+                return Err(anyhow!(format!(
                     "Element config contains unknown element {}.",
                     &element_config.id
                 )));
@@ -113,17 +115,17 @@ pub struct AlignmentConfig {
 }
 
 impl ConfigValidate for AlignmentConfig {
-    fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
+    fn validate(&self, validation_data: &ValidationData) -> anyhow::Result<()> {
         if self.with.is_empty() {
             if self.horizontal == HorizontalAlignment::Center {
-                return Err(ZagreusError::from(
-                    "Element is horizontally center-aligned but no with is configured.".to_string(),
+                return Err(anyhow!(
+                    "Element is horizontally center-aligned but no with is configured."
                 ));
             }
 
             if self.vertical == VerticalAlignment::Center {
-                return Err(ZagreusError::from(
-                    "Element is vertically center-aligned but no with is configured.".to_string(),
+                return Err(anyhow!(
+                    "Element is vertically center-aligned but no with is configured."
                 ));
             }
         } else {
@@ -131,19 +133,16 @@ impl ConfigValidate for AlignmentConfig {
                 .template_elements
                 .has_template_element(&self.with)
             {
-                return Err(ZagreusError::from(format!(
+                return Err(anyhow!(
                     "Element is configured to be aligned with unknown element {}.",
                     &self.with
-                )));
+                ));
             }
 
             if self.horizontal != HorizontalAlignment::Center
                 && self.vertical != VerticalAlignment::Center
             {
-                return Err(ZagreusError::from(
-                    "An element can only have a with element if it is center-aligned in at least one direction."
-                        .to_string(),
-                ));
+                return Err(anyhow!(                    "An element can only have a with element if it is center-aligned in at least one direction."                                    ));
             }
         }
 

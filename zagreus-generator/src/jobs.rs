@@ -3,7 +3,7 @@ use crate::build::{
     INPUT_SVG_FILE_NAME,
 };
 use crate::data::TemplateConfig;
-use crate::error::{error_with_message, simple_error, ZagreusError};
+use crate::error::{error_with_message, simple_error};
 use crate::file_watcher;
 use crate::{build, new, upload, TEMPLATE_CONFIG_FILE_NAME};
 use std::env;
@@ -12,11 +12,11 @@ use std::time::Duration;
 
 const FILE_WATCHER_DEBOUNCE_DELAY: u64 = 200;
 
-pub fn new_template(name: String) -> Result<(), ZagreusError> {
+pub fn new_template(name: String) -> anyhow::Result<()> {
     new::new_template(&name)
 }
 
-pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
+pub fn build_template(watch: bool, upload: bool) -> anyhow::Result<()> {
     verify_required_files_present()?;
 
     let template_config = load_template_config()?;
@@ -51,7 +51,7 @@ pub fn build_template(watch: bool, upload: bool) -> Result<(), ZagreusError> {
 
 /// Checks whether all the files required for building the template are present. Logs an error for
 /// each missing file. Returns an error if at least one file is missing, `Ok` else.
-fn verify_required_files_present() -> Result<(), ZagreusError> {
+fn verify_required_files_present() -> anyhow::Result<()> {
     let required_files = [
         TEMPLATE_CONFIG_FILE_NAME,
         ELEMENT_CONFIG_INPUT_FILE_NAME,
@@ -75,7 +75,7 @@ fn build_once(
     template_config: &TemplateConfig,
     build_dir: &Path,
     upload: bool,
-) -> Result<(), ZagreusError> {
+) -> anyhow::Result<()> {
     info!("Building template {}...", &template_config.name);
     if let Err(error) = build::build_template(build_dir, template_config) {
         return error_with_message(
@@ -93,7 +93,7 @@ fn build_once(
     Ok(())
 }
 
-pub fn upload_template() -> Result<(), ZagreusError> {
+pub fn upload_template() -> anyhow::Result<()> {
     let template_config = load_template_config()?;
     let zipped_template_path = get_zipped_template_path()?;
 
@@ -120,12 +120,12 @@ pub fn upload_template() -> Result<(), ZagreusError> {
     Ok(())
 }
 
-fn load_template_config() -> Result<TemplateConfig, ZagreusError> {
+fn load_template_config() -> anyhow::Result<TemplateConfig> {
     let file_path = Path::new(TEMPLATE_CONFIG_FILE_NAME);
     crate::data::load_config::<TemplateConfig>(file_path)
 }
 
-fn get_zipped_template_path() -> Result<PathBuf, ZagreusError> {
+fn get_zipped_template_path() -> anyhow::Result<PathBuf> {
     let build_dir = Path::new(BUILD_FOLDER_NAME);
     if !build_dir.exists() {
         return simple_error("Build directory not found. Did you build the template?");

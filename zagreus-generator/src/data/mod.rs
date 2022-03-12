@@ -4,7 +4,6 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use crate::data::validation::{ConfigValidate, ValidationData};
-use crate::error::ZagreusError;
 use crate::new::TemplateDefault;
 use crate::ZAGREUS_GENERATOR_VERSION;
 use std::fs::File;
@@ -42,7 +41,7 @@ impl TemplateDefault for TemplateConfig {
 }
 
 impl ConfigValidate for TemplateConfig {
-    fn validate(&self, _: &ValidationData) -> Result<(), ZagreusError> {
+    fn validate(&self, _: &ValidationData) -> anyhow::Result<()> {
         Ok(())
     }
 }
@@ -74,7 +73,7 @@ pub fn convert_config<T>(
     input_file_path: &Path,
     output_file_path: &Path,
     validation_data: &ValidationData,
-) -> Result<(), ZagreusError>
+) -> anyhow::Result<()>
 where
     T: DeserializeOwned + Serialize + ConfigValidate,
 {
@@ -92,7 +91,7 @@ pub fn map_and_convert_config<I, O, F>(
     output_file_path: &Path,
     validation_data: &ValidationData,
     mapping_fun: F,
-) -> Result<(), ZagreusError>
+) -> anyhow::Result<()>
 where
     I: DeserializeOwned + ConfigValidate,
     O: Serialize,
@@ -106,7 +105,7 @@ where
     Ok(())
 }
 
-pub fn load_config<T>(config_file_path: &Path) -> Result<T, ZagreusError>
+pub fn load_config<T>(config_file_path: &Path) -> anyhow::Result<T>
 where
     T: DeserializeOwned + ConfigValidate,
 {
@@ -121,7 +120,7 @@ where
 /// # Arguments
 /// * `build_folder`: The path to the template's build folder.
 /// * `file_name`: The name of the meta data file.
-pub fn create_meta_file(build_folder: &Path, file_name: &str) -> Result<(), ZagreusError> {
+pub fn create_meta_file(build_folder: &Path, file_name: &str) -> anyhow::Result<()> {
     let meta_file = File::create(build_folder.join(file_name))?;
     serde_json::to_writer(meta_file, &MetaInfo::new())?;
     Ok(())

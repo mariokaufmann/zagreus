@@ -2,8 +2,6 @@ use std::io::Read;
 use std::path::Path;
 use std::time::Duration;
 
-use crate::error::ZagreusError;
-
 pub struct TemplateUploader<'a> {
     client: reqwest::blocking::Client,
     upload_url: String,
@@ -15,7 +13,7 @@ impl<'a> TemplateUploader<'a> {
         server_url: &str,
         template_name: &str,
         packed_template_file_path: &'a Path,
-    ) -> Result<TemplateUploader<'a>, ZagreusError> {
+    ) -> anyhow::Result<TemplateUploader<'a>> {
         let client = reqwest::blocking::Client::builder()
             .timeout(Duration::from_secs(10))
             .build()?;
@@ -28,7 +26,7 @@ impl<'a> TemplateUploader<'a> {
         })
     }
 
-    pub fn upload_template(&self) -> Result<(), ZagreusError> {
+    pub fn upload_template(&self) -> anyhow::Result<()> {
         let mut buffer = Vec::new();
         let mut input_file = std::fs::File::open(self.packed_template_file_path)?;
         input_file.read_to_end(&mut buffer)?;

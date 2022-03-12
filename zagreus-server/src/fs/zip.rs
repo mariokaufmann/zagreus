@@ -1,14 +1,13 @@
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
-use crate::error::ZagreusError;
 use crate::fs::get_template_folder;
 
 pub fn unpack_template_files(
     template_name: &str,
     file_buffer: &[u8],
     data_folder: &Path,
-) -> Result<(), ZagreusError> {
+) -> anyhow::Result<()> {
     debug!("Starting to unpack template: {}", template_name);
     let reader = std::io::Cursor::new(file_buffer);
 

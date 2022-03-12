@@ -1,6 +1,5 @@
+use anyhow::anyhow;
 use std::path::{Path, PathBuf};
-
-use crate::error::ZagreusError;
 
 const TEMP_FOLDER_NAME: &str = "zagreus_temp";
 
@@ -9,24 +8,24 @@ pub struct TempFolder {
 }
 
 impl TempFolder {
-    pub fn new() -> Result<TempFolder, ZagreusError> {
+    pub fn new() -> anyhow::Result<TempFolder> {
         let path = Self::prepare_temp_folder()?;
         Ok(TempFolder { path })
     }
 
-    fn prepare_temp_folder() -> Result<PathBuf, ZagreusError> {
+    fn prepare_temp_folder() -> anyhow::Result<PathBuf> {
         let mut temp_dir = std::env::temp_dir();
         let folder_suffix = rand::random::<u16>();
         let folder_name = format!("{}{}", TEMP_FOLDER_NAME, folder_suffix);
         temp_dir.push(folder_name);
         if temp_dir.exists() {
-            return Err(ZagreusError::from("The path already exists.".to_owned()));
+            return Err(anyhow!("The path already exists.".to_owned()));
         }
         std::fs::create_dir(&temp_dir)?;
         Ok(temp_dir)
     }
 
-    fn delete_temp_folder(&self) -> Result<(), ZagreusError> {
+    fn delete_temp_folder(&self) -> anyhow::Result<()> {
         if self.path.exists() {
             std::fs::remove_dir_all(&self.path)?;
         }

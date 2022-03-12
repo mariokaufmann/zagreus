@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use std::path::{Path, PathBuf};
 
 use axum::body::Bytes;
@@ -7,7 +8,6 @@ use axum::response::IntoResponse;
 use axum::Json;
 use serde_json::json;
 
-use crate::error::ZagreusError;
 use crate::fs;
 
 pub const ASSETS_FOLDER_NAME: &str = "assets";
@@ -96,7 +96,7 @@ pub(crate) async fn upload_asset(
 
 async fn get_asset_data(
     mut multipart: axum::extract::Multipart,
-) -> Result<(String, Bytes), ZagreusError> {
+) -> anyhow::Result<(String, Bytes)> {
     let mut asset_name: Option<String> = None;
     let mut asset_data: Option<Bytes> = None;
     while let Some(field) = multipart.next_field().await? {
@@ -115,9 +115,7 @@ async fn get_asset_data(
             return Ok((asset_name, asset_data));
         }
     }
-    Err(ZagreusError::from(String::from(
-        "Multipart request did not have expected format.",
-    )))
+    Err(anyhow!("Multipart request did not have expected format."))
 }
 
 async fn write_asset_file(
@@ -125,7 +123,7 @@ async fn write_asset_file(
     template_name: &str,
     asset_name: &str,
     asset_bytes: Bytes,
-) -> Result<(), ZagreusError> {
+) -> anyhow::Result<()> {
     let mut asset_file_path = templates_data_folder.to_owned();
     asset_file_path.push(template_name);
     asset_file_path.push(ASSETS_FOLDER_NAME);

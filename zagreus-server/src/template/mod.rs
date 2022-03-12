@@ -4,7 +4,6 @@ use serde::de::DeserializeOwned;
 
 use crate::data::animation::config::AnimationConfig;
 use crate::data::config::{TemplateConfig, TemplateElement, TemplateElements};
-use crate::error::ZagreusError;
 use crate::fs::get_template_folder;
 
 pub mod event;
@@ -22,7 +21,7 @@ pub struct Template {
 }
 
 impl Template {
-    pub fn load(data_folder: &Path, template_name: &str) -> Result<Template, ZagreusError> {
+    pub fn load(data_folder: &Path, template_name: &str) -> anyhow::Result<Template> {
         let template_folder = get_template_folder(data_folder, template_name)?;
         let animation_config =
             Self::load_config::<AnimationConfig>(&template_folder, ANIMATIONS_FILE_NAME)?;
@@ -39,7 +38,7 @@ impl Template {
         Ok(template)
     }
 
-    fn load_config<T>(template_folder: &Path, input_file_name: &str) -> Result<T, ZagreusError>
+    fn load_config<T>(template_folder: &Path, input_file_name: &str) -> anyhow::Result<T>
     where
         T: DeserializeOwned,
     {
