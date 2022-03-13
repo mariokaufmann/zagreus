@@ -11,7 +11,7 @@ use notify::{raw_watcher, RawEvent, RecursiveMode, Watcher};
 use crate::build::{ASSETS_FOLDER_NAME, BUILD_FOLDER_NAME};
 use crate::error::simple_error;
 
-/// Starts recursively watching the given path for file changes. Returns a `ZagreusError` if the
+/// Starts recursively watching the given path for file changes. Returns an Error if the
 /// `watch_path` is not absolute, or if the file watcher can't be initialized or started.
 /// Otherwise, returns a `Receiver<()>` which gets notified about filtered and debounced file
 /// events.
