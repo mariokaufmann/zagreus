@@ -4,7 +4,7 @@ use crate::build::{
 use crate::data::animation::config::AnimationConfig;
 use crate::data::element::ElementsConfig;
 use crate::data::TemplateConfig;
-use crate::error::{simple_error, ZagreusError};
+use crate::error::simple_error;
 use crate::TEMPLATE_CONFIG_FILE_NAME;
 use serde::Serialize;
 use std::collections::HashSet;
@@ -28,7 +28,7 @@ pub trait TemplateDefault {
 /// creates an empty assets directory, as well as skeletons for all the YAML config files required
 /// to build a template. Users may still need to provide additional files until the template can be
 /// built.
-pub fn new_template(name: &str) -> Result<(), ZagreusError> {
+pub fn new_template(name: &str) -> anyhow::Result<()> {
     validate_template_name(name)?;
 
     // Return Err if the directory already exists.
@@ -59,7 +59,7 @@ pub fn new_template(name: &str) -> Result<(), ZagreusError> {
 /// characters is defined by this function. Returns an error the name is invalid, with an error
 /// message containing the complete set of offending characters. Also returns an error if the
 /// template name is empty.
-fn validate_template_name(template_name: &str) -> Result<(), ZagreusError> {
+fn validate_template_name(template_name: &str) -> anyhow::Result<()> {
     if template_name.is_empty() {
         return simple_error("Template name must not be empty");
     }
@@ -80,7 +80,7 @@ fn validate_template_name(template_name: &str) -> Result<(), ZagreusError> {
 
 /// Creates all directories and boilerplate files required for a new template, not including the
 /// new template directory itself. Returns an error if any of them cannot be created.
-fn create_dirs_and_files(template_name: &str, template_dir: &Path) -> Result<(), ZagreusError> {
+fn create_dirs_and_files(template_name: &str, template_dir: &Path) -> anyhow::Result<()> {
     // Create assets subdirectory.
     fs::create_dir(template_dir.join(ASSETS_FOLDER_NAME))?;
 
@@ -111,7 +111,7 @@ fn create_default_config<T>(
     template_dir: &Path,
     file_name: &str,
     template_name: &str,
-) -> Result<(), ZagreusError>
+) -> anyhow::Result<()>
 where
     T: Serialize + TemplateDefault,
 {
@@ -122,7 +122,7 @@ where
 
 /// Creates a new file at the given path, serializes `config` to YAML, and writes the result into
 /// the newly created file. Returns an error of the file already exists or an IO error occurs.
-fn write_to_new_file<T>(file_path: &Path, config: &T) -> Result<(), ZagreusError>
+fn write_to_new_file<T>(file_path: &Path, config: &T) -> anyhow::Result<()>
 where
     T: Serialize,
 {
@@ -138,7 +138,7 @@ where
 
 /// Deletes the assets directory, template config file, element config file, animation config file,
 /// and newly created template directory. Returns an error if any of these cannot be removed.
-fn rollback(template_dir: &Path) -> Result<(), ZagreusError> {
+fn rollback(template_dir: &Path) -> anyhow::Result<()> {
     if !template_dir.exists() {
         // Nothing to roll back, no directory was created yet.
         return Ok(());
@@ -158,7 +158,7 @@ fn rollback(template_dir: &Path) -> Result<(), ZagreusError> {
 
 /// Removes the file or directory at the given path, if it exists. Returns an error if the file or
 /// directory doesn't exist, or if it is a directory and is not empty.
-fn remove_file_or_directory(path: &Path) -> Result<(), ZagreusError> {
+fn remove_file_or_directory(path: &Path) -> anyhow::Result<()> {
     if !path.exists() {
         // Nothing to remove here.
         return Ok(());

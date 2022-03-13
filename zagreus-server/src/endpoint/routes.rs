@@ -10,7 +10,6 @@ use crate::config::ZagreusServerConfig;
 use crate::controller::ServerController;
 use crate::endpoint::websocket::ws_handler;
 use crate::endpoint::{data, get_server_version, template};
-use crate::error::ZagreusError;
 use crate::fs::get_templates_data_folder;
 use crate::websocket::server::WebsocketServer;
 use crate::{endpoint, ServerTemplateRegistry};
@@ -57,7 +56,7 @@ pub fn get_router(
     ws_server: Arc<WebsocketServer>,
     server_controller: Arc<ServerController>,
     template_registry: ServerTemplateRegistry,
-) -> Result<Router, ZagreusError> {
+) -> anyhow::Result<Router> {
     let mut router = Router::new().route("/api/version", axum::routing::get(get_server_version));
 
     let templates_data_folder = get_templates_data_folder(&configuration.data_folder)?;

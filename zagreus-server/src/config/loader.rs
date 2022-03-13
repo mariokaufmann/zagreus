@@ -1,8 +1,6 @@
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
-use crate::error::ZagreusError;
-
 pub struct ConfigurationManager<T>
 where
     T: Sized,
@@ -17,7 +15,7 @@ where
     pub fn load(
         application_folder: &Path,
         config_file_name: &str,
-    ) -> Result<ConfigurationManager<T>, ZagreusError> {
+    ) -> anyhow::Result<ConfigurationManager<T>> {
         let configuration_loader = ConfigurationLoader::new(application_folder, config_file_name);
 
         let configuration;
@@ -46,7 +44,7 @@ impl ConfigurationLoader {
         ConfigurationLoader { config_file_path }
     }
 
-    pub fn load_config<T>(&self) -> Result<T, ZagreusError>
+    pub fn load_config<T>(&self) -> anyhow::Result<T>
     where
         T: serde::de::DeserializeOwned,
     {
@@ -62,7 +60,7 @@ impl ConfigurationLoader {
         self.config_file_path.exists()
     }
 
-    pub fn store_config<T>(&self, config: &T) -> Result<(), ZagreusError>
+    pub fn store_config<T>(&self, config: &T) -> anyhow::Result<()>
     where
         T: serde::Serialize,
     {

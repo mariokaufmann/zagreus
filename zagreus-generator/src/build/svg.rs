@@ -5,12 +5,11 @@ use xml::reader::XmlEvent as ReaderEvent;
 use xml::writer::XmlEvent as WriterEvent;
 
 use crate::data::element::TemplateElements;
-use crate::error::ZagreusError;
 
 pub fn process_svg(
     input_file_path: &Path,
     output_file_path: &Path,
-) -> Result<TemplateElements, ZagreusError> {
+) -> anyhow::Result<TemplateElements> {
     let template_reader = crate::build::transform::create_xml_reader(input_file_path);
     let mut processed_template_writer =
         crate::build::transform::create_xml_writer(output_file_path);

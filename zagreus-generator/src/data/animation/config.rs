@@ -1,6 +1,8 @@
+use anyhow::anyhow;
+
 use crate::data::validation::{get_duplicate_elements, ValidationData};
 use crate::data::ConfigValidate;
-use crate::error::{simple_error, ZagreusError};
+use crate::error::simple_error;
 use crate::new::TemplateDefault;
 
 #[derive(Serialize, Deserialize)]
@@ -22,7 +24,7 @@ impl TemplateDefault for AnimationConfig {
 }
 
 impl ConfigValidate for AnimationConfig {
-    fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError> {
+    fn validate(&self, validation_data: &ValidationData) -> anyhow::Result<()> {
         // Validate animation sequences.
         for sequence in &self.sequences {
             for step in &sequence.steps {
@@ -31,8 +33,7 @@ impl ConfigValidate for AnimationConfig {
                     get_duplicate_elements(&step.animations, |animation| &animation.id);
 
                 if let Some(duplicate_element) = duplicate_elements.get(0) {
-                    return Err(ZagreusError::from(
-                        format!("Animation sequence {} contains multiple animations for element {} in the same step.", &sequence.name, duplicate_element)));
+                    return Err(anyhow!("Animation sequence {} contains multiple animations for element {} in the same step.", &sequence.name, duplicate_element));
                 }
 
                 for animation in &step.animations {
@@ -40,20 +41,20 @@ impl ConfigValidate for AnimationConfig {
                         .template_elements
                         .has_template_element(&animation.id)
                     {
-                        return Err(ZagreusError::from(format!(
+                        return Err(anyhow!(
                             "Animation config contains unknown element {}.",
                             &animation.id
-                        )));
+                        ));
                     }
 
                     // check if iterations property has a valid value
                     if !animation.iterations.eq("infinite") {
                         let parsed_iteration_count = animation.iterations.parse::<u16>();
                         if parsed_iteration_count.is_err() {
-                            return Err(ZagreusError::from(format!(
+                            return Err(anyhow!(
                                 "Animation config contains invalid iterations value {}.",
                                 &animation.iterations
-                            )));
+                            ));
                         }
                     }
                 }

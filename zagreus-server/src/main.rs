@@ -20,7 +20,6 @@ mod config;
 mod controller;
 mod data;
 mod endpoint;
-mod error;
 mod fs;
 mod logger;
 mod template;

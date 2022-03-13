@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
 use crate::data::element::TemplateElements;
-use crate::error::ZagreusError;
 
 pub trait ConfigValidate {
-    fn validate(&self, validation_data: &ValidationData) -> Result<(), ZagreusError>;
+    fn validate(&self, validation_data: &ValidationData) -> anyhow::Result<()>;
 }
 
 pub struct ValidationData<'a> {

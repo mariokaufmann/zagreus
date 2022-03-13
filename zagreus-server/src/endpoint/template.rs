@@ -1,5 +1,5 @@
-use crate::error::ZagreusError;
 use crate::ServerTemplateRegistry;
+use anyhow::anyhow;
 use axum::body::Bytes;
 use axum::extract::{Extension, Path};
 use axum::http::StatusCode;
@@ -43,14 +43,12 @@ pub(crate) async fn upload_template(
 
 async fn get_template_data(
     mut multipart: axum::extract::Multipart,
-) -> Result<(String, Bytes), ZagreusError> {
+) -> anyhow::Result<(String, Bytes)> {
     if let Some(field) = multipart.next_field().await? {
         if let Some(name) = field.name().map(|name| name.to_owned()) {
             let data = field.bytes().await?;
             return Ok((name, data));
         }
     }
-    Err(ZagreusError::from(String::from(
-        "Multipart request did not have expected format.",
-    )))
+    Err(anyhow!("Multipart request did not have expected format."))
 }

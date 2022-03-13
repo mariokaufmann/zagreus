@@ -1,6 +1,7 @@
-use crate::error::ZagreusError;
 use std::fs::DirEntry;
 use std::path::Path;
+
+use anyhow::anyhow;
 
 #[derive(Serialize)]
 #[serde(untagged)]
@@ -14,7 +15,7 @@ pub enum DirEntryNode {
     },
 }
 
-pub fn traverse(path: &Path) -> Result<Vec<DirEntryNode>, ZagreusError> {
+pub fn traverse(path: &Path) -> anyhow::Result<Vec<DirEntryNode>> {
     let files = std::fs::read_dir(path)?;
     Ok(files
         .filter_map(|entry| entry.ok())
@@ -29,16 +30,16 @@ pub fn traverse(path: &Path) -> Result<Vec<DirEntryNode>, ZagreusError> {
                 }),
             }
         })
-        .filter_map(|entry: Result<DirEntryNode, ZagreusError>| entry.ok())
+        .filter_map(|entry: anyhow::Result<DirEntryNode>| entry.ok())
         .collect())
 }
 
-fn get_filename(entry: DirEntry) -> Result<String, ZagreusError> {
+fn get_filename(entry: DirEntry) -> anyhow::Result<String> {
     match entry.file_name().into_string() {
         Ok(filename) => Ok(filename),
-        Err(_) => Err(ZagreusError::from(format!(
+        Err(_) => Err(anyhow!(
             "Failed to process filename: {:?}",
             entry.file_name()
-        ))),
+        )),
     }
 }

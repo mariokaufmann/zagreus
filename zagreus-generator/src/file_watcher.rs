@@ -1,6 +1,3 @@
-use crate::build::{ASSETS_FOLDER_NAME, BUILD_FOLDER_NAME};
-use crate::error::{simple_error, ZagreusError};
-use notify::{raw_watcher, RawEvent, RecursiveMode, Watcher};
 use std::ops::Add;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
@@ -8,7 +5,13 @@ use std::sync::mpsc::{Receiver, RecvTimeoutError, TrySendError};
 use std::thread;
 use std::time::{Duration, Instant};
 
-/// Starts recursively watching the given path for file changes. Returns a `ZagreusError` if the
+use anyhow::anyhow;
+use notify::{raw_watcher, RawEvent, RecursiveMode, Watcher};
+
+use crate::build::{ASSETS_FOLDER_NAME, BUILD_FOLDER_NAME};
+use crate::error::simple_error;
+
+/// Starts recursively watching the given path for file changes. Returns an Error if the
 /// `watch_path` is not absolute, or if the file watcher can't be initialized or started.
 /// Otherwise, returns a `Receiver<()>` which gets notified about filtered and debounced file
 /// events.
@@ -40,7 +43,7 @@ use std::time::{Duration, Instant};
 /// * The relay thread receives an `Error` event from the `notify` file watcher
 /// * The relay thread tries to notify a disconnected (i.e. dropped) receiver
 /// * An unexpected error occurs in the relay thread while processing an event
-pub fn spawn(watch_path: PathBuf, debounce_delay: Duration) -> Result<Receiver<()>, ZagreusError> {
+pub fn spawn(watch_path: PathBuf, debounce_delay: Duration) -> anyhow::Result<Receiver<()>> {
     // Check whether watch path is absolute, required for path ignore checks.
     if !watch_path.is_absolute() {
         return simple_error("Watch path must be absolute");
@@ -92,7 +95,7 @@ pub fn spawn(watch_path: PathBuf, debounce_delay: Duration) -> Result<Receiver<(
 
 /// Blocks until an event is received and categorized as `EventCategory::Relevant`. Immediately
 /// returns `Err` if an event gets categorized as `Err`.
-fn wait_for_relevant_event(rx: &Receiver<RawEvent>, watch_path: &Path) -> Result<(), ZagreusError> {
+fn wait_for_relevant_event(rx: &Receiver<RawEvent>, watch_path: &Path) -> anyhow::Result<()> {
     loop {
         let event = match rx.recv() {
             Ok(event) => event,
@@ -101,7 +104,12 @@ fn wait_for_relevant_event(rx: &Receiver<RawEvent>, watch_path: &Path) -> Result
         match categorize_event(&event, watch_path) {
             EventCategory::Relevant => return Ok(()),
             EventCategory::Ignored => {}
-            EventCategory::Err(error) => return Err(error),
+            EventCategory::Err(error) => {
+                return Err(anyhow!(
+                    "Error occurred when watching for file changes: {}",
+                    error
+                ))
+            }
         }
     }
 }
@@ -109,11 +117,7 @@ fn wait_for_relevant_event(rx: &Receiver<RawEvent>, watch_path: &Path) -> Result
 /// Blocks until no event has been received and categorized as `EventCategory::Relevant` for at
 /// least `debounce_delay` amount of time. Returns `Ok` as soon as this timeout is reached.
 /// Immediately returns `Err` if an event gets categorized as `Err`.
-fn debounce(
-    rx: &Receiver<RawEvent>,
-    watch_path: &Path,
-    delay: Duration,
-) -> Result<(), ZagreusError> {
+fn debounce(rx: &Receiver<RawEvent>, watch_path: &Path, delay: Duration) -> anyhow::Result<()> {
     // Deadline for receiving further relevant events is (now + debounce delay). If no relevant
     // events are received past the deadline, debouncing is complete.
     let mut deadline = Instant::now().add(delay);
@@ -128,7 +132,7 @@ fn debounce(
             Err(RecvTimeoutError::Timeout) => break,
             Err(RecvTimeoutError::Disconnected) => {
                 let msg = String::from("Notify sender has disconnected");
-                return Err(ZagreusError::from(msg));
+                return Err(anyhow!(msg));
             }
         };
 
@@ -138,7 +142,12 @@ fn debounce(
         match categorize_event(&event, watch_path) {
             EventCategory::Ignored => {}
             EventCategory::Relevant => deadline = Instant::now().add(delay),
-            EventCategory::Err(error) => return Err(error),
+            EventCategory::Err(error) => {
+                return Err(anyhow!(
+                    "Error occurred when watching for file change event: {}",
+                    error
+                ))
+            }
         }
     }
 
@@ -150,7 +159,7 @@ fn debounce(
 fn categorize_event(event: &RawEvent, watch_path: &Path) -> EventCategory {
     // Check whether the event represents an error, return Err if true.
     if let Err(error) = &event.op {
-        return EventCategory::Err(error.into());
+        return EventCategory::Err(format!("Got file change error event: {}.", error));
     }
 
     // Try extracting event path, skip if no path is available.
@@ -167,7 +176,10 @@ fn categorize_event(event: &RawEvent, watch_path: &Path) -> EventCategory {
     match should_ignore_event_path(watch_path, event_path) {
         Ok(true) => EventCategory::Ignored,
         Ok(false) => EventCategory::Relevant,
-        Err(error) => EventCategory::Err(error),
+        Err(error) => EventCategory::Err(format!(
+            "Could not determine whether to ignore event path: {}",
+            error
+        )),
     }
 }
 
@@ -179,14 +191,14 @@ enum EventCategory {
     /// This event can be ignored, the receiver should **not** be notified.
     Ignored,
 
-    /// This event represents a `notify` error or otherwise can't processed.
-    Err(ZagreusError),
+    /// This event represents a `notify` error or otherwise can't be processed.
+    Err(String),
 }
 
 /// Determines whether or not a given event path should be ignored, based on a predefined ruleset.
 /// Returns `true` if an event at that path should be ignored, `false` if it should not be ignored,
 /// and `Err` if the given `event_path` is not below the `root_path`.
-fn should_ignore_event_path(root_path: &Path, event_path: &Path) -> Result<bool, ZagreusError> {
+fn should_ignore_event_path(root_path: &Path, event_path: &Path) -> anyhow::Result<bool> {
     // Make event path relative to root directory, return Err if event path is not below root
     // directory.
     let event_path = event_path.strip_prefix(root_path)?;
