@@ -1,6 +1,6 @@
 use axum::error_handling::HandleErrorLayer;
 use axum::http::{Request, StatusCode, Uri};
-use axum::{AddExtensionLayer, BoxError, Router};
+use axum::{BoxError, Router};
 use hyper::Body;
 use std::sync::Arc;
 use tower::filter::AsyncFilterLayer;
@@ -109,7 +109,7 @@ pub fn get_router(
             "/ws/template/:template_name",
             axum::routing::get(ws_handler),
         )
-        .layer(AddExtensionLayer::new(server_controller));
+        .layer(axum::extract::Extension(server_controller));
     router = router.merge(websocket_router);
 
     // routes for manipulating templates
@@ -127,7 +127,7 @@ pub fn get_router(
                 axum::routing::post(data::execute_animation),
             )
             .route("/data/image", axum::routing::post(data::set_image_source))
-            .layer(AddExtensionLayer::new(ws_server)),
+            .layer(axum::extract::Extension(ws_server)),
     );
     router = router.merge(manipulate_templates_router);
 
@@ -137,7 +137,7 @@ pub fn get_router(
             "/api/template/:template_name",
             axum::routing::post(template::upload_template),
         )
-        .layer(AddExtensionLayer::new(template_registry));
+        .layer(axum::extract::Extension(template_registry));
     router = router.merge(upload_template_router);
 
     // route for manipulating assets
@@ -147,7 +147,7 @@ pub fn get_router(
             axum::routing::get(endpoint::asset::get_asset_filenames)
                 .post(endpoint::asset::upload_asset),
         )
-        .layer(AddExtensionLayer::new(templates_data_folder));
+        .layer(axum::extract::Extension(templates_data_folder));
     router = router.merge(assets_router);
 
     let middleware_stack = ServiceBuilder::new()
