@@ -3,6 +3,6 @@
     "config:base",
     "group:allNonMajor",
     "group:recommended",
-    "schedule:weekly"
+    "schedule:monthly"
   ]
 }
