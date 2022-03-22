@@ -8,7 +8,7 @@ edition = "2021"
 anyhow = "1.0.56"
 axum = { version = "0.4.8", features = ["json", "http1", "http2", "ws", "multipart"]}
 axum-server = "0.3.3"
-log = "0.4.14"
+log = "0.4.16"
 futures = "0.3.21"
 hyper = "0.14.17"
 rand = "0.8.5"
@@ -20,7 +20,7 @@ tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread", "sync", "
 tokio-stream = "0.1.8"
 tower = { version = "0.4.12", features = ["filter"]}
 tower-http = { version = "0.2.5", features = ["fs", "trace"]}
-zip = "0.5.13"
+zip = "0.6.0"
 
 [dependencies.log4rs]
 version = "1.0.0"
