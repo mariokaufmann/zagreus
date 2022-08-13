@@ -32,7 +32,7 @@ impl ConfigValidate for AnimationConfig {
                 let duplicate_elements =
                     get_duplicate_elements(&step.animations, |animation| &animation.id);
 
-                if let Some(duplicate_element) = duplicate_elements.get(0) {
+                if let Some(duplicate_element) = duplicate_elements.first() {
                     return Err(anyhow!("Animation sequence {} contains multiple animations for element {} in the same step.", &sequence.name, duplicate_element));
                 }
 
