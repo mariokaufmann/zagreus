@@ -150,7 +150,7 @@ impl ConfigValidate for AlignmentConfig {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum HorizontalAlignment {
     Center,
@@ -164,7 +164,7 @@ impl Default for HorizontalAlignment {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum VerticalAlignment {
     Center,
