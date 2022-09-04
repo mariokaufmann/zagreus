@@ -69,7 +69,9 @@ pub fn write_raw_html(
 // This step is mainly there to pretty print the RAW HTML
 pub fn process_raw_html(raw_html_path: &Path, processed_html_path: &Path) {
     let html_reader = crate::build::transform::create_xml_reader(raw_html_path);
-    let mut html_writer = crate::build::transform::create_xml_writer(processed_html_path);
+    // we write the doctype manually because xml-rs ignores it completely
+    let mut html_writer =
+        crate::build::transform::create_xml_writer(processed_html_path, Some("<!DOCTYPE html>\n"));
 
     for evt in html_reader {
         let reader_event = evt.unwrap();

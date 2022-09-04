@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{BufReader, Write};
 use std::path::Path;
 
 use xml::{EmitterConfig, EventReader, EventWriter};
@@ -10,8 +10,11 @@ pub fn create_xml_reader(input_path: &Path) -> EventReader<BufReader<File>> {
     EventReader::new(input_file)
 }
 
-pub fn create_xml_writer(output_path: &Path) -> EventWriter<File> {
-    let file = File::create(output_path).unwrap();
+pub fn create_xml_writer(output_path: &Path, prefix: Option<&str>) -> EventWriter<File> {
+    let mut file = File::create(output_path).unwrap();
+    if let Some(prefix) = prefix {
+        file.write_all(prefix.as_bytes()).unwrap();
+    }
     let mut config = EmitterConfig::new()
         .perform_indent(true)
         .write_document_declaration(false)
