@@ -12,7 +12,7 @@ pub fn process_svg(
 ) -> anyhow::Result<TemplateElements> {
     let template_reader = crate::build::transform::create_xml_reader(input_file_path);
     let mut processed_template_writer =
-        crate::build::transform::create_xml_writer(output_file_path);
+        crate::build::transform::create_xml_writer(output_file_path, None);
 
     let mut found_elements = Vec::new();
 
