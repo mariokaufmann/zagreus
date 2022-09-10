@@ -6,11 +6,9 @@ use crate::data::TemplateConfig;
 use crate::error::{error_with_message, simple_error};
 use crate::file_watcher;
 use crate::{build, new, upload, TEMPLATE_CONFIG_FILE_NAME};
+use anyhow::Context;
 use std::env;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
-
-const FILE_WATCHER_DEBOUNCE_DELAY: u64 = 200;
 
 pub fn new_template(name: String) -> anyhow::Result<()> {
     new::new_template(&name)
@@ -27,10 +25,8 @@ pub fn build_template(watch: bool, upload: bool) -> anyhow::Result<()> {
     };
 
     info!("Watch mode started");
-    let file_watcher_rx = file_watcher::spawn(
-        env::current_dir()?,
-        Duration::from_millis(FILE_WATCHER_DEBOUNCE_DELAY),
-    )?;
+    let file_watcher = file_watcher::FileWatcher::new(env::current_dir()?)
+        .context("Could not initialize file watcher.")?;
     loop {
         // Build the template.
         if let Err(error) = build_once(&template_config, build_dir, upload) {
@@ -39,12 +35,16 @@ pub fn build_template(watch: bool, upload: bool) -> anyhow::Result<()> {
         }
 
         // Wait for a file change.
-        file_watcher_rx.recv()?;
+        file_watcher
+            .wait_for_file_change()
+            .context("Could not wait for file change.")?;
 
         // Wait for further file changes if necessary, until all the required files are present.
         while let Err(error) = verify_required_files_present() {
             error!("{:?}", error);
-            file_watcher_rx.recv()?;
+            file_watcher
+                .wait_for_file_change()
+                .context("Could not wait for file change.")?;
         }
     }
 }
