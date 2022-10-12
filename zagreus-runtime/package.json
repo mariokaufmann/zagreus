@@ -4,9 +4,8 @@
   "description": "",
   "private": true,
   "scripts": {
-    "serve": "webpack serve",
     "copyScript": "cpy dist/zagreus-runtime.js* ../zagreus-server/",
-    "build": "webpack && npm run copyScript",
+    "build": "esbuild src/runtime.ts --bundle --sourcemap --minify --outfile=dist/zagreus-runtime.js && npm run copyScript",
     "lint": "eslint src"
   },
   "author": "Mario Kaufmann <mario.kaufmann@bluemail.ch>",
@@ -15,10 +14,8 @@
     "@typescript-eslint/eslint-plugin": "5.39.0",
     "@typescript-eslint/parser": "5.39.0",
     "cpy-cli": "4.2.0",
+    "esbuild": "0.15.10",
     "eslint": "8.24.0",
-    "ts-loader": "9.4.1",
-    "typescript": "4.8.4",
-    "webpack": "5.74.0",
-    "webpack-cli": "4.10.0"
+    "typescript": "4.8.4"
   }
 }
