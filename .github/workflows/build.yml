@@ -21,9 +21,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      - uses: dtolnay/rust-toolchain@stable
       - name: Check formatting of generator
         run: |
           rustup component add rustfmt
@@ -36,7 +34,7 @@ jobs:
         working-directory: ./zagreus-server
       - name: Lint zagreus runtime
         run: |
-          npm ci --no-optional
+          npm ci --omit=optional
           npm run lint
         working-directory: ./zagreus-runtime
       - name: Test zagreus generator
@@ -57,12 +55,12 @@ jobs:
         working-directory: ./zagreus-server
       - name: Build zagreus runtime
         run: |
-          npm ci --no-optional
+          npm ci --omit=optional
           npm run build
         working-directory: ./zagreus-runtime
       - name: Build zagreus swagger docs
         run: |
-          npm ci --no-optional
+          npm ci --omit=optional
           npm run build
         working-directory: ./zagreus-swagger-docs
       - name: Build zagreus generator
