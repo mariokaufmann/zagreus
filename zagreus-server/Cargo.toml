@@ -5,25 +5,25 @@ authors = ["Mario Kaufmann <mario.kaufmann@bluemail.ch>"]
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.65"
-axum = { version = "0.5.16", features = ["json", "http1", "http2", "ws", "multipart"]}
+anyhow = "1.0.66"
+axum = { version = "0.5.17", features = ["json", "http1", "http2", "ws", "multipart"]}
 axum-server = "0.4.2"
 log = "0.4.17"
-futures = "0.3.24"
-hyper = "0.14.20"
+futures = "0.3.25"
+hyper = "0.14.22"
 rand = "0.8.5"
-serde = "1.0.145"
-serde_derive = "1.0.145"
-serde_json = "1.0.85"
+serde = "1.0.147"
+serde_derive = "1.0.147"
+serde_json = "1.0.87"
 structopt = "0.3.26"
 tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread", "sync", "time"] }
-tokio-stream = "0.1.10"
+tokio-stream = "0.1.11"
 tower = { version = "0.4.13", features = ["filter"]}
 tower-http = { version = "0.3.4", features = ["fs", "trace"]}
-zip = "0.6.2"
+zip = "0.6.3"
 
 [dependencies.log4rs]
-version = "1.1.1"
+version = "1.2.0"
 default-features = false
 features = ["console_appender", "rolling_file_appender", "fixed_window_roller", "size_trigger", "compound_policy"]
 
