@@ -79,7 +79,7 @@ where
 {
     let config: T = load_config(input_file_path)?;
     config.validate(validation_data)?;
-    let output_file = std::fs::File::create(&output_file_path)?;
+    let output_file = std::fs::File::create(output_file_path)?;
     serde_json::to_writer_pretty(output_file, &config)?;
     Ok(())
 }
@@ -100,7 +100,7 @@ where
     let config: I = load_config(input_file_path)?;
     config.validate(validation_data)?;
     let mapped_config = mapping_fun(config);
-    let output_file = std::fs::File::create(&output_file_path)?;
+    let output_file = std::fs::File::create(output_file_path)?;
     serde_json::to_writer_pretty(output_file, &mapped_config)?;
     Ok(())
 }
@@ -109,7 +109,7 @@ pub fn load_config<T>(config_file_path: &Path) -> anyhow::Result<T>
 where
     T: DeserializeOwned + ConfigValidate,
 {
-    let input_file = std::fs::File::open(&config_file_path)?;
+    let input_file = std::fs::File::open(config_file_path)?;
     let config: T = serde_yaml::from_reader(input_file)?;
     Ok(config)
 }
