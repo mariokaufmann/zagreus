@@ -5,7 +5,7 @@ use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
 use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
 use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
-use log4rs::encode::pattern::PatternEncoder;
+use log4rs::encode::json::JsonEncoder;
 
 use crate::APPLICATION_NAME;
 
@@ -38,9 +38,7 @@ pub fn init_logger(is_verbose: bool) {
         Box::new(roller),
     );
     let file_appender = RollingFileAppender::builder()
-        .encoder(Box::new(PatternEncoder::new(
-            "{d} [{h({l})}] - {T} - {m}{n}",
-        )))
+        .encoder(Box::new(JsonEncoder::new()))
         .build(log_file_path, Box::new(rolling_file_policy))
         .unwrap();
 

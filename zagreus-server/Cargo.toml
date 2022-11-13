@@ -25,7 +25,7 @@ zip = "0.6.3"
 [dependencies.log4rs]
 version = "1.2.0"
 default-features = false
-features = ["console_appender", "rolling_file_appender", "fixed_window_roller", "size_trigger", "compound_policy"]
+features = ["console_appender", "rolling_file_appender", "fixed_window_roller", "size_trigger", "compound_policy", "json_encoder"]
 
 [dev-dependencies]
 tokio-tungstenite = "0.17.2"
