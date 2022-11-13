@@ -645,6 +645,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
 dependencies = [
  "cfg-if",
+ "serde",
 ]
 
 [[package]]
@@ -668,6 +669,8 @@ dependencies = [
  "log",
  "log-mdc",
  "parking_lot",
+ "serde",
+ "serde_json",
  "thiserror",
  "thread-id",
  "winapi",
@@ -984,6 +987,9 @@ name = "serde"
 version = "1.0.147"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d193d69bae983fc11a79df82342761dfbf28a99fc8d203dca4c3c1b590948965"
+dependencies = [
+ "serde_derive",
+]
 
 [[package]]
 name = "serde_derive"
