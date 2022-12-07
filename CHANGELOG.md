@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+* Change route for uploading templates from `/api/template/{templateName}` to `/api/template/{templateName}/template`
+
+## 0.0.7
+* Switch log file format to JSON logging
+
+## 0.0.6
+* Update multer dependency to allow API clients to upload templates in multipart form data with quoted or unquoted filenames. Previously, only quoted worked.
+
 ## 0.0.5
 
 * Add endpoints for managing assets via the HTTP API. See updated OpenAPI spec for details: [PR #58](https://github.com/mariokaufmann/zagreus/pull/59) and [PR #65](https://github.com/mariokaufmann/zagreus/pull/65)

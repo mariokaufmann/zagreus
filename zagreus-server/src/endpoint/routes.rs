@@ -1,9 +1,9 @@
 use axum::error_handling::HandleErrorLayer;
+use axum::http::uri::InvalidUri;
 use axum::http::{Request, StatusCode, Uri};
-use axum::{BoxError, Router};
+use axum::Router;
 use hyper::Body;
 use std::sync::Arc;
-use tower::filter::AsyncFilterLayer;
 use tower::ServiceBuilder;
 
 use crate::config::ZagreusServerConfig;
@@ -34,7 +34,7 @@ struct SetImageSourceDto {
 
 // e.g. rewrite /static/template/my-template to /static/template/my-template/
 // TODO parse url better (what if there are multiple dots in the asset name?)
-async fn map_rewrite_template_url(req: Request<Body>) -> Result<Request<Body>, BoxError> {
+async fn map_rewrite_template_url(req: Request<Body>) -> Result<Request<Body>, StatusCode> {
     let uri = req.uri().to_string();
     if uri.starts_with("/static/template/") && !uri.ends_with('/') {
         let last_part = uri.split('/').last();
@@ -42,9 +42,17 @@ async fn map_rewrite_template_url(req: Request<Body>) -> Result<Request<Body>, B
         if let Some(last_part) = last_part {
             if !last_part.contains('.') {
                 let (mut parts, body) = req.into_parts();
-                let new_uri: Uri = format!("{}/", uri).parse()?;
-                parts.uri = new_uri;
-                return Ok(Request::from_parts(parts, body));
+                let new_uri: Result<Uri, InvalidUri> = format!("{}/", uri).parse();
+                match new_uri {
+                    Ok(new_uri) => {
+                        parts.uri = new_uri;
+                        return Ok(Request::from_parts(parts, body));
+                    }
+                    Err(invalid_uri) => {
+                        error!("URI was invalid: {}.", invalid_uri);
+                        return Err(StatusCode::BAD_REQUEST);
+                    }
+                }
             }
         }
     }
@@ -63,7 +71,7 @@ pub fn get_router(
     let static_router = Router::new().nest(
         "/static",
         Router::new()
-            .nest(
+            .nest_service(
                 "/template",
                 axum::routing::get_service(tower_http::services::ServeDir::new(
                     &templates_data_folder,
@@ -93,7 +101,7 @@ pub fn get_router(
                     )
                 }),
             )
-            .nest(
+            .nest_service(
                 "/swagger-docs",
                 axum::routing::get_service(tower_http::services::ServeDir::new("swagger-docs"))
                     .handle_error(|err| async move {
@@ -134,7 +142,7 @@ pub fn get_router(
     // route for uploading templates
     let upload_template_router = Router::new()
         .route(
-            "/api/template/:template_name",
+            "/api/template/:template_name/template",
             axum::routing::post(template::upload_template),
         )
         .layer(axum::extract::Extension(template_registry));
@@ -157,7 +165,7 @@ pub fn get_router(
                 format!("Unhandled internal error: {}", error),
             )
         }))
-        .layer(AsyncFilterLayer::new(map_rewrite_template_url));
+        .layer(axum::middleware::map_request(map_rewrite_template_url));
 
     Ok(router.layer(middleware_stack))
 }
