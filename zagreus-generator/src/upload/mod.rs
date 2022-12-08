@@ -17,7 +17,10 @@ impl<'a> TemplateUploader<'a> {
         let client = reqwest::blocking::Client::builder()
             .timeout(Duration::from_secs(10))
             .build()?;
-        let upload_url = format!("http://{}/api/template/{}", server_url, template_name);
+        let upload_url = format!(
+            "http://{}/api/template/{}/template",
+            server_url, template_name
+        );
 
         Ok(TemplateUploader {
             client,
