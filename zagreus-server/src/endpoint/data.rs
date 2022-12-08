@@ -24,9 +24,9 @@ pub(crate) struct SetImageSourceDto {
 }
 
 pub(crate) async fn set_text(
-    Json(payload): Json<SetTextDto>,
     Path(template_name): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
+    Json(payload): Json<SetTextDto>,
 ) -> impl IntoResponse {
     let message = TemplateMessage::SetText {
         id: &payload.id,
@@ -36,9 +36,9 @@ pub(crate) async fn set_text(
 }
 
 pub(crate) async fn add_class(
-    Json(payload): Json<ManipulateClassDto>,
     Path(template_name): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
+    Json(payload): Json<ManipulateClassDto>,
 ) -> impl IntoResponse {
     let message = TemplateMessage::AddClass {
         id: &payload.id,
@@ -48,9 +48,9 @@ pub(crate) async fn add_class(
 }
 
 pub(crate) async fn remove_class(
-    Json(payload): Json<ManipulateClassDto>,
     Path(template_name): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
+    Json(payload): Json<ManipulateClassDto>,
 ) -> impl IntoResponse {
     let message = TemplateMessage::RemoveClass {
         id: &payload.id,
@@ -70,9 +70,9 @@ pub(crate) async fn execute_animation(
 }
 
 pub(crate) async fn set_image_source(
-    Json(payload): Json<SetImageSourceDto>,
     Path(template_name): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
+    Json(payload): Json<SetImageSourceDto>,
 ) -> impl IntoResponse {
     let message = TemplateMessage::SetImageSource {
         id: &payload.id,

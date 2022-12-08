@@ -23,7 +23,7 @@ paths:
             text/plain:
               example: 0.0.1
           description: Version retrieved successfully.
-  '/api/template/{templateName}':
+  '/api/template/{templateName}/template':
     summary: Upload template
     description: >-
       Uploads the given packed template to the server. If the template was

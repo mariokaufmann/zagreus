@@ -34,7 +34,7 @@ jobs:
         working-directory: ./zagreus-server
       - name: Lint zagreus runtime
         run: |
-          npm ci --omit=optional
+          npm ci
           npm run lint
         working-directory: ./zagreus-runtime
       - name: Test zagreus generator
@@ -55,12 +55,12 @@ jobs:
         working-directory: ./zagreus-server
       - name: Build zagreus runtime
         run: |
-          npm ci --omit=optional
+          npm ci
           npm run build
         working-directory: ./zagreus-runtime
       - name: Build zagreus swagger docs
         run: |
-          npm ci --omit=optional
+          npm ci
           npm run build
         working-directory: ./zagreus-swagger-docs
       - name: Build zagreus generator
