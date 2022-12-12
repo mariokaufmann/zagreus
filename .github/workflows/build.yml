@@ -22,37 +22,15 @@ jobs:
         with:
           node-version: '16'
       - uses: dtolnay/rust-toolchain@stable
-      - name: Check formatting of generator
+      - name: Check formatting (server & generator)
         run: |
           rustup component add rustfmt
           cargo fmt --quiet -- --check
-        working-directory: ./zagreus-generator
-      - name: Check formatting of server
-        run: |
-          rustup component add rustfmt
-          cargo fmt --quiet -- --check
-        working-directory: ./zagreus-server
       - name: Lint zagreus runtime
         run: |
           npm ci
           npm run lint
         working-directory: ./zagreus-runtime
-      - name: Test zagreus generator
-        run: cargo test
-        working-directory: ./zagreus-generator
-      - name: Test zagreus server
-        run: cargo test
-        working-directory: ./zagreus-server
-      - name: Lint zagreus generator
-        run: |
-          rustup component add clippy
-          cargo clippy -- -D warnings
-        working-directory: ./zagreus-generator
-      - name: Lint zagreus server
-        run: |
-          rustup component add clippy
-          cargo clippy -- -D warnings
-        working-directory: ./zagreus-server
       - name: Build zagreus runtime
         run: |
           npm ci
@@ -63,12 +41,12 @@ jobs:
           npm ci
           npm run build
         working-directory: ./zagreus-swagger-docs
-      - name: Build zagreus generator
-        run: cargo build --release
-        working-directory: ./zagreus-generator
-      - name: Build zagreus server
-        run: cargo build --release
-        working-directory: ./zagreus-server
+      - name: Lint, test and build (server & generator)
+        run: |
+          rustup component add clippy
+          cargo clippy -- -D warnings
+          cargo test
+          cargo build --release
       - name: Package
         run: ${{ matrix.script }}
         working-directory: ./package
