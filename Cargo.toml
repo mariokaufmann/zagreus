@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "zagreus-server",
+    "zagreus-generator"
+]
