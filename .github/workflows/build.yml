@@ -31,12 +31,6 @@ jobs:
           npm ci
           npm run lint
         working-directory: ./zagreus-runtime
-      - name: Test (server & generator)
-        run: cargo test
-      - name: Lint (server & generator)
-        run: |
-          rustup component add clippy
-          cargo clippy -- -D warnings
       - name: Build zagreus runtime
         run: |
           npm ci
@@ -47,8 +41,12 @@ jobs:
           npm ci
           npm run build
         working-directory: ./zagreus-swagger-docs
-      - name: Build (server & generator)
-        run: cargo build --release
+      - name: Lint, test and build (server & generator)
+        run: |
+          rustup component add clippy
+          cargo clippy -- -D warnings
+          cargo test
+          cargo build --release
       - name: Package
         run: ${{ matrix.script }}
         working-directory: ./package
