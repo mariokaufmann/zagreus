@@ -31,7 +31,7 @@ impl TemplateRegistry {
         self.templates.clear();
 
         match get_templates_data_folder(&self.data_folder) {
-            Ok(templates_folder) => match std::fs::read_dir(&templates_folder) {
+            Ok(templates_folder) => match std::fs::read_dir(templates_folder) {
                 Ok(read_dir) => {
                     for entry in read_dir {
                         match entry {
