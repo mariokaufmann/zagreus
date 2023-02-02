@@ -47,7 +47,7 @@ pub fn get_template_folder(
 fn create_if_necessary(path: &Path) -> anyhow::Result<()> {
     if !path.exists() {
         std::fs::create_dir_all(path)
-            .with_context(|| format!("Could not prepare folder {:?}", path))?;
+            .with_context(|| format!("Could not prepare folder {path:?}"))?;
         Ok(())
     } else {
         Ok(())

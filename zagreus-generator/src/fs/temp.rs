@@ -16,7 +16,7 @@ impl TempFolder {
     fn prepare_temp_folder() -> anyhow::Result<PathBuf> {
         let mut temp_dir = std::env::temp_dir();
         let folder_suffix = rand::random::<u16>();
-        let folder_name = format!("{}{}", TEMP_FOLDER_NAME, folder_suffix);
+        let folder_name = format!("{TEMP_FOLDER_NAME}{folder_suffix}");
         temp_dir.push(folder_name);
         if temp_dir.exists() {
             return Err(anyhow!("The path already exists.".to_owned()));
@@ -39,10 +39,8 @@ impl TempFolder {
 
 impl Drop for TempFolder {
     fn drop(&mut self) {
-        self.delete_temp_folder().expect(&format!(
-            "Could not delete temp folder {}.",
-            &self.path.display()
-        ));
+        self.delete_temp_folder()
+            .unwrap_or_else(|_| panic!("Could not delete temp folder {}.", &self.path.display()));
     }
 }
 

@@ -42,7 +42,7 @@ async fn map_rewrite_template_url(req: Request<Body>) -> Result<Request<Body>, S
         if let Some(last_part) = last_part {
             if !last_part.contains('.') {
                 let (mut parts, body) = req.into_parts();
-                let new_uri: Result<Uri, InvalidUri> = format!("{}/", uri).parse();
+                let new_uri: Result<Uri, InvalidUri> = format!("{uri}/").parse();
                 match new_uri {
                     Ok(new_uri) => {
                         parts.uri = new_uri;
@@ -162,7 +162,7 @@ pub fn get_router(
         .layer(HandleErrorLayer::new(|error| async move {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Unhandled internal error: {}", error),
+                format!("Unhandled internal error: {error}"),
             )
         }))
         .layer(axum::middleware::map_request(map_rewrite_template_url));

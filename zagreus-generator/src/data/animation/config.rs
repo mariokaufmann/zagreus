@@ -70,12 +70,11 @@ impl ConfigValidate for AnimationConfig {
                 .any(|sequence| &sequence.name == on_load_seq)
             {
                 return simple_error(&format!(
-                    "Invalid on_load sequence: Animation sequence '{}' doesn't exist.",
-                    on_load_seq
+                    "Invalid on_load sequence: Animation sequence '{on_load_seq}' doesn't exist."
                 ));
             }
             if seen_on_load_sequences.contains(&on_load_seq) {
-                return simple_error(&format!("Duplicate on_load sequence '{}'.", on_load_seq));
+                return simple_error(&format!("Duplicate on_load sequence '{on_load_seq}'."));
             }
             seen_on_load_sequences.push(on_load_seq);
         }

@@ -36,7 +36,7 @@ type ServerTemplateRegistry = Arc<tokio::sync::RwLock<TemplateRegistry>>;
 async fn main() {
     let command = get_command();
     let application_folder = fs::get_application_folder(APPLICATION_NAME).unwrap_or_else(|err| {
-        panic!("Could not get application folder: {}", err);
+        panic!("Could not get application folder: {err}");
     });
     logger::init_logger(command.verbose);
 

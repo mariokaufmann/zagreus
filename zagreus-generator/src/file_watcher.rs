@@ -169,8 +169,7 @@ impl FileWatcher {
             Ok(true) => EventCategory::Ignored,
             Ok(false) => EventCategory::Relevant,
             Err(error) => EventCategory::Err(format!(
-                "Could not determine whether to ignore event path: {}",
-                error
+                "Could not determine whether to ignore event path: {error}"
             )),
         }
     }

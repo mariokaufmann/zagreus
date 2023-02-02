@@ -14,7 +14,7 @@ pub fn init_logger(is_verbose: bool) {
                 .build(level_filter(is_verbose)),
         )
         .unwrap_or_else(|err| {
-            panic!("Could not construct logging config: {}", err);
+            panic!("Could not construct logging config: {err}");
         });
     log4rs::init_config(config).unwrap();
 }
