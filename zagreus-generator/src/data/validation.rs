@@ -92,7 +92,7 @@ mod tests {
 
         assert_eq!(duplicates.len(), 1);
 
-        let duplicate = duplicates.get(0);
+        let duplicate = duplicates.first();
         assert!(duplicate.is_some());
         let duplicate = duplicate.unwrap();
         assert_eq!(*duplicate, "id1");

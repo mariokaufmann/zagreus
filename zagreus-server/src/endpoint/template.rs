@@ -25,8 +25,7 @@ pub(crate) async fn upload_template(
                 (
                     StatusCode::BAD_REQUEST,
                     format!(
-                        "Multipart file name was different from expected value: {}",
-                        MULTIPART_PART_NAME
+                        "Multipart file name was different from expected value: {MULTIPART_PART_NAME}"
                     ),
                 )
             }

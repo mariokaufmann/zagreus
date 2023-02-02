@@ -41,8 +41,7 @@ pub fn write_raw_html(
         raw_html_file
             .write_all(
                 format!(
-                    "<link rel=\"stylesheet\" type=\"text/css\" href=\"assets/{}\" />",
-                    stylesheet
+                    "<link rel=\"stylesheet\" type=\"text/css\" href=\"assets/{stylesheet}\" />"
                 )
                 .as_bytes(),
             )

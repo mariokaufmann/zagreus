@@ -17,7 +17,7 @@ const LOG_FILE_COUNT: u32 = 5;
 /// init logger configuration or panic if something fails (since we cannot log yet)
 pub fn init_logger(is_verbose: bool) {
     let log_folder_path = crate::fs::get_log_folder_path(APPLICATION_NAME).unwrap_or_else(|err| {
-        panic!("Could not get log file path: {}", err);
+        panic!("Could not get log file path: {err}");
     });
     let mut log_file_path = log_folder_path.clone();
     log_file_path.push(LOG_FILE_NAME);
@@ -31,7 +31,7 @@ pub fn init_logger(is_verbose: bool) {
     let roller = FixedWindowRoller::builder()
         .build(rotated_log_file_path, LOG_FILE_COUNT)
         .unwrap_or_else(|err| {
-            panic!("Could not setup fixed window roller: {}.", err);
+            panic!("Could not setup fixed window roller: {err}.");
         });
     let rolling_file_policy = CompoundPolicy::new(
         Box::new(SizeTrigger::new(MAX_LOG_SIZE_BYTES)),
@@ -53,7 +53,7 @@ pub fn init_logger(is_verbose: bool) {
                 .build(level_filter(is_verbose)),
         )
         .unwrap_or_else(|err| {
-            panic!("Could not construct logging config: {}", err);
+            panic!("Could not construct logging config: {err}");
         });
     log4rs::init_config(config).unwrap();
 }

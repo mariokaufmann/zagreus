@@ -34,7 +34,7 @@ pub fn new_template(name: &str) -> anyhow::Result<()> {
     // Return Err if the directory already exists.
     let template_dir = Path::new(name);
     if template_dir.exists() {
-        return simple_error(&format!("Directory '{}' already exists", name));
+        return simple_error(&format!("Directory '{name}' already exists"));
     }
 
     // Try creating new template directory. After this is successful, we are sure that
@@ -72,8 +72,7 @@ fn validate_template_name(template_name: &str) -> anyhow::Result<()> {
     match illegal_chars.is_empty() {
         true => Ok(()),
         false => simple_error(&format!(
-            "Template name must only contain characters in [a-zA-Z0-9-], provided name contains: {:?}",
-            illegal_chars
+            "Template name must only contain characters in [a-zA-Z0-9-], provided name contains: {illegal_chars:?}"
         )),
     }
 }
@@ -129,7 +128,7 @@ where
     if file_path.exists() {
         // Reaching here is considered a bug: a new (i.e. empty) template directory should be
         // created first, and no file should be created more than once.
-        return simple_error(&format!("File already exists: {:?}", file_path));
+        return simple_error(&format!("File already exists: {file_path:?}"));
     }
     let file = File::create(file_path)?;
     serde_yaml::to_writer(file, config)?;
