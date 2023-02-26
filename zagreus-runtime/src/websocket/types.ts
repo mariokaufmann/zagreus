@@ -31,6 +31,7 @@ export type LogErrorPayload = { message: string; stack: string };
 export interface AnimationSequence {
   name: string;
   steps: AnimationStep[];
+  onLoad?: boolean;
 }
 
 export interface AnimationStep {

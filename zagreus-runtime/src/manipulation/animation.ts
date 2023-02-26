@@ -5,6 +5,7 @@ import {
   AnimationStep,
 } from "../websocket/types";
 import { getInternalZagreusState, InternalZagreusState } from "../runtime";
+import { getZagreusElement } from "../utils";
 
 export const applyAnimation = (sequenceName: string): void => {
   const state = getInternalZagreusState();
@@ -44,17 +45,15 @@ const applyAnimationToElement = (
   animationDirection: AnimationDirection,
   duration: number
 ): void => {
-  const element = document.getElementById(id);
-  if (element) {
-    if (element.style.animationName === animationName) {
-      // hack: remove animation and call getBoundingClientRect() to trigger reflow to reset the animation
-      element.style.animation = "none";
-      element.getBoundingClientRect();
-    }
-    element.style.transformBox = "fill-box";
-    element.style.transformOrigin = "0 0";
-    element.style.animation = `${duration}ms linear 0s ${animationIterationCount} ${animationDirection} forwards running ${animationName}`;
+  const element = getZagreusElement(id);
+  if (element.style.animationName === animationName) {
+    // hack: remove animation and call getBoundingClientRect() to trigger reflow to reset the animation
+    element.style.animation = "none";
+    element.getBoundingClientRect();
   }
+  element.style.transformBox = "fill-box";
+  element.style.transformOrigin = "0 0";
+  element.style.animation = `${duration}ms linear 0s ${animationIterationCount} ${animationDirection} forwards running ${animationName}`;
 };
 
 const getStartForAnimationStep = (

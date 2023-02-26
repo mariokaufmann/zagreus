@@ -20,7 +20,7 @@ export interface ZagreusSetupArguments {
   port: string;
   instance: string;
   container: ZagreusContainerSetupArguments;
-  animationSequences?: [];
+  animationSequences?: AnimationSequence[];
 }
 
 export interface ZagreusState {
