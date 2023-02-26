@@ -12,7 +12,6 @@ use crate::cli::{get_command, ZagreusServerCommand};
 use crate::config::loader::ConfigurationManager;
 use crate::config::ZagreusServerConfig;
 use crate::controller::ServerController;
-use crate::template::registry::TemplateRegistry;
 use crate::websocket::server::WebsocketServer;
 
 mod cli;
@@ -22,15 +21,12 @@ mod data;
 mod endpoint;
 mod fs;
 mod logger;
-mod template;
 mod websocket;
 
 const ZAGREUS_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 const APPLICATION_NAME: &str = "zagreus-server";
 const CONFIG_FILE_NAME: &str = "config.json";
-
-type ServerTemplateRegistry = Arc<tokio::sync::RwLock<TemplateRegistry>>;
 
 #[tokio::main]
 async fn main() {
@@ -58,24 +54,11 @@ async fn start_with_config(configuration: ZagreusServerConfig) {
         server_port
     );
     let ws_server = Arc::new(WebsocketServer::new());
-    let (template_event_tx, template_event_rx) = tokio::sync::mpsc::unbounded_channel();
-    let mut template_registry =
-        TemplateRegistry::new(&configuration.data_folder, template_event_tx);
-    template_registry.load_templates();
-    let template_registry = Arc::new(tokio::sync::RwLock::new(template_registry));
 
-    let server_controller = Arc::new(ServerController::new(
-        template_event_rx,
-        ws_server.clone(),
-        template_registry.clone(),
-    ));
+    let server_controller = Arc::new(ServerController::new(ws_server.clone()));
 
-    match endpoint::routes::get_router(
-        &configuration,
-        ws_server.clone(),
-        server_controller.clone(),
-        template_registry.clone(),
-    ) {
+    match endpoint::routes::get_router(&configuration, ws_server.clone(), server_controller.clone())
+    {
         Ok(router) => {
             let addr = SocketAddr::from(([0, 0, 0, 0], server_port));
             if let Err(err) = axum_server::bind(addr)

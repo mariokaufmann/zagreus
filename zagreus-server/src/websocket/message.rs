@@ -5,7 +5,7 @@ use crate::data::config::TemplateElement;
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "tag", content = "payload")]
-pub enum TemplateMessage<'a> {
+pub enum InstanceMessage<'a> {
     SetText {
         id: &'a str,
         text: &'a str,

@@ -8,7 +8,7 @@ use futures::StreamExt;
 use tokio::sync::RwLock;
 
 use crate::websocket::connection::WebsocketConnection;
-use crate::websocket::message::TemplateMessage;
+use crate::websocket::message::InstanceMessage;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 type UserConnections =
@@ -77,9 +77,9 @@ impl WebsocketServer {
             match stream.next().await {
                 Some(message_result) => match message_result {
                     Ok(message) => {
-                        match serde_json::from_slice::<TemplateMessage>(&message.into_data()) {
+                        match serde_json::from_slice::<InstanceMessage>(&message.into_data()) {
                             Ok(parsed_message) => {
-                                if let TemplateMessage::LogError { message, stack } = parsed_message
+                                if let InstanceMessage::LogError { message, stack } = parsed_message
                                 {
                                     error!("Template error occurred: {}\n{}", message, stack)
                                 }
@@ -108,16 +108,16 @@ impl WebsocketServer {
         connections.write().await.remove(&id);
     }
 
-    pub async fn send_message_to_template_clients(
+    pub async fn send_message_to_instance_clients(
         &self,
-        template_name: &str,
-        message: &TemplateMessage<'_>,
+        instance: &str,
+        message: &InstanceMessage<'_>,
     ) {
         let locked_connections = self.connections.read().await;
         let connection_entries = locked_connections.values();
 
         for connection in connection_entries {
-            if connection.is_from_template(template_name) {
+            if connection.is_from_instance(instance) {
                 connection.send_message(message);
             }
         }

@@ -4,10 +4,8 @@ use anyhow::Context;
 
 #[cfg(test)]
 pub mod temp;
-pub mod util;
-pub mod zip;
 
-pub const TEMPLATES_DATA_SUBFOLDER_NAME: &str = "templates";
+pub const ASSETS_SUBFOLDER_NAME: &str = "assets";
 const ORGANIZATION_SUBFOLDER_NAME: &str = "zagreus";
 const LOGS_SUBFOLDER_NAME: &str = "logs";
 
@@ -28,18 +26,8 @@ pub fn get_application_folder(application_name: &str) -> anyhow::Result<PathBuf>
     Ok(folder)
 }
 
-pub fn get_templates_data_folder(data_folder_path: &Path) -> anyhow::Result<PathBuf> {
-    let folder = data_folder_path.join(TEMPLATES_DATA_SUBFOLDER_NAME);
-    create_if_necessary(&folder)?;
-    Ok(folder)
-}
-
-pub fn get_template_folder(
-    data_folder_path: &Path,
-    template_name: &str,
-) -> anyhow::Result<PathBuf> {
-    let mut folder = get_templates_data_folder(data_folder_path)?;
-    folder.push(template_name);
+pub fn get_assets_folder(data_folder_path: &Path) -> anyhow::Result<PathBuf> {
+    let folder = data_folder_path.join(ASSETS_SUBFOLDER_NAME);
     create_if_necessary(&folder)?;
     Ok(folder)
 }

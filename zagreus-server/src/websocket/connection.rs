@@ -1,28 +1,28 @@
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::websocket::message::TemplateMessage;
+use crate::websocket::message::InstanceMessage;
 
 pub struct WebsocketConnection {
     message_sender: UnboundedSender<Result<axum::extract::ws::Message, axum::Error>>,
-    template_name: String,
+    instance: String,
 }
 
 impl WebsocketConnection {
     pub fn new(
         message_sender: UnboundedSender<Result<axum::extract::ws::Message, axum::Error>>,
-        template_name: String,
+        instance: String,
     ) -> WebsocketConnection {
         WebsocketConnection {
             message_sender,
-            template_name,
+            instance,
         }
     }
 
-    pub fn is_from_template(&self, template_name: &str) -> bool {
-        self.template_name.eq(template_name)
+    pub fn is_from_instance(&self, instance: &str) -> bool {
+        self.instance.eq(instance)
     }
 
-    pub fn send_message(&self, message: &TemplateMessage) {
+    pub fn send_message(&self, message: &InstanceMessage) {
         match serde_json::to_string(message) {
             Ok(serialized_message) => {
                 let ws_message = axum::extract::ws::Message::Text(serialized_message);

@@ -21,6 +21,7 @@ tokio-stream = "0.1.11"
 tower = { version = "0.4.13", features = ["filter"]}
 tower-http = { version = "0.3.5", features = ["fs", "trace"]}
 zip = "0.6.4"
+sha2 = "0.10.6"
 
 [dependencies.log4rs]
 version = "1.2.0"

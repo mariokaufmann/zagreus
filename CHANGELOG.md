@@ -1,7 +1,8 @@
 # Changelog
 
 ## Unreleased
-* Change route for uploading templates from `/api/template/{templateName}` to `/api/template/{templateName}/template`
+* Refactor architecture with many breaking changes:
+  * Remove the 'template' concept. Users can now create their completely independent templates and just use zagreus as a library to hook into their templates. This allows them to create much more flexible templates with the whole span of web technologies. It is still possible to use SVG files as within the templates but a template does not revolve around a single SVG file anymore.
 
 ## 0.0.7
 * Switch log file format to JSON logging
