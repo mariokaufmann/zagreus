@@ -10,6 +10,7 @@ import {
   getMaxTimeoutFromSequences,
 } from "./manipulation/animation";
 import { removeClassOnElement } from "./manipulation/css";
+import { AnimationSequence } from "./websocket/types";
 
 const ZagreusHiddenClassName = "zagreus-hidden";
 
@@ -35,9 +36,27 @@ export function setup(args: ZagreusSetupArguments) {
   state.host = args.host;
   state.port = args.port;
 
+  setupContainer(args.container);
+
+  // run initial animations after a timeout (to allow time for registering other animations)
+  setTimeout(() => {
+    const onLoadAnimationSequences = Object.entries(state.animationSequences)
+      .filter(([name, sequence]) => sequence.onLoad)
+      .map(([name, sequence]) => sequence.name);
+    onLoadAnimationSequences.forEach((sequence) => applyAnimation(sequence));
+    const maxTimeout = getMaxTimeoutFromSequences(onLoadAnimationSequences);
+    setTimeout(() => {
+      removeClassOnElement(args.container.name, ZagreusHiddenClassName);
+      runWebsocket();
+    }, maxTimeout);
+  }, 100);
+}
+
+export function registerAnimations(...animations: AnimationSequence[]) {
   // TODO make type in setup args a different type with nullable properties
-  if (args.animationSequences) {
-    state.animationsSequences = args.animationSequences.map((sequence) => ({
+  const state = getInternalZagreusState();
+  animations
+    .map((sequence) => ({
       ...sequence,
       steps: sequence.steps.map((step) => ({
         ...step,
@@ -47,19 +66,8 @@ export function setup(args: ZagreusSetupArguments) {
           ...animation,
         })),
       })),
-    }));
-  }
-
-  setupContainer(args.container);
-
-  // run initial animations
-  const onLoadAnimationSequences = state.animationsSequences
-    .filter((sequence) => sequence.onLoad)
-    .map((sequence) => sequence.name);
-  onLoadAnimationSequences.forEach((sequence) => applyAnimation(sequence));
-  const maxTimeout = getMaxTimeoutFromSequences(onLoadAnimationSequences);
-  setTimeout(() => {
-    removeClassOnElement(args.container.name, ZagreusHiddenClassName);
-    runWebsocket();
-  }, maxTimeout);
+    }))
+    .forEach(
+      (sequence) => (state.animationSequences[sequence.name] = sequence)
+    );
 }

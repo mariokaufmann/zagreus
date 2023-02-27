@@ -85,12 +85,7 @@ export const getMaxTimeoutFromSequences = (sequences: string[]): number => {
 const findAnimationSequence = (
   sequenceName: string,
   state: InternalZagreusState
-): AnimationSequence | undefined => {
-  return state.animationsSequences.find(
-    (currentSequence) =>
-      currentSequence.name.toLowerCase() === sequenceName.toLowerCase()
-  );
-};
+): AnimationSequence | undefined => state.animationSequences[sequenceName];
 
 const getMaxTimeoutFromSequence = (sequence: AnimationSequence): number => {
   let maxTimeout = 0;

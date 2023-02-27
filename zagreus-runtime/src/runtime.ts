@@ -1,5 +1,5 @@
 import { AnimationSequence } from "./websocket/types";
-import { setup } from "./setup";
+import { registerAnimations, setup } from "./setup";
 
 declare global {
   interface Window {
@@ -25,6 +25,7 @@ export interface ZagreusSetupArguments {
 
 export interface ZagreusState {
   setup: (args: ZagreusSetupArguments) => void;
+  registerAnimations: (...animation: AnimationSequence[]) => void;
   _internal: InternalZagreusState;
 }
 
@@ -32,18 +33,19 @@ export interface InternalZagreusState {
   instance: string;
   host: string;
   port: string;
-  animationsSequences: AnimationSequence[];
+  animationSequences: Record<string, AnimationSequence>;
   errorReporter: ErrorReporter;
 }
 
 if (!window.zagreus) {
   window.zagreus = {
     setup: setup,
+    registerAnimations: registerAnimations,
     _internal: {
       instance: undefined,
       host: undefined,
       port: undefined,
-      animationsSequences: [],
+      animationSequences: {},
       errorReporter: undefined,
     },
   };
