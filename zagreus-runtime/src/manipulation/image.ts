@@ -16,7 +16,7 @@ export const setImageSource = (
 ): void => {
   const url = getAssetUrl(asset, assetSource);
   const element = getZagreusElement<HTMLImageElement>(elementName);
-  if (element.tagName !== "img") {
+  if (element.tagName.toLowerCase() !== "img") {
     throw new Error(
       `Cannot set image source on element ${elementName} since it its not an img element.`
     );

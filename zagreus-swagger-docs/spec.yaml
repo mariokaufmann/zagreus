@@ -144,7 +144,7 @@ paths:
           $ref: '#/components/responses/200'
   '/api/instance/{instanceName}/data/image':
     summary: Set source of image element
-    description: 'Searches for the image element with the given id and sets its source to the given asset'
+    description: 'Searches for the image element with the given id and sets its source to the given asset. If the asset source is zagreus, the image will be loaded from the zagreus server (see asset upload), otherwise from where the template itself is served'
     parameters:
       - $ref: '#/components/parameters/instanceName'
     post:
@@ -158,9 +158,15 @@ paths:
                   type: string
                 asset:
                   type: string
+                assetSource:
+                  type: string
+                  enum:
+                    - template
+                    - zagreus
               example:
                 id: ScoreboardTeamImage
                 asset: 'logo.png'
+                assetSource: 'zagreus'
       tags:
         - data
       operationId: setImageSource

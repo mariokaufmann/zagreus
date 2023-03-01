@@ -1,3 +1,4 @@
+use crate::data::asset::AssetSource;
 use crate::websocket::message::InstanceMessage;
 use crate::WebsocketServer;
 use axum::extract::{Extension, Path};
@@ -18,9 +19,11 @@ pub(crate) struct ManipulateClassDto {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct SetImageSourceDto {
     id: String,
     asset: String,
+    asset_source: AssetSource,
 }
 
 pub(crate) async fn set_text(
@@ -77,6 +80,7 @@ pub(crate) async fn set_image_source(
     let message = InstanceMessage::SetImageSource {
         id: &payload.id,
         asset: &payload.asset,
+        asset_source: payload.asset_source,
     };
     send_instance_message(&instance, server, message).await
 }

@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 
 use crate::data::animation::config::AnimationSequence;
+use crate::data::asset::AssetSource;
 use crate::data::config::TemplateElement;
 
 #[derive(Serialize, Deserialize)]
@@ -40,8 +41,10 @@ pub enum InstanceMessage<'a> {
         #[serde(borrow)]
         animation_sequences: Cow<'a, Vec<String>>,
     },
+    #[serde(rename_all = "camelCase")]
     SetImageSource {
         id: &'a str,
         asset: &'a str,
+        asset_source: AssetSource,
     },
 }

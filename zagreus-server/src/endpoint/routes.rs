@@ -5,6 +5,7 @@ use axum::Router;
 use hyper::Body;
 use std::sync::Arc;
 use tower::ServiceBuilder;
+use tower_http::services::ServeDir;
 
 use crate::config::ZagreusServerConfig;
 use crate::controller::ServerController;
@@ -68,6 +69,14 @@ pub fn get_router(
     let mut router = Router::new().route("/api/version", axum::routing::get(get_server_version));
 
     let assets_folder = get_assets_folder(&configuration.data_folder)?;
+    let assets_router = Router::new().nest_service(
+        "/assets",
+        axum::routing::get_service(ServeDir::new(&assets_folder)).handle_error(|err| async move {
+            error!("error occurred when serving assets: {}.", err)
+        }),
+    );
+    router = router.merge(assets_router);
+
     let static_router = Router::new().nest(
         "/static",
         Router::new()
