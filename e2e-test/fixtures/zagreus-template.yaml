@@ -1,7 +1,0 @@
----
-name: e2e-template
-devServer:
-  address: localhost
-  port: 8080
-width: 1920
-height: 1080

@@ -1,0 +1,37 @@
+* {
+    box-sizing: border-box;
+}
+
+.lower-third {
+    position: fixed;
+    bottom: 200px;
+    left: 400px;
+    width: 980px;
+    height: 250px;
+    background-color: darkorange;
+    color: white;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: space-evenly;
+    gap: 2rem;
+    font-size: 24px;
+    border-radius: 5px;
+}
+
+.title-container {
+    flex-grow: 1;
+}
+
+.lower-third-stripe {
+    margin-left: 4rem;
+    background-color: white;
+}
+
+.lower-third div {
+    padding: 2rem;
+}
+
+.lower-third img {
+    height: 60px;
+    width: 60px;
+}

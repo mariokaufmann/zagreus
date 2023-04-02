@@ -1,5 +1,0 @@
----
-elements:
-  - id: LowerThirdRightAlignedText
-    align:
-      horizontal: right

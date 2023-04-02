@@ -150,32 +150,22 @@ impl ConfigValidate for AlignmentConfig {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum HorizontalAlignment {
     Center,
+    #[default]
     Left,
     Right,
 }
 
-impl Default for HorizontalAlignment {
-    fn default() -> Self {
-        HorizontalAlignment::Left
-    }
-}
-
-#[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum VerticalAlignment {
     Center,
+    #[default]
     Top,
     Bottom,
-}
-
-impl Default for VerticalAlignment {
-    fn default() -> Self {
-        VerticalAlignment::Top
-    }
 }
 
 #[cfg(test)]

@@ -111,19 +111,14 @@ fn get_default_animation_iteration_count() -> String {
     "1".to_owned()
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 #[serde(rename_all = "kebab-case")]
 pub enum AnimationDirection {
+    #[default]
     Normal,
     Reverse,
     Alternate,
     AlternateReverse,
-}
-
-impl Default for AnimationDirection {
-    fn default() -> Self {
-        AnimationDirection::Normal
-    }
 }
 
 #[derive(Serialize, Deserialize)]
