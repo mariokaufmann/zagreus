@@ -59,6 +59,7 @@ export function registerAnimations(...animations: AnimationSequence[]) {
     .map((sequence) => ({
       ...sequence,
       steps: sequence.steps.map((step) => ({
+        start: 0,
         ...step,
         animations: step.animations.map((animation) => ({
           direction: "normal",

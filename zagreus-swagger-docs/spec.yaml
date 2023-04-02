@@ -9,7 +9,7 @@ info:
   x-logo:
     url: ''
 servers:
-  - url: 'http://localhost:58179'
+  - url: /
 paths:
   /api/version:
     summary: Get server version

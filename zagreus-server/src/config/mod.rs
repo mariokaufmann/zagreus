@@ -3,7 +3,7 @@ use std::path::PathBuf;
 pub mod loader;
 
 const DEFAULT_DATA_FOLDER: &str = "data";
-const DEFAULT_SERVER_PORT: u16 = 58179;
+const DEFAULT_SERVER_PORT: u16 = 58180;
 
 fn get_default_data_folder() -> PathBuf {
     match crate::fs::get_application_folder(crate::APPLICATION_NAME) {
