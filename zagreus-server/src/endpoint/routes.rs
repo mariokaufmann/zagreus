@@ -5,14 +5,15 @@ use axum::Router;
 use hyper::Body;
 use std::sync::Arc;
 use tower::ServiceBuilder;
+use tower_http::services::ServeDir;
 
 use crate::config::ZagreusServerConfig;
 use crate::controller::ServerController;
+use crate::endpoint;
 use crate::endpoint::websocket::ws_handler;
-use crate::endpoint::{data, get_server_version, template};
-use crate::fs::get_templates_data_folder;
+use crate::endpoint::{data, get_server_version};
+use crate::fs::get_assets_folder;
 use crate::websocket::server::WebsocketServer;
-use crate::{endpoint, ServerTemplateRegistry};
 
 #[derive(Deserialize, Serialize)]
 struct SetTextDto {
@@ -34,6 +35,7 @@ struct SetImageSourceDto {
 
 // e.g. rewrite /static/template/my-template to /static/template/my-template/
 // TODO parse url better (what if there are multiple dots in the asset name?)
+// TODO still necessary?
 async fn map_rewrite_template_url(req: Request<Body>) -> Result<Request<Body>, StatusCode> {
     let uri = req.uri().to_string();
     if uri.starts_with("/static/template/") && !uri.ends_with('/') {
@@ -63,23 +65,21 @@ pub fn get_router(
     configuration: &ZagreusServerConfig,
     ws_server: Arc<WebsocketServer>,
     server_controller: Arc<ServerController>,
-    template_registry: ServerTemplateRegistry,
 ) -> anyhow::Result<Router> {
     let mut router = Router::new().route("/api/version", axum::routing::get(get_server_version));
 
-    let templates_data_folder = get_templates_data_folder(&configuration.data_folder)?;
+    let assets_folder = get_assets_folder(&configuration.data_folder)?;
+    let assets_router = Router::new().nest_service(
+        "/assets",
+        axum::routing::get_service(ServeDir::new(&assets_folder)).handle_error(|err| async move {
+            error!("error occurred when serving assets: {}.", err)
+        }),
+    );
+    router = router.merge(assets_router);
+
     let static_router = Router::new().nest(
         "/static",
         Router::new()
-            .nest_service(
-                "/template",
-                axum::routing::get_service(tower_http::services::ServeDir::new(
-                    &templates_data_folder,
-                ))
-                .handle_error(|err| async move {
-                    error!("error occurred when serving template files: {}.", err)
-                }),
-            )
             .route(
                 "/zagreus-runtime.js",
                 axum::routing::get_service(tower_http::services::ServeFile::new(
@@ -113,16 +113,13 @@ pub fn get_router(
 
     // route for websocket router
     let websocket_router = Router::new()
-        .route(
-            "/ws/template/:template_name",
-            axum::routing::get(ws_handler),
-        )
+        .route("/ws/instance/:instance", axum::routing::get(ws_handler))
         .layer(axum::extract::Extension(server_controller));
     router = router.merge(websocket_router);
 
-    // routes for manipulating templates
+    // routes for manipulating template instances
     let manipulate_templates_router = Router::new().nest(
-        "/api/template/:template_name",
+        "/api/instance/:instance",
         Router::new()
             .route("/data/text", axum::routing::post(data::set_text))
             .route("/data/class/add", axum::routing::post(data::add_class))
@@ -139,23 +136,13 @@ pub fn get_router(
     );
     router = router.merge(manipulate_templates_router);
 
-    // route for uploading templates
-    let upload_template_router = Router::new()
-        .route(
-            "/api/template/:template_name/template",
-            axum::routing::post(template::upload_template),
-        )
-        .layer(axum::extract::Extension(template_registry));
-    router = router.merge(upload_template_router);
-
     // route for manipulating assets
     let assets_router = Router::new()
         .route(
-            "/api/template/:template_name/asset",
-            axum::routing::get(endpoint::asset::get_asset_filenames)
-                .post(endpoint::asset::upload_asset),
+            "/api/asset",
+            axum::routing::post(endpoint::asset::upload_asset),
         )
-        .layer(axum::extract::Extension(templates_data_folder));
+        .layer(axum::extract::Extension(assets_folder));
     router = router.merge(assets_router);
 
     let middleware_stack = ServiceBuilder::new()

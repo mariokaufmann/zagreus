@@ -6,16 +6,16 @@
   "scripts": {
     "copyScript": "cpy dist/zagreus-runtime.js* ../zagreus-server/",
     "build": "esbuild src/runtime.ts --bundle --sourcemap --minify --outfile=dist/zagreus-runtime.js && npm run copyScript",
-    "lint": "eslint src"
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write .",
+    "lint": "npm run prettier:check"
   },
   "author": "Mario Kaufmann <mario.kaufmann@bluemail.ch>",
   "license": "ISC",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "5.50.0",
-    "@typescript-eslint/parser": "5.50.0",
     "cpy-cli": "4.2.0",
     "esbuild": "0.17.5",
-    "eslint": "8.33.0",
+    "prettier": "2.8.4",
     "typescript": "4.9.5"
   }
 }

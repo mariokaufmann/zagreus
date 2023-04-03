@@ -1,86 +1,60 @@
-use anyhow::anyhow;
 use std::path::{Path, PathBuf};
 
+use anyhow::anyhow;
 use axum::body::Bytes;
 use axum::extract::Extension;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::Json;
 use serde_json::json;
+use sha2::Digest;
+use sha2::Sha256;
 
-use crate::fs;
-
-pub const ASSETS_FOLDER_NAME: &str = "assets";
-
-pub(crate) async fn get_asset_filenames(
-    Extension(mut templates_data_folder): Extension<PathBuf>,
-    axum::extract::Path(template_name): axum::extract::Path<String>,
-) -> impl IntoResponse {
-    if !is_valid_template_name(&template_name) {
-        return (
-            StatusCode::BAD_REQUEST,
-            Json(json!("Template name contains invalid character")),
-        );
-    }
-
-    templates_data_folder.push(template_name);
-    templates_data_folder.push(ASSETS_FOLDER_NAME);
-
-    let template_assets_folder = templates_data_folder;
-    let traversal_result = fs::util::traverse(&template_assets_folder);
-
-    match traversal_result {
-        Ok(entries) => (StatusCode::OK, Json(json!(entries))),
-        Err(err) => {
-            error!(
-                "Could not read assets directory {}: {}.",
-                &template_assets_folder.display(),
-                err
-            );
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!("Could not read template assets.")),
-            )
-        }
-    }
+#[derive(Deserialize, Serialize)]
+pub(crate) struct UploadAssetResponseDto {
+    name: String,
 }
 
 const ASSET_NAME_FIELD: &str = "name";
 const ASSET_DATA_FIELD: &str = "file";
 
 pub(crate) async fn upload_asset(
-    Extension(templates_data_folder): Extension<PathBuf>,
-    axum::extract::Path(template_name): axum::extract::Path<String>,
+    Extension(assets_folder): Extension<PathBuf>,
     multipart: axum::extract::Multipart,
 ) -> impl IntoResponse {
-    if !is_valid_template_name(&template_name) {
-        return (
-            StatusCode::BAD_REQUEST,
-            "Template name contains invalid character",
-        );
-    }
-
     match get_asset_data(multipart).await {
         Ok((asset_name, asset_data)) => {
             if asset_name.contains(std::path::MAIN_SEPARATOR) || asset_name.contains("..") {
                 return (
                     StatusCode::BAD_REQUEST,
-                    "Asset name contains invalid character",
+                    Json(json!("Asset name contains invalid character")),
                 );
             }
 
-            match write_asset_file(
-                &templates_data_folder,
-                &template_name,
-                &asset_name,
-                asset_data,
-            )
-            .await
-            {
-                Ok(()) => (StatusCode::OK, "Asset uploaded successfully."),
-                Err(err) => {
-                    error!("Could not upload asset successfully: {}.", err);
-                    (StatusCode::INTERNAL_SERVER_ERROR, "Could not upload asset.")
+            let path = PathBuf::from(asset_name);
+
+            match path.extension().and_then(|val| val.to_str()) {
+                Some(extension) => {
+                    match write_asset_file(&assets_folder, extension, asset_data).await {
+                        Ok(asset_name) => (
+                            StatusCode::OK,
+                            Json(json!(UploadAssetResponseDto { name: asset_name })),
+                        ),
+                        Err(err) => {
+                            error!("Could not upload asset successfully: {}.", err);
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(json!("Could not upload asset.")),
+                            )
+                        }
+                    }
+                }
+                None => {
+                    error!("Could not parse asset name");
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(json!("Invalid asset name.")),
+                    )
                 }
             }
         }
@@ -88,7 +62,7 @@ pub(crate) async fn upload_asset(
             error!("Could not upload asset to server: {}.", err);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Could not parse upload request.",
+                Json(json!("Could not parse upload request.")),
             )
         }
     }
@@ -119,21 +93,17 @@ async fn get_asset_data(
 }
 
 async fn write_asset_file(
-    templates_data_folder: &Path,
-    template_name: &str,
-    asset_name: &str,
+    assets_folder: &Path,
+    extension: &str,
     asset_bytes: Bytes,
-) -> anyhow::Result<()> {
-    let mut asset_file_path = templates_data_folder.to_owned();
-    asset_file_path.push(template_name);
-    asset_file_path.push(ASSETS_FOLDER_NAME);
-    asset_file_path.push(asset_name);
+) -> anyhow::Result<String> {
+    let hash = Sha256::digest(&asset_bytes);
+    let saved_asset_name = format!("{:x}.{extension}", hash);
+
+    let mut asset_file_path = assets_folder.to_owned();
+    asset_file_path.push(&saved_asset_name);
 
     tokio::fs::write(asset_file_path, asset_bytes).await?;
 
-    Ok(())
-}
-
-fn is_valid_template_name(template_name: &str) -> bool {
-    !template_name.contains('.') && !template_name.contains(std::path::MAIN_SEPARATOR)
+    Ok(saved_asset_name)
 }

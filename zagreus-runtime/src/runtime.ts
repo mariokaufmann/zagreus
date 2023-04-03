@@ -1,20 +1,69 @@
-import {TemplateWebsocket} from './websocket/template-websocket';
-import {WebsocketSender} from './websocket/websocket-sender';
-import {WebsocketHandler} from './websocket/websocket-handler';
-import {installErrorHandler} from './error';
+import { AnimationSequence } from "./websocket/types";
+import { registerAnimations, setup } from "./setup";
 
-function runWebsocket():void {
-    const locationPathName = window.location.pathname;
-    const pathname = locationPathName.endsWith('/') ? locationPathName.substring(0, locationPathName.length - 1) : locationPathName;
-    const templateName = pathname.substring(locationPathName.lastIndexOf('/') + 1);
-    const websocket = new TemplateWebsocket(`ws://${window.location.host}/ws/template/${templateName}`);
-    const websocketSender = new WebsocketSender(websocket);
-
-    installErrorHandler(websocketSender);
-
-    websocket.messageHandler = new WebsocketHandler(websocketSender);
-
-    websocket.run();
+declare global {
+  interface Window {
+    zagreus: ZagreusState;
+  }
 }
 
-runWebsocket();
+export type ErrorReporter = (error: Error) => void;
+
+export interface ZagreusContainerSetupArguments {
+  name: string;
+  width: number;
+  height: number;
+}
+
+export interface ZagreusSetupArguments {
+  host: string;
+  port: string;
+  instance: string;
+  container: ZagreusContainerSetupArguments;
+  animationSequences?: AnimationSequence[];
+}
+
+export interface ZagreusState {
+  setup: (args: ZagreusSetupArguments) => void;
+  registerAnimations: (...animation: AnimationSequence[]) => void;
+  _internal: InternalZagreusState;
+}
+
+export interface InternalZagreusState {
+  instance: string;
+  host: string;
+  port: string;
+  animationSequences: Record<string, AnimationSequence>;
+  errorReporter: ErrorReporter;
+}
+
+if (!window.zagreus) {
+  window.zagreus = {
+    setup: setup,
+    registerAnimations: registerAnimations,
+    _internal: {
+      instance: undefined,
+      host: undefined,
+      port: undefined,
+      animationSequences: {},
+      errorReporter: undefined,
+    },
+  };
+}
+
+export const getInternalZagreusState = (): InternalZagreusState => {
+  return getZagreusState()._internal;
+};
+
+export const getZagreusState = (): ZagreusState => {
+  return window.zagreus;
+};
+
+export const getUrlOnServer = (path: string): string => {
+  const state = getInternalZagreusState();
+  return `http://${state.host}:${state.port}${path}`;
+};
+
+// have setup function that takes -server url, template width & height, animation sequences
+// have two sources for assets: template and zagreus
+// TODO port animation validation logic from generator to here

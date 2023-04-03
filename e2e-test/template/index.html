@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="theme-color" content="#000000"/>
+    <link rel="stylesheet" href="animations.css" />
+    <link rel="stylesheet" href="main.css" />
+    <title>e2e template</title>
+</head>
+<body>
+<div id="root" data-zag="zagreus-container" class="zagreus-hidden">
+    <div class="lower-third" data-zag="LowerThird">
+        <div class="lower-third-stripe" data-zag="LowerThirdVerticalStripe"></div>
+        <div class="title-container">
+            <h1 data-zag="LowerThirdTitle">Title</h1>
+            <h2 data-zag="LowerThirdSubtitle">Subtitle</h2>
+        </div>
+        <div>
+            <img src="" data-zag="LowerThirdLogo" />
+            <p data-zag="LowerThirdRightAlignedText">Right 12</p>
+        </div>
+    </div>
+</div>
+
+<script src="http://localhost:8080/static/zagreus-runtime.js"></script>
+<script>
+    window.zagreus.setup({
+        container: {
+            name: 'zagreus-container',
+            width: 1920,
+            height: 1080,
+        },
+        host: 'localhost',
+        port: '8080',
+        instance: 'e2e'
+    });
+    window.zagreus.registerAnimations(
+      {
+          "name": "LowerThirdShow",
+          "steps": [
+              {
+                  "duration": 500,
+                  "animations": [
+                      {
+                          "id": "LowerThird",
+                          "name": "moveUp"
+                      }
+                  ]
+              },
+              {
+                  "duration": 200,
+                  "animations": [
+                      {
+                          "id": "LowerThirdVerticalStripe",
+                          "name": "extendVertically"
+                      }
+                  ]
+              },
+              {
+                  "duration": 200,
+                  "animations": [
+                      {
+                          "id": "LowerThirdTitle",
+                          "name": "fadeIn"
+                      },
+                      {
+                          "id": "LowerThirdSubtitle",
+                          "name": "fadeIn"
+                      }
+                  ]
+              }
+          ]
+      },
+      {
+          "name": "LowerThirdHide",
+          "onLoad" : true,
+          "steps": [
+              {
+                  "duration": 500,
+                  "animations": [
+                      {
+                          "id": "LowerThird",
+                          "name": "moveUp",
+                          "direction": "reverse"
+                      }
+                  ]
+              },
+              {
+                  "duration": 10,
+                  "animations": [
+                      {
+                          "id": "LowerThirdVerticalStripe",
+                          "name": "extendVertically",
+                          "direction": "reverse"
+                      },
+                      {
+                          "id": "LowerThirdTitle",
+                          "name": "fadeIn",
+                          "direction": "reverse"
+                      },
+                      {
+                          "id": "LowerThirdSubtitle",
+                          "name": "fadeIn",
+                          "direction": "reverse"
+                      }
+                  ]
+              }
+          ]
+      }
+    )
+</script>
+</body>
+</html>

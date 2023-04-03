@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: Zagreus Server API
-  version: 0.0.1
+  version: 0.0.8
   description: description of the zagreus server HTTP API
   license:
     name: MIT License
@@ -9,7 +9,7 @@ info:
   x-logo:
     url: ''
 servers:
-  - url: 'http://localhost:58179'
+  - url: /
 paths:
   /api/version:
     summary: Get server version
@@ -23,48 +23,10 @@ paths:
             text/plain:
               example: 0.0.1
           description: Version retrieved successfully.
-  '/api/template/{templateName}/template':
-    summary: Upload template
-    description: >-
-      Uploads the given packed template to the server. If the template was
-      uploaded before it is replaced with the new version.
-    post:
-      requestBody:
-        description: The packed template file to upload.
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                template.zip:
-                  format: binary
-                  type: string
-      tags:
-        - template
-      operationId: uploadTemplate
-      responses:
-        '200':
-          $ref: '#/components/responses/200'
-    parameters:
-      - $ref: '#/components/parameters/templateName'
-  '/api/template/{templateName}/asset':
+  '/api/asset':
     summary: Manage template assets
-    get:
-      description: Returns a recursive list of the currently uploaded asset files for the template with the given name.
-      tags:
-        - template
-      operationId: getAssets
-      responses:
-        '200':
-          description: 'Assets returned successfully'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AssetResponse'
     post:
-      description: Uploads the given asset to the specified template so that it can be used in the template.
+      description: Uploads the given asset to the server so that it can be used from a template (with asset source 'zagreus')
       requestBody:
         description: The asset file to upload.
         content:
@@ -78,21 +40,19 @@ paths:
                   format: binary
                   type: string
       tags:
-        - template
+        - asset
       operationId: uploadAsset
       responses:
         '200':
           content:
             application/json:
-              example: ["asset1.png", "main.css"]
-          description: Asssets retrieved successfully.
-    parameters:
-      - $ref: '#/components/parameters/templateName'
-  '/api/template/{templateName}/data/text':
+              example: { name: "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9.png" }
+          description: Asset uploaded successfully
+  '/api/instance/{instanceName}/data/text':
     summary: Set the text content of a text element
     description: 'Searches for an element with the given id and sets its text content to the given value'
     parameters:
-      - $ref: '#/components/parameters/templateName'
+      - $ref: '#/components/parameters/instanceName'
     post:
       requestBody:
         content:
@@ -113,11 +73,11 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/200'
-  '/api/template/{templateName}/data/class/add':
+  '/api/instance/{instanceName}/data/class/add':
     summary: Adds a CSS class to an element
     description: 'Searches for an element with the given id and adds the given CSS class from the element'
     parameters:
-      - $ref: '#/components/parameters/templateName'
+      - $ref: '#/components/parameters/instanceName'
     post:
       requestBody:
         content:
@@ -138,11 +98,11 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/200'
-  '/api/template/{templateName}/data/class/remove':
+  '/api/instance/{instanceName}/data/class/remove':
     summary: Removes a CSS class from an element
     description: 'Searches for an element with the given id and removes the given CSS class from the element'
     parameters:
-      - $ref: '#/components/parameters/templateName'
+      - $ref: '#/components/parameters/instanceName'
     post:
       requestBody:
         content:
@@ -163,11 +123,11 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/200'
-  '/api/template/{templateName}/data/animation/{animationName}':
+  '/api/instance/{instanceName}/data/animation/{animationName}':
     summary: Execute an animation
     description: 'Executes the animation with the given name'
     parameters:
-      - $ref: '#/components/parameters/templateName'
+      - $ref: '#/components/parameters/instanceName'
       - name: animationName
         required: true
         in: path
@@ -182,11 +142,11 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/200'
-  '/api/template/{templateName}/data/image':
+  '/api/instance/{instanceName}/data/image':
     summary: Set source of image element
-    description: 'Searches for the image element with the given id and sets its source to the given asset'
+    description: 'Searches for the image element with the given id and sets its source to the given asset. If the asset source is zagreus, the image will be loaded from the zagreus server (see asset upload), otherwise from where the template itself is served'
     parameters:
-      - $ref: '#/components/parameters/templateName'
+      - $ref: '#/components/parameters/instanceName'
     post:
       requestBody:
         content:
@@ -198,9 +158,15 @@ paths:
                   type: string
                 asset:
                   type: string
+                assetSource:
+                  type: string
+                  enum:
+                    - template
+                    - zagreus
               example:
                 id: ScoreboardTeamImage
                 asset: 'logo.png'
+                assetSource: 'zagreus'
       tags:
         - data
       operationId: setImageSource
@@ -209,38 +175,27 @@ paths:
           $ref: '#/components/responses/200'
 components:
   parameters:
-    templateName:
-      example: my-template
-      name: templateName
-      description: The name of a template.
+    instanceName:
+      example: my-template-1
+      name: instanceName
+      description: The template instance that the command is relative to
       schema:
         description: >-
-          A template name must consist of more than zero alphanumeric or '-'
+          An instance name must consist of more than zero alphanumeric or '-'
           characters.
         pattern: '^[\-a-z0-9]+$'
         type: string
-        example: my-template
+        example: my-template-1
       in: path
       required: true
   responses:
     '200':
       description: Operation succeeded
-  schemas:
-    AssetResponse:
-      description: "An asset described by its name and optionally child assets (if it's a folder)."
-      type: object
-      properties:
-        name:
-          type: string
-        children:
-          type: array
-          items:
-            $ref: '#/components/schemas/AssetResponse'
 tags:
   - name: general
     description: General operations
-  - name: template
-    description: Operations for managing templates
+  - name: asset
+    description: Operations for managing assets
   - name: data
     description: Operations for manipulating the data in a template
 externalDocs:

@@ -1,11 +1,12 @@
 use std::borrow::Cow;
 
 use crate::data::animation::config::AnimationSequence;
+use crate::data::asset::AssetSource;
 use crate::data::config::TemplateElement;
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "tag", content = "payload")]
-pub enum TemplateMessage<'a> {
+pub enum InstanceMessage<'a> {
     SetText {
         id: &'a str,
         text: &'a str,
@@ -40,8 +41,10 @@ pub enum TemplateMessage<'a> {
         #[serde(borrow)]
         animation_sequences: Cow<'a, Vec<String>>,
     },
+    #[serde(rename_all = "camelCase")]
     SetImageSource {
         id: &'a str,
         asset: &'a str,
+        asset_source: AssetSource,
     },
 }
