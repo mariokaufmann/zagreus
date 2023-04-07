@@ -4,19 +4,7 @@ In this section we will setup zagreus (if you haven't already) and create a zagr
 ## Setup zagreus
 To install zagreus, you need to download the latest release from [the releases page](https://github.com/mariokaufmann/zagreus/releases/latest). Unzip the archive to a location of your choosing. We recommend to add that location to the `PATH` environment variable on your system.
 
-## Zagreus generator
-The zagreus generator is a command-line utility to create, build and pack zagreus templates. If you have added the zagreus installation directory to the `PATH` you can start a terminal and use the generator without having to provide its absolue path:
-```
-zagreus-generator build
-```
-This will display an error message about a missing template project. This is expected, as we haven't created the project yet.
+## Create zagreus template
+A zagreus template in its simplest form is just an HTML file that includes a Javascript file called the  _zagreus runtime_. By linking that file the template will automatically announce itself to the server and from then on it can be manipulated through zagreus.
 
-## Create zagreus project
-With the zagreus generator we can generate a new template project. For this, we can use the `new` command. First, open a terminal and navigate to the folder where you want to create the new template. Then, issue the following command:
-```
-zagreus-generator new my-template
-```
-The zagreus generator will create a sub directory with the the name `my-template` and inside that directory set up a zagreus template project with the same name. The project consists of a few _.yaml_ configuration files and an asset subdirectory.
-The file `zagreus-template.yaml` contains basic configuration options for the template such as its name for example. To find out what other configuration options are available please visit the [template config documentation](../config/template.md).
-
-Next step: [Design a template](design-template.md)
+Next step: [Creating a template](design-template.md)
