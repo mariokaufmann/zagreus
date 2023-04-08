@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: '16'
       - uses: dtolnay/rust-toolchain@stable
-      - name: Check formatting (server & generator)
+      - name: Check formatting (server)
         run: |
           rustup component add rustfmt
           cargo fmt --quiet -- --check
@@ -41,7 +41,7 @@ jobs:
           npm ci
           npm run build
         working-directory: ./zagreus-swagger-docs
-      - name: Lint, test and build (server & generator)
+      - name: Lint, test and build (server)
         run: |
           rustup component add clippy
           cargo clippy -- -D warnings
