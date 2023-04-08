@@ -10,7 +10,7 @@ add styling dynamically and play animations.
 We will build a score board graphic that can be animated in and out and has dynamic texts for displaying the teams, the
 time and the score.
 
-![](step-by-step-demo.gif)
+![](scoreboard.gif)
 
 ## Table of contents
 

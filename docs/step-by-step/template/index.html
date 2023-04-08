@@ -1,10 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <title>zagreus template</title>
+  <meta charset="utf-8" />
+  <title>zagreus template</title>
+  <link rel="stylesheet" href="main.css" />
+  <link rel="stylesheet" href="animations.css" />
 </head>
 <body>
+<div id="root" data-zag="zagreus-container" class="zagreus-hidden">
+  <div class="scoreboard" data-zag="Scoreboard">
+    <div class="scoreboard-logo" data-zag="ScoreboardLogo">
+      <img src="./image.jpg" data-zag="ScoreboardLogoImage" />
+    </div>
+    <div class="scoreboard-main">
+      <p data-zag="ScoreboardHomeTeamText">TE1</p>
+      <p data-zag="ScoreboardScoreText">1 : 3</p>
+      <p data-zag="ScoreboardAwayTeamText">TE2</p>
+    </div>
+    <div class="scoreboard-time" data-zag="ScoreboardTime">
+      <p data-zag="ScoreboardTimeText">2:00</p>
+    </div>
+  </div>
+</div>
 <script src="http://localhost:58180/static/zagreus-runtime.js"></script>
+<script>
+  window.zagreus.setup({
+    host: "localhost",
+    port: 58180,
+    instance: 'test-template',
+    container: {
+      name: 'zagreus-container',
+      width: 1920,
+      height: 1080,
+    },
+    animationSequences: [
+      {
+        name: "ScoreboardShow",
+        steps: [
+          {
+            duration: 500,
+            animations: [
+              {
+                id: "Scoreboard",
+                name: "moveScoreboardDown"
+              }
+            ]
+          },
+          {
+            duration: 250,
+            animations: [
+              {
+                id: "ScoreboardTime",
+                name: "moveScoreboardTimeDown"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name: "ScoreboardHide",
+        onLoad: true,
+        steps: [
+          {
+            duration: 500,
+            animations: [
+              {
+                id: "Scoreboard",
+                name: "moveScoreboardDown",
+                direction: "reverse"
+              }
+            ]
+          },
+          {
+            duration: 10,
+            animations: [
+              {
+                id: "ScoreboardTime",
+                name: "moveScoreboardTimeDown",
+                direction: "reverse"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+</script>
 </body>
 </html>
