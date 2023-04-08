@@ -64,6 +64,4 @@ export const getUrlOnServer = (path: string): string => {
   return `http://${state.host}:${state.port}${path}`;
 };
 
-// have setup function that takes -server url, template width & height, animation sequences
-// have two sources for assets: template and zagreus
 // TODO port animation validation logic from generator to here
