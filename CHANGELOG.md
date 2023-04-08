@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.9
+* Fix packaging of swagger docs on MacOS and Linux.
+
 ## 0.0.8
 * Refactor architecture with many breaking changes:
   * Remove the SVG template concept. Users can now create their completely independent templates and just use zagreus as a library to hook into their templates. This allows them to create much more flexible templates with the whole span of web technologies. It is still possible to use SVG files within the templates but a template does not revolve around a single SVG file anymore.
