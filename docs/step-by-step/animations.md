@@ -155,4 +155,4 @@ For our example animation `ScoreboardHide` we specified the property `onLoad` to
       }
 ```
 
-We have now explored all the main functions of zagreus. If you have any questions just create an issue or a discussion in this repo.
+We have now explored all the main functions of zagreus. Have a look at the chapter about [playout](./playout.md) for how to actually use the template we just created as a graphics overlay.

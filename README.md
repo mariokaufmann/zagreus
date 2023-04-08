@@ -101,4 +101,7 @@ zagreus-server
 4. Load the template file (`index.html`) in your playout software. Example: if you use OBS, add a browser source with a local file, set width to 1920 pixels, height to 1080 pixels
 5. Navigate to the [Swagger UI of zagreus](http://localhost:58180/static/swagger-docs/?url=spec.yaml) and manipulate the template. To set the text dynamically, use the `data/text` endpoint. To trigger an animation, use the `data/animation` endpoint. Pass in `my-template` as instance name.
 
-For a more involved and thorough introduction on how to use zagreus check out the [step-by-step guide](docs/step-by-step/setup.md).
+## Additional documentation
+
+- For a more involved and thorough introduction on how to use zagreus check out the [step-by-step guide](docs/step-by-step/setup.md)
+- For more information about how to actually overlay the graphics over video check out the [playout](docs/step-by-step/playout.md) section
