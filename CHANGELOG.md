@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.0.8
 * Refactor architecture with many breaking changes:
-  * Remove the 'template' concept. Users can now create their completely independent templates and just use zagreus as a library to hook into their templates. This allows them to create much more flexible templates with the whole span of web technologies. It is still possible to use SVG files as within the templates but a template does not revolve around a single SVG file anymore.
+  * Remove the SVG template concept. Users can now create their completely independent templates and just use zagreus as a library to hook into their templates. This allows them to create much more flexible templates with the whole span of web technologies. It is still possible to use SVG files within the templates but a template does not revolve around a single SVG file anymore.
+  * Removed the zagreus generator as it's not in use anymore with the new template concept
 
 ## 0.0.7
 * Switch log file format to JSON logging
