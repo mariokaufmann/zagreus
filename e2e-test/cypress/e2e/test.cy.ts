@@ -70,30 +70,37 @@ describe("E2E test", () => {
       data.set("name", "dog.svg");
       data.set("file", blob);
 
-      cy.request("POST", "http://localhost:8080/api/asset", data).then(() => {
-        cy.request(
-          "POST",
-          "http://localhost:8080/api/instance/e2e/data/image",
-          {
-            id: "LowerThirdLogo",
-            asset: "dog.svg",
-            assetSource: "zagreus",
-          }
-        );
-        getElement("LowerThirdLogo").should("be.visible");
-        getElement("LowerThirdLogo")
-          .should("have.attr", "src")
-          .and("equal", "http://localhost:8080/assets/dog.svg");
+      cy.request("POST", "http://localhost:8080/api/asset", data)
+        .its("body")
+        .then((response) => {
+          const responseText = new TextDecoder().decode(response);
+          const parsedResponse: { name: string } = JSON.parse(responseText);
+          cy.request(
+            "POST",
+            "http://localhost:8080/api/instance/e2e/data/image",
+            {
+              id: "LowerThirdLogo",
+              asset: parsedResponse.name,
+              assetSource: "zagreus",
+            }
+          );
+          getElement("LowerThirdLogo").should("be.visible");
+          getElement("LowerThirdLogo")
+            .should("have.attr", "src")
+            .and(
+              "equal",
+              "http://localhost:8080/assets/" + parsedResponse.name
+            );
 
-        // TODO potentiall re-add this endpoint?
-        // cy.request("http://localhost:8080/api/asset").then((response) => {
-        //   let assets = response.body;
-        //   expect(assets.length).to.equal(3);
-        //   expect(assets).to.deep.contain({ name: "main.css" });
-        //   expect(assets).to.deep.contain({ name: "dog.svg" });
-        //   expect(assets).to.deep.contain({ name: "dragon.png" });
-        // });
-      });
+          // TODO potentially re-add this endpoint?
+          // cy.request("http://localhost:8080/api/asset").then((response) => {
+          //   let assets = response.body;
+          //   expect(assets.length).to.equal(3);
+          //   expect(assets).to.deep.contain({ name: "main.css" });
+          //   expect(assets).to.deep.contain({ name: "dog.svg" });
+          //   expect(assets).to.deep.contain({ name: "dragon.png" });
+          // });
+        });
     });
   });
 });
