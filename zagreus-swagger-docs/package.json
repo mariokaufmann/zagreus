@@ -1,6 +1,6 @@
 {
   "name": "zagreus-swagger-docs",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "",
   "scripts": {
     "build": "npm run copy-swagger && npm run copy-spec && npm run copy-index",

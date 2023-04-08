@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: Zagreus Server API
-  version: 0.0.8
+  version: 0.0.9
   description: description of the zagreus server HTTP API
   license:
     name: MIT License
