@@ -1,34 +1,31 @@
 # Dynamic image
-Static images can just be embedded into the SVG file already in the SVG editor. However, with zagreus it is also possible to set image content in a template dynamically.
-We are going to add a venue logo above the scoreboard that can be set dynamically without having to rebuild the template.
+Sometimes we also want to add and remove images to our template dynamically.
+Images can come from two sources:
+1. They are already included in the template. This is the case for our example `image.jpg` that we used in our template. This source is appropriate whenever the images are known beforehand and can therefore be added to template before using the overlay
+2. They are uploaded to zagreus at runtime and then provided by zagreus. This source is appropriate whenever the images are dynamic and can change quickly (e.g. team logos at a sports event).
 
-Open up your template file in the editor of your choice, and a rectangle above the main background. Name this rectangle _ScoreboardLogoBackground_. Add it to the _Scoreboard_ group.
-Add a logo of as a placeholder to the background. We use [this icon of a fish](./img/fish.png). The icons used in this section were adapted from [Font Awesome](https://fontawesome.com/icons?d=gallery&m=free) and are licensed under the [Creative Commons Attribution 4.0 International license](https://fontawesome.com/license). Give the image placeholder the id _ScoreboardLogoImage_.
-
-## Configure image element
-Similar to the text element we need to configure the image so that it is aligned within its background element. Open _elements.yaml_ and add the following configuration:
-```yaml
-- id: ScoreboardLogoImage
-  align:
-    horizontal: center
-    vertical: center
-    with: ScoreboardLogoBackground
-```
-This centers the element both horizontally and vertically in the background element.
-
-## Add asset
-To be able to use our second icon as image we can add it as an asset. We are going to use [the icon of a dragon](./img/dragon.png). You can add the asset either at template build time or at runtime through the HTTP API.
-
-### Adding the asset at template build time
-Add the file to the _asset_ folder in your template directory.
-Rebuild the template and upload it to the server. If the zagreus generator is still running in watch mode this should happen automatically once you add the file to the _asset_ folder.
+We have already used source option 1 for our `image.jpg` image. Let us explore how to use option 2 (dynamic images).
 
 ### Adding the asset at runtime
-Sometimes it can also be useful to add an asset dynamically when the template is already built (for example if the assets are not known yet when building the template). This can be achieved through the server API. Go to the server API documentation (reference the chapter about dynamic text for more information about it). Search for the _/asset_ endpoints. The GET request retrieves the file names of all assets that are currently uploaded for the given template. With the POST request one can upload an asset dynamically. Enter `dragon.png` as asset name and select the icon from the documentation UI (you can also use a file of yours). Then click execute and the asset should be uploaded.
-
-_Important: Since the asset was uploaded dynamically it will be removed once the template is uploaded to the server again. To make sure that the asset is always available it is best to build it together with the template._
+Sometimes it can also be useful to add an asset dynamically at runtime when using the overlay. This can be achieved through the server API. Go to the server API documentation (reference the chapter about dynamic text for more information about it). Search for the _/asset_ endpoints. With the POST request one can upload an asset dynamically. Enter `image2.jpg` as asset name and select another image from your computer. Then click execute and the asset should be uploaded. Check the response for your request. zagreus will return the name of the newly uploaded asset. Example:
+```json
+{
+  "name": "c6492260f4240be4f8c03699608c51644828f1fb5257251687eff29de44c3d09.jpg"
+}
+```
+Note down this name as we will use it again in the next section.
 
 # Set image content dynamically
-Go to the server API documentation. Search for the _data/image_ endpoint. The property asset in the payload determines, which file is set as the image source. Try setting the image source of the _ScoreboardLogoImage_ element to the dragon image (`"asset" : "dragon.png"`). You can now see that the logo was replaced with a dragon.
+Go to the server API documentation. Search for the _data/image_ endpoint. The property asset in the payload determines, which file is set as the image source. To indicate to zagreus that the image was upload dynamically we will set the asset source to `zagreus` (otherwise we would use `template`). Try setting the image source of the _ScoreboardLogoImage_ element to your new image by using the name from the previous section.
+
+```json
+{
+  "id": "ScoreboardLogoImage",
+  "asset": "c6492260f4240be4f8c03699608c51644828f1fb5257251687eff29de44c3d09.jpg",
+  "assetSource": "zagreus"
+}
+```
+
+You should now see that the image above the score board has changed.
 
 Next step: [Animation](animations.md)

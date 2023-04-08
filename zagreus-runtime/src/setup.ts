@@ -37,6 +37,9 @@ export function setup(args: ZagreusSetupArguments) {
   state.port = args.port;
 
   setupContainer(args.container);
+  if (args.animationSequences) {
+    registerAnimations(...args.animationSequences);
+  }
 
   // run initial animations after a timeout (to allow time for registering other animations)
   setTimeout(() => {

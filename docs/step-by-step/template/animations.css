@@ -1,0 +1,17 @@
+@keyframes moveScoreboardDown {
+    from {
+        transform: translateY(-300px);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes moveScoreboardTimeDown {
+    from {
+        transform: translateY(-50px);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
