@@ -5,21 +5,21 @@ authors = ["Mario Kaufmann <mario.kaufmann@bluemail.ch>"]
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.68"
-axum = { version = "0.6.4", features = ["json", "http1", "http2", "ws", "multipart"]}
-axum-server = "0.4.4"
+anyhow = "1.0.70"
+axum = { version = "0.6.15", features = ["json", "http1", "http2", "ws", "multipart"]}
+axum-server = "0.4.7"
 log = "0.4.17"
-futures = "0.3.26"
-hyper = "0.14.24"
+futures = "0.3.28"
+hyper = "0.14.25"
 rand = "0.8.5"
-serde = "1.0.152"
-serde_derive = "1.0.152"
-serde_json = "1.0.91"
+serde = "1.0.160"
+serde_derive = "1.0.160"
+serde_json = "1.0.96"
 structopt = "0.3.26"
-tokio = { version = "1.25.0", features = ["macros", "rt-multi-thread", "sync", "time"] }
-tokio-stream = "0.1.11"
+tokio = { version = "1.27.0", features = ["macros", "rt-multi-thread", "sync", "time"] }
+tokio-stream = "0.1.12"
 tower = { version = "0.4.13", features = ["filter"]}
-tower-http = { version = "0.3.5", features = ["fs", "trace"]}
+tower-http = { version = "0.4.0", features = ["fs", "trace"]}
 zip = "0.6.4"
 sha2 = "0.10.6"
 
@@ -30,4 +30,4 @@ features = ["console_appender", "rolling_file_appender", "fixed_window_roller", 
 
 [dev-dependencies]
 tokio-tungstenite = "0.18.0"
-tungstenite = "0.18.0"
+tungstenite = "0.19.0"
