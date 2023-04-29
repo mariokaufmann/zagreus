@@ -30,7 +30,7 @@ export const installErrorHandler = (websocketSender: WebsocketSender): void => {
 
 export const reportErrorMessage = (message: string): void => {
   const error: Error = {
-    name: "Zagreus error",
+    name: "zagreus error",
     message,
     stack: "",
   };
