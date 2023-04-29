@@ -1,5 +1,8 @@
 # Changelog
 
+# 0.1.0
+* Compile zagreus runtime for target ES6 to support older browsers (such as the version of CEF used in CasparCG)
+
 ## 0.0.9
 * Fix packaging of swagger docs on MacOS and Linux.
 
