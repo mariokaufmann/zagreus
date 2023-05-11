@@ -14,8 +14,8 @@
   "license": "ISC",
   "devDependencies": {
     "cpy-cli": "4.2.0",
-    "esbuild": "0.17.16",
-    "prettier": "2.8.7",
+    "esbuild": "0.17.18",
+    "prettier": "2.8.8",
     "typescript": "5.0.4"
   }
 }
