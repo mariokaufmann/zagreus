@@ -3,10 +3,7 @@
   "version": "0.0.9",
   "description": "",
   "scripts": {
-    "build": "npm run copy-swagger && npm run copy-spec && npm run copy-index",
-    "copy-spec": "cpy spec.yaml ../zagreus-server/swagger-docs/",
-    "copy-index": "cpy index.html ../zagreus-server/swagger-docs/",
-    "copy-swagger": "cpy . ../../../zagreus-server/swagger-docs/ --cwd node_modules/swagger-ui-dist"
+    "build": "copyfiles spec.yaml \"node_modules/swagger-ui-dist/*\" index.html ../zagreus-server/swagger-docs/ --flat"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +11,6 @@
     "swagger-ui-dist": "5.1.3"
   },
   "devDependencies": {
-    "cpy-cli": "4.2.0"
+    "copyfiles": "2.4.1"
   }
 }
