@@ -10,7 +10,7 @@ export const addClassOnElement = (elementName: string, clazz: string): void => {
 
 export const removeClassOnElement = (
   elementName: string,
-  clazz: string
+  clazz: string,
 ): void => {
   const element = getZagreusElement(elementName);
   element.classList.remove(clazz);

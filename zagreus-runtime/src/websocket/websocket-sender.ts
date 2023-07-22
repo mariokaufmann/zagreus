@@ -9,7 +9,7 @@ export class WebsocketSender {
       this.websocket.sendMessage(message);
     } else {
       console.error(
-        `Cannot send message ${message.tag} as websocket is not open.`
+        `Cannot send message ${message.tag} as websocket is not open.`,
       );
     }
   }

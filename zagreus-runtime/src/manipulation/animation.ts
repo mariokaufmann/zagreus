@@ -33,8 +33,8 @@ const applyAnimationStep = (step: AnimationStep): void => {
       element.name,
       element.iterations,
       element.direction,
-      step.duration
-    )
+      step.duration,
+    ),
   );
 };
 
@@ -43,7 +43,7 @@ const applyAnimationToElement = (
   animationName: string,
   animationIterationCount: AnimationIterationCount,
   animationDirection: AnimationDirection,
-  duration: number
+  duration: number,
 ): void => {
   const element = getZagreusElement(id);
   if (element.style.animationName === animationName) {
@@ -58,7 +58,7 @@ const applyAnimationToElement = (
 
 const getStartForAnimationStep = (
   steps: AnimationStep[],
-  index: number
+  index: number,
 ): number => {
   const step = steps[index];
   if (step.start != 0) {
@@ -84,7 +84,7 @@ export const getMaxTimeoutFromSequences = (sequences: string[]): number => {
 
 const findAnimationSequence = (
   sequenceName: string,
-  state: InternalZagreusState
+  state: InternalZagreusState,
 ): AnimationSequence | undefined => state.animationSequences[sequenceName];
 
 const getMaxTimeoutFromSequence = (sequence: AnimationSequence): number => {

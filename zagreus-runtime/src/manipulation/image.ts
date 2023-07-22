@@ -12,13 +12,13 @@ const getAssetUrl = (asset: string, assetSource: AssetSource): string => {
 export const setImageSource = (
   elementName: string,
   asset: string,
-  assetSource: AssetSource
+  assetSource: AssetSource,
 ): void => {
   const url = getAssetUrl(asset, assetSource);
   const element = getZagreusElement<HTMLImageElement>(elementName);
   if (element.tagName.toLowerCase() !== "img") {
     throw new Error(
-      `Cannot set image source on element ${elementName} since it its not an img element.`
+      `Cannot set image source on element ${elementName} since it its not an img element.`,
     );
   }
   element.setAttribute("src", url);

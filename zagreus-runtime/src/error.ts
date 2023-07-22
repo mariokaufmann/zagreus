@@ -23,7 +23,7 @@ export const installErrorHandler = (websocketSender: WebsocketSender): void => {
     },
     {
       capture: true,
-    }
+    },
   );
   getInternalZagreusState().errorReporter = getErrorReporter(websocketSender);
 };
@@ -43,7 +43,7 @@ const getErrorReporter = (websocketSender: WebsocketSender): ErrorReporter => {
 
 const reportErrorOnSender = (
   websocketSender: WebsocketSender,
-  error: Error
+  error: Error,
 ): void => {
   console.error(error);
   const message: TaggedEnumType<TemplateMessage, LogErrorPayload> = {
