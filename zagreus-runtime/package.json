@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
-    "copyScript": "cpy dist/zagreus-runtime.js* ../zagreus-server/",
+    "copyScript": "copyfiles \"dist/zagreus-runtime.js*\" ../zagreus-server/ --flat",
     "build": "esbuild src/runtime.ts --bundle --sourcemap --minify --target=es6 --outfile=dist/zagreus-runtime.js && npm run copyScript",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
@@ -13,9 +13,9 @@
   "author": "Mario Kaufmann <mario.kaufmann@bluemail.ch>",
   "license": "ISC",
   "devDependencies": {
-    "cpy-cli": "4.2.0",
     "esbuild": "0.18.11",
     "prettier": "2.8.8",
-    "typescript": "5.1.6"
+    "typescript": "5.1.6",
+    "copyfiles": "2.4.1"
   }
 }
