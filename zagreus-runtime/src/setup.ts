@@ -72,6 +72,6 @@ export function registerAnimations(...animations: AnimationSequence[]) {
       })),
     }))
     .forEach(
-      (sequence) => (state.animationSequences[sequence.name] = sequence)
+      (sequence) => (state.animationSequences[sequence.name] = sequence),
     );
 }

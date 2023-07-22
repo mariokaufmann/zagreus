@@ -43,7 +43,7 @@ export class WebsocketHandler {
     const parsedMessage: TaggedEnumType<TemplateMessage> = JSON.parse(message);
     templateMessageHandlers[parsedMessage.tag](
       parsedMessage.payload,
-      this.sender
+      this.sender,
     );
   }
 }
