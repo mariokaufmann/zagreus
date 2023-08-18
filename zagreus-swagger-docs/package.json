@@ -8,7 +8,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "swagger-ui-dist": "5.1.3"
+    "swagger-ui-dist": "5.4.2"
   },
   "devDependencies": {
     "copyfiles": "2.4.1"
