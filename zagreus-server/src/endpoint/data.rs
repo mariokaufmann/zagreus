@@ -26,6 +26,13 @@ pub(crate) struct SetImageSourceDto {
     asset_source: AssetSource,
 }
 
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct ExecuteAnimationDto {
+    name: String,
+    queue: Option<String>,
+}
+
 pub(crate) async fn set_text(
     Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
@@ -63,11 +70,16 @@ pub(crate) async fn remove_class(
 }
 
 pub(crate) async fn execute_animation(
-    Path((instance, animation_name)): Path<(String, String)>,
+    Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
+    Json(payload): Json<ExecuteAnimationDto>,
 ) -> impl IntoResponse {
     let message = InstanceMessage::ExecuteAnimation {
-        animation_sequence: &animation_name,
+        animation_sequence: &payload.name,
+        queue_id: match &payload.queue {
+            None => None,
+            Some(queue_id) => Some(queue_id.as_str()),
+        },
     };
     send_instance_message(&instance, server, message).await
 }

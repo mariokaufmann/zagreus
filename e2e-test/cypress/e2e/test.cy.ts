@@ -23,7 +23,10 @@ describe("E2E test", () => {
     getElement("LowerThird").should("not.be.visible");
     cy.request(
       "POST",
-      "http://localhost:8080/api/instance/e2e/data/animation/LowerThirdShow"
+      "http://localhost:8080/api/instance/e2e/data/animation",{
+        name: "LowerThirdShow",
+        queue: "LowerThird"
+      }
     );
     getElement("LowerThird").should("be.visible");
 

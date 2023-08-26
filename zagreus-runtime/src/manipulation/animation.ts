@@ -7,11 +7,23 @@ import {
 import { getInternalZagreusState, InternalZagreusState } from "../runtime";
 import { getZagreusElement } from "../utils";
 
-export const applyAnimation = (sequenceName: string): void => {
+export const applyAnimation = (
+  sequenceName: string,
+  queueId: string | undefined,
+): void => {
   const state = getInternalZagreusState();
   const sequence = findAnimationSequence(sequenceName, state);
   if (sequence) {
-    scheduleAnimationSequence(sequence.steps);
+    if (queueId) {
+      let queue = state.animationQueues[queueId];
+      if (!queue) {
+        queue = new AnimationQueue();
+        state.animationQueues[queueId] = queue;
+      }
+      queue.enqueueAnimationSequence(sequence);
+    } else {
+      scheduleAnimationSequence(sequence.steps);
+    }
   }
 };
 
@@ -97,3 +109,32 @@ const getMaxTimeoutFromSequence = (sequence: AnimationSequence): number => {
   });
   return maxTimeout;
 };
+
+export class AnimationQueue {
+  readonly queue: AnimationSequence[] = [];
+  currentlyExecutingSequence: AnimationSequence | undefined = undefined;
+
+  enqueueAnimationSequence(sequence: AnimationSequence) {
+    if (!this.currentlyExecutingSequence) {
+      this.executeSequence(sequence);
+    } else {
+      this.queue.push(sequence);
+    }
+  }
+
+  private executeNextSequence() {
+    const nextSequence = this.queue.shift();
+    if (nextSequence) {
+      this.executeSequence(nextSequence);
+    } else {
+      this.currentlyExecutingSequence = undefined;
+    }
+  }
+
+  private executeSequence(sequence: AnimationSequence) {
+    this.currentlyExecutingSequence = sequence;
+    const duration = getMaxTimeoutFromSequence(sequence);
+    scheduleAnimationSequence(sequence.steps);
+    setTimeout(() => this.executeNextSequence(), duration);
+  }
+}

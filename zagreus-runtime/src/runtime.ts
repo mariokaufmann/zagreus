@@ -1,5 +1,6 @@
 import { AnimationSequence } from "./websocket/types";
 import { registerAnimations, setup } from "./setup";
+import { AnimationQueue } from "./manipulation/animation";
 
 declare global {
   interface Window {
@@ -34,6 +35,7 @@ export interface InternalZagreusState {
   host: string;
   port: string;
   animationSequences: Record<string, AnimationSequence>;
+  animationQueues: Record<string, AnimationQueue>;
   errorReporter: ErrorReporter;
 }
 
@@ -46,6 +48,7 @@ if (!window.zagreus) {
       host: undefined,
       port: undefined,
       animationSequences: {},
+      animationQueues: {},
       errorReporter: undefined,
     },
   };
@@ -63,5 +66,3 @@ export const getUrlOnServer = (path: string): string => {
   const state = getInternalZagreusState();
   return `http://${state.host}:${state.port}${path}`;
 };
-
-// TODO port animation validation logic from generator to here

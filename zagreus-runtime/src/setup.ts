@@ -46,7 +46,9 @@ export function setup(args: ZagreusSetupArguments) {
     const onLoadAnimationSequences = Object.entries(state.animationSequences)
       .filter(([name, sequence]) => sequence.onLoad)
       .map(([name, sequence]) => sequence.name);
-    onLoadAnimationSequences.forEach((sequence) => applyAnimation(sequence));
+    onLoadAnimationSequences.forEach((sequence) =>
+      applyAnimation(sequence, undefined),
+    );
     const maxTimeout = getMaxTimeoutFromSequences(onLoadAnimationSequences);
     setTimeout(() => {
       removeClassOnElement(args.container.name, ZagreusHiddenClassName);
