@@ -123,19 +123,27 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/200'
-  '/api/instance/{instanceName}/data/animation/{animationName}':
+  '/api/instance/{instanceName}/data/animation':
     summary: Execute an animation
-    description: 'Executes the animation with the given name'
+    description: 'Executes the animation with the given name (and optionally queues it)'
     parameters:
       - $ref: '#/components/parameters/instanceName'
-      - name: animationName
-        required: true
-        in: path
-        description: The name of the animation
-        example: ScoreboardHide
-        schema:
-          type: string
     post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  required: true
+                  description: The name of the animation
+                  example: ScoreboardHide
+                queue:
+                  type: string
+                  description: The name of the queue to put the animation into. Animations in the same queue will be executed after each other
+                  example: Scoreboard
       tags:
         - data
       operationId: executeAnimation

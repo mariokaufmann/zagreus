@@ -27,7 +27,7 @@ const templateMessageHandlers: EnumTypeHandler<
     removeClassOnElement(payload.id, payload.class);
   },
   ExecuteAnimation: (payload: ExecuteAnimationPayload) => {
-    applyAnimation(payload.animationSequence);
+    applyAnimation(payload.animationSequence, payload.queueId);
   },
   SetImageSource: (payload: SetImageSourcePayload) => {
     setImageSource(payload.id, payload.asset, payload.assetSource);

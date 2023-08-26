@@ -35,6 +35,7 @@ pub enum InstanceMessage<'a> {
     #[serde(rename_all = "camelCase")]
     ExecuteAnimation {
         animation_sequence: &'a str,
+        queue_id: Option<&'a str>,
     },
     #[serde(rename_all = "camelCase")]
     OnLoad {

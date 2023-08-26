@@ -20,7 +20,10 @@ export type AssetSource = "template" | "zagreus";
 export type SetTextPayload = { id: string; text: string };
 export type OnLoadPayload = { animationSequences: string[] };
 export type ManipulateClassPayload = { id: string; class: string };
-export type ExecuteAnimationPayload = { animationSequence: string };
+export type ExecuteAnimationPayload = {
+  animationSequence: string;
+  queueId: string | undefined;
+};
 export type SetImageSourcePayload = {
   id: string;
   asset: string;
