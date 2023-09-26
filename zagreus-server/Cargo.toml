@@ -30,4 +30,4 @@ features = ["console_appender", "rolling_file_appender", "fixed_window_roller", 
 
 [dev-dependencies]
 tokio-tungstenite = "0.20.0"
-tungstenite = "0.20.0"
+tungstenite = "0.20.1"
