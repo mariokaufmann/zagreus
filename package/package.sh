@@ -8,4 +8,6 @@ cp ../zagreus-runtime/dist/zagreus-runtime.js target
 cp ../target/release/zagreus-server target/
 cp -r ../zagreus-server/swagger-docs target/
 
-cd target/ && zip -r "../zagreus-$1.zip" *
+cd target/
+cp * -r ../../docker
+zip -r "../zagreus-$1.zip" *
