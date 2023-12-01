@@ -10,7 +10,7 @@ axum = { version = "0.6.20", features = ["json", "http1", "http2", "ws", "multip
 axum-server = "0.5.1"
 log = "0.4.20"
 futures = "0.3.29"
-hyper = "0.14.27"
+hyper = "1.0.1"
 rand = "0.8.5"
 serde = "1.0.190"
 serde_derive = "1.0.190"
