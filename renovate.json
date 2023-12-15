@@ -4,5 +4,8 @@
     "group:allNonMajor",
     "group:recommended",
     "schedule:monthly"
+  ],
+  "reviewers": [
+    "mariokaufmann"
   ]
 }
