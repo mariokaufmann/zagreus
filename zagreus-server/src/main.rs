@@ -5,6 +5,7 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
+use anyhow::Context;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
@@ -29,24 +30,21 @@ const APPLICATION_NAME: &str = "zagreus-server";
 const CONFIG_FILE_NAME: &str = "config.json";
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     let command = get_command();
-    let application_folder = fs::get_application_folder(APPLICATION_NAME).unwrap_or_else(|err| {
-        panic!("Could not get application folder: {err}");
-    });
+    let application_folder =
+        fs::get_application_folder(APPLICATION_NAME).context("Could not get application folder")?;
     logger::init_logger(command.verbose);
 
-    match ConfigurationManager::<ZagreusServerConfig>::load(&application_folder, CONFIG_FILE_NAME) {
-        Ok(manager) => {
-            let mut configuration = manager.get_configuration();
-            override_configuration_with_cli_flags(&mut configuration, command);
-            start_with_config(configuration).await
-        }
-        Err(err) => error!("Could not load configuration: {}.", err),
-    }
+    let manager =
+        ConfigurationManager::<ZagreusServerConfig>::load(&application_folder, CONFIG_FILE_NAME)
+            .context("Could not load configuration")?;
+    let mut configuration = manager.get_configuration();
+    override_configuration_with_cli_flags(&mut configuration, command);
+    start_with_config(configuration).await
 }
 
-async fn start_with_config(configuration: ZagreusServerConfig) {
+async fn start_with_config(configuration: ZagreusServerConfig) -> anyhow::Result<()> {
     info!("Starting zagreus server...");
     let server_port = configuration.server_port;
     info!(
@@ -57,19 +55,15 @@ async fn start_with_config(configuration: ZagreusServerConfig) {
 
     let server_controller = Arc::new(ServerController::new(ws_server.clone()));
 
-    match endpoint::routes::get_router(&configuration, ws_server.clone(), server_controller.clone())
-    {
-        Ok(router) => {
-            let addr = SocketAddr::from(([0, 0, 0, 0], server_port));
-            if let Err(err) = axum_server::bind(addr)
-                .serve(router.into_make_service())
-                .await
-            {
-                error!("Could not start server: {}", err);
-            }
-        }
-        Err(err) => error!("Could not configure server routes: {}", err),
-    }
+    let router =
+        endpoint::routes::get_router(&configuration, ws_server.clone(), server_controller.clone())?;
+    let addr = SocketAddr::from(([0, 0, 0, 0], server_port));
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    axum::serve(listener, router.into_make_service())
+        .await
+        .context("Could not run web server")?;
+
+    Ok(())
 }
 
 fn override_configuration_with_cli_flags(

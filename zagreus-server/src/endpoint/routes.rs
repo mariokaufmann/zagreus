@@ -1,8 +1,8 @@
+use axum::body::Body;
 use axum::error_handling::HandleErrorLayer;
 use axum::http::uri::InvalidUri;
 use axum::http::{Request, StatusCode, Uri};
 use axum::Router;
-use hyper::Body;
 use std::sync::Arc;
 use tower::ServiceBuilder;
 use tower_http::services::ServeDir;
