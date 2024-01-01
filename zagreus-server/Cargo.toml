@@ -5,17 +5,17 @@ authors = ["Mario Kaufmann <mario.kaufmann@bluemail.ch>"]
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.75"
-axum = { version = "0.7.2", features = ["json", "http1", "http2", "ws", "multipart"]}
+anyhow = "1.0.78"
+axum = { version = "0.7.3", features = ["json", "http1", "http2", "ws", "multipart"]}
 log = "0.4.20"
-futures = "0.3.29"
-hyper = "1.0.1"
+futures = "0.3.30"
+hyper = "1.1.0"
 rand = "0.8.5"
 serde = "1.0.193"
 serde_derive = "1.0.193"
-serde_json = "1.0.108"
+serde_json = "1.0.109"
 structopt = "0.3.26"
-tokio = { version = "1.35.0", features = ["macros", "rt-multi-thread", "sync", "time"] }
+tokio = { version = "1.35.1", features = ["macros", "rt-multi-thread", "sync", "time"] }
 tokio-stream = "0.1.14"
 tower = { version = "0.4.13", features = ["filter"]}
 tower-http = { version = "0.5.0", features = ["fs", "trace"]}
