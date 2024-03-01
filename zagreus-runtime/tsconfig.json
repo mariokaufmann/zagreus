@@ -6,6 +6,6 @@
     "target": "ES2016",
     "lib": ["dom", "es2019"],
     "jsx": "react",
-    "allowJs": true,
-  },
+    "allowJs": true
+  }
 }
