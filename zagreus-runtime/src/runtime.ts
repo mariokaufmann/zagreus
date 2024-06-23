@@ -19,6 +19,7 @@ export interface ZagreusContainerSetupArguments {
 export interface ZagreusSetupArguments {
   host: string;
   port: string;
+  secure: boolean;
   instance: string;
   container: ZagreusContainerSetupArguments;
   animationSequences?: AnimationSequence[];
@@ -34,6 +35,7 @@ export interface InternalZagreusState {
   instance: string;
   host: string;
   port: string;
+  secure?: boolean;
   animationSequences: Record<string, AnimationSequence>;
   animationQueues: Record<string, AnimationQueue>;
   errorReporter: ErrorReporter;
@@ -47,6 +49,7 @@ if (!window.zagreus) {
       instance: undefined,
       host: undefined,
       port: undefined,
+      secure: false,
       animationSequences: {},
       animationQueues: {},
       errorReporter: undefined,
@@ -64,5 +67,14 @@ export const getZagreusState = (): ZagreusState => {
 
 export const getUrlOnServer = (path: string): string => {
   const state = getInternalZagreusState();
-  return `http://${state.host}:${state.port}${path}`;
+  const httpProtocol = getHttpProtocol();
+  return `${httpProtocol}://${state.host}:${state.port}${path}`;
+};
+
+export const getHttpProtocol = (): string => {
+  return getInternalZagreusState().secure ? "https" : "http";
+};
+
+export const getWebsocketProtocol = (): string => {
+  return getInternalZagreusState().secure ? "wss" : "ws";
 };
