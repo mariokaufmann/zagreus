@@ -1,0 +1,16 @@
+name: Build Release
+
+on:
+  release:
+    types: [ published]
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    uses: ./.github/workf lows/build.yml
+    secrets: inherit
+    with:
+      version: ${{ github.event.release.tag_name }}
+      push: true
+      release: true
