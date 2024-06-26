@@ -35,6 +35,7 @@ export function setup(args: ZagreusSetupArguments) {
   state.instance = args.instance;
   state.host = args.host;
   state.port = args.port;
+  state.secure = args.secure;
 
   setupContainer(args.container);
   if (args.animationSequences) {
