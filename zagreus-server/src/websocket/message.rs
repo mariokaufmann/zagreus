@@ -48,4 +48,9 @@ pub enum InstanceMessage<'a> {
         asset: &'a str,
         asset_source: AssetSource,
     },
+    #[serde(rename_all = "camelCase")]
+    SetCustomVariable {
+        name: &'a str,
+        value: &'a str,
+    },
 }

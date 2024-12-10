@@ -3,6 +3,7 @@ import {
   EnumTypeHandler,
   ExecuteAnimationPayload,
   ManipulateClassPayload,
+  SetCustomVariablePayload,
   SetImageSourcePayload,
   SetTextPayload,
   TaggedEnumType,
@@ -12,6 +13,7 @@ import { setTextOnElement } from "../manipulation/text";
 import { addClassOnElement, removeClassOnElement } from "../manipulation/css";
 import { applyAnimation } from "../manipulation/animation";
 import { setImageSource } from "../manipulation/image";
+import { setCustomVariable } from "../manipulation/custom-variable";
 
 const templateMessageHandlers: EnumTypeHandler<
   TemplateMessage,
@@ -31,6 +33,9 @@ const templateMessageHandlers: EnumTypeHandler<
   },
   SetImageSource: (payload: SetImageSourcePayload) => {
     setImageSource(payload.id, payload.asset, payload.assetSource);
+  },
+  SetCustomVariable: (payload: SetCustomVariablePayload) => {
+    setCustomVariable(payload.name, payload.value);
   },
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   LogError: () => {},

@@ -132,6 +132,10 @@ pub fn get_router(
                 axum::routing::post(data::execute_animation),
             )
             .route("/data/image", axum::routing::post(data::set_image_source))
+            .route(
+                "/data/custom-variable",
+                axum::routing::post(data::set_custom_variable),
+            )
             .layer(axum::extract::Extension(ws_server)),
     );
     router = router.merge(manipulate_templates_router);

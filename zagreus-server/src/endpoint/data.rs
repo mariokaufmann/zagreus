@@ -28,6 +28,13 @@ pub(crate) struct SetImageSourceDto {
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub(crate) struct SetCustomVariableDto {
+    name: String,
+    value: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct ExecuteAnimationDto {
     name: String,
     queue: Option<String>,
@@ -93,6 +100,18 @@ pub(crate) async fn set_image_source(
         id: &payload.id,
         asset: &payload.asset,
         asset_source: payload.asset_source,
+    };
+    send_instance_message(&instance, server, message).await
+}
+
+pub(crate) async fn set_custom_variable(
+    Path(instance): Path<String>,
+    Extension(server): Extension<Arc<WebsocketServer>>,
+    Json(payload): Json<SetCustomVariableDto>,
+) -> impl IntoResponse {
+    let message = InstanceMessage::SetCustomVariable {
+        name: &payload.name,
+        value: &payload.value,
     };
     send_instance_message(&instance, server, message).await
 }

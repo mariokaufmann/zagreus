@@ -14,7 +14,8 @@ export type TemplateMessage =
   | "AddClass"
   | "RemoveClass"
   | "ExecuteAnimation"
-  | "SetImageSource";
+  | "SetImageSource"
+  | "SetCustomVariable";
 
 export type AssetSource = "template" | "zagreus";
 export type SetTextPayload = { id: string; text: string };
@@ -28,6 +29,10 @@ export type SetImageSourcePayload = {
   id: string;
   asset: string;
   assetSource: AssetSource;
+};
+export type SetCustomVariablePayload = {
+  name: string;
+  value: string;
 };
 export type LogErrorPayload = { message: string; stack: string };
 
