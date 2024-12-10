@@ -93,7 +93,7 @@ jobs:
           push: ${{ inputs.push }}
           tags: mariokaufmann/zagreus:${{ inputs.version }}
       - name: Attach release artifacts
-        if: ${{ matrix.label == 'ubuntu-latest' && inputs.release }}
+        if: ${{ inputs.release }}
         uses: softprops/action-gh-release@v2
         with:
           files: package/${{ matrix.artifact }}.zip
