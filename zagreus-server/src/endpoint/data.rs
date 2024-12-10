@@ -111,7 +111,7 @@ pub(crate) async fn set_custom_variable(
 ) -> impl IntoResponse {
     let message = InstanceMessage::SetCustomVariable {
         name: &payload.name,
-        value: &payload.value
+        value: &payload.value,
     };
     send_instance_message(&instance, server, message).await
 }
