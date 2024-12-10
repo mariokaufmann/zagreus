@@ -181,6 +181,31 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/200'
+  '/api/instance/{instanceName}/data/custom-variable':
+    summary: Set value of CSS custom variable
+    description: 'Sets the value of the CSS custom variable with the given name'
+    parameters:
+      - $ref: '#/components/parameters/instanceName'
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+              example:
+                name: "--logo-color"
+                value: '#00FF00'
+      tags:
+        - data
+      operationId: setCustomVariable
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
 components:
   parameters:
     instanceName:
