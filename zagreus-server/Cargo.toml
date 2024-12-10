@@ -17,7 +17,7 @@ serde_json = "1.0.116"
 structopt = "0.3.26"
 tokio = { version = "1.37.0", features = ["macros", "rt-multi-thread", "sync", "time"] }
 tokio-stream = "0.1.15"
-tower = { version = "0.5.0", features = ["filter"]}
+tower = { version = "0.5.1", features = ["filter"]}
 tower-http = { version = "0.6.0", features = ["fs", "trace"]}
 zip = "2.0.0"
 sha2 = "0.10.8"
