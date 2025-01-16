@@ -113,13 +113,13 @@ pub fn get_router(
 
     // route for websocket router
     let websocket_router = Router::new()
-        .route("/ws/instance/:instance", axum::routing::get(ws_handler))
+        .route("/ws/instance/{instance}", axum::routing::get(ws_handler))
         .layer(axum::extract::Extension(server_controller));
     router = router.merge(websocket_router);
 
     // routes for manipulating template instances
     let manipulate_templates_router = Router::new().nest(
-        "/api/instance/:instance",
+        "/api/instance/{instance}",
         Router::new()
             .route("/data/text", axum::routing::post(data::set_text))
             .route("/data/class/add", axum::routing::post(data::add_class))
