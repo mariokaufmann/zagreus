@@ -25,7 +25,7 @@ impl WebsocketConnection {
     pub fn send_message(&self, message: &InstanceMessage) {
         match serde_json::to_string(message) {
             Ok(serialized_message) => {
-                let ws_message = axum::extract::ws::Message::Text(serialized_message);
+                let ws_message = axum::extract::ws::Message::Text(serialized_message.into());
                 if let Err(err) = self.message_sender.send(Ok(ws_message)) {
                     error!("Could not send websocket message on channel: {}.", err);
                 }
