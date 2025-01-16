@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "cypress": "13.16.1",
+    "cypress": "13.17.0",
     "cypress-log-to-output": "1.1.2",
-    "typescript": "5.7.2"
+    "typescript": "5.7.3"
   }
 }
