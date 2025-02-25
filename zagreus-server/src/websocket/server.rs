@@ -5,7 +5,6 @@ use std::sync::Arc;
 use futures::stream::SplitStream;
 use futures::FutureExt;
 use futures::StreamExt;
-use log::__private_api::loc;
 use tokio::sync::RwLock;
 
 use crate::websocket::connection::{ClientState, WebsocketConnection};
@@ -119,24 +118,35 @@ impl WebsocketServer {
         connections.write().await.remove(&id);
     }
 
-    pub async fn send_message_to_instance_clients<F>(
+    pub async fn send_message_to_instance_clients(
         &self,
         instance: &str,
         message: &InstanceMessage<'_>,
-        condition: Option<F>,
+    ) {
+        let locked_connections = self.connections.read().await;
+        let connection_entries = locked_connections.values();
+
+        for connection in connection_entries {
+            if connection.is_from_instance(instance) {
+                connection.send_message(message);
+            }
+        }
+    }
+
+    pub async fn send_message_to_instance_clients_with_condition<F>(
+        &self,
+        instance: &str,
+        message: &InstanceMessage<'_>,
+        condition: F,
     ) where
-        F: FnOnce(&ClientState) -> bool,
+        F: Fn(&ClientState) -> bool,
     {
         let locked_connections = self.connections.read().await;
         let connection_entries = locked_connections.values();
 
         for connection in connection_entries {
             if connection.is_from_instance(instance) {
-                if let Some(condition) = &condition {
-                    if condition(&connection.get_client_state()) {
-                        connection.send_message(message);
-                    }
-                } else {
+                if condition(&connection.get_client_state()) {
                     connection.send_message(message);
                 }
             }
