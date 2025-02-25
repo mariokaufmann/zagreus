@@ -131,6 +131,10 @@ pub fn get_router(
                 "/data/animation",
                 axum::routing::post(data::execute_animation),
             )
+            .route(
+                "/data/animation/transition",
+                axum::routing::post(data::execute_animation_transition),
+            )
             .route("/data/image", axum::routing::post(data::set_image_source))
             .route(
                 "/data/custom-variable",

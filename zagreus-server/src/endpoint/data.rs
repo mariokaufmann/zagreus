@@ -40,7 +40,21 @@ pub(crate) struct SetCustomVariableDto {
 pub(crate) struct ExecuteAnimationDto {
     name: String,
     queue: Option<String>,
-    last_animation_condition: Option<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct ExecuteAnimationTransitionDto {
+    from: String,
+    to: Option<String>,
+    default: Option<bool>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct ExecuteAnimationTransitionsDto {
+    queue: String,
+    transitions: Vec<ExecuteAnimationTransitionDto>,
 }
 
 pub(crate) async fn set_text(
@@ -84,31 +98,37 @@ pub(crate) async fn execute_animation(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<ExecuteAnimationDto>,
 ) -> impl IntoResponse {
-    match payload.last_animation_condition {
-        Some(condition) => match payload.queue {
-            Some(queue) => {
-                let message = InstanceMessage::ExecuteAnimation {
-                    animation_sequence: &payload.name,
-                    queue_id: Some(queue.as_str()),
-                };
+    let message = InstanceMessage::ExecuteAnimation {
+        animation_sequence: &payload.name,
+        queue_id: payload.queue.as_deref(),
+    };
+    send_instance_message(&instance, &server, message).await;
+    StatusCode::OK
+}
+
+pub(crate) async fn execute_animation_transition(
+    Path(instance): Path<String>,
+    Extension(server): Extension<Arc<WebsocketServer>>,
+    Json(payload): Json<ExecuteAnimationTransitionsDto>,
+) -> impl IntoResponse {
+    for transition in payload.transitions {
+        if let Some(to) = transition.to {
+            let message = InstanceMessage::ExecuteAnimation {
+                animation_sequence: &to,
+                queue_id: Some(&payload.queue),
+            };
+
+            if transition.default.unwrap_or(false) {
+                send_instance_message(&instance, &server, message).await;
+            } else {
                 send_instance_message_with_condition(&instance, &server, message, |state| {
-                    state.is_last_executed_animation_in_queue(&queue, &condition)
+                    state.is_last_executed_animation_in_queue(&payload.queue, &transition.from)
                 })
                 .await;
             }
-            None => {
-                warn!("Queue cannot be null if animation condition is given");
-                return StatusCode::BAD_REQUEST;
-            }
-        },
-        None => {
-            let message = InstanceMessage::ExecuteAnimation {
-                animation_sequence: &payload.name,
-                queue_id: payload.queue.as_deref(),
-            };
-            send_instance_message(&instance, &server, message).await
         }
     }
+
     StatusCode::OK
 }
 
@@ -143,7 +163,7 @@ async fn send_instance_message(
     message: InstanceMessage<'_>,
 ) {
     server
-        .send_message_to_instance_clients(instance, &message, None)
+        .send_message_to_instance_clients(instance, &message)
         .await
 }
 
@@ -153,7 +173,9 @@ async fn send_instance_message_with_condition<F>(
     message: InstanceMessage<'_>,
     condition: F,
 ) where
-    F: FnOnce(&ClientState) -> bool,
+    F: Fn(&ClientState) -> bool,
 {
-    server.send_message_to_instance_clients(instance, &message, Some(condition))
+    server
+        .send_message_to_instance_clients_with_condition(instance, &message, condition)
+        .await
 }

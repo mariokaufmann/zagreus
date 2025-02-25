@@ -144,13 +144,52 @@ paths:
                   type: string
                   description: The name of the queue to put the animation into. Animations in the same queue will be executed after each other
                   example: Scoreboard
-                lastAnimationCondition:
-                  type: string
-                  description: The name of the animation that is expected to have been executed last. If this parameter is passed the animation will only be executed if the last executed animation in the queue matches
-                  example: ScoreboardShow
       tags:
         - data
       operationId: executeAnimation
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+  '/api/instance/{instanceName}/data/animation/transition':
+    summary: Execute animation transition
+    description: 'Executes the given animation transition for the given queue. This makes it possible to not having to keep track of the animation state of a template. Zagreus will remember the state and apply the right transition for each template'
+    parameters:
+      - $ref: '#/components/parameters/instanceName'
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - queue
+                - transitions
+              properties:
+                queue:
+                  type: string
+                  description: The name of the queue to put the animation into. Animations in the same queue will be executed after each other
+                  example: Scoreboard
+                transitions:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - from
+                    properties:
+                      from:
+                        type: string
+                        description: If the last animation in the queue matches this animation, the 'to' animation will be executed
+                        example: ScoreboardHide
+                      to:
+                        type: string
+                        description: If the last animation in the queue matches the animation in 'to', this animation will be executed. If to is not set, no animation will be executed
+                        example: ScoreboardShow
+                      default:
+                        type: boolean
+                        description: whether this transition is the default one. The default transition is executed if a client has not executed any animations in the queue yet
+      tags:
+        - data
+      operationId: executeAnimationTransitions
       responses:
         '200':
           $ref: '#/components/responses/200'
@@ -238,4 +277,4 @@ tags:
 externalDocs:
   description: Source repository
   url: 'https://github.com/mariokaufmann/zagreus'
-security: []
+security: [ ]
