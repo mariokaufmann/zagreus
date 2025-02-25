@@ -53,4 +53,8 @@ pub enum InstanceMessage<'a> {
         name: &'a str,
         value: &'a str,
     },
+    QueuedAnimationCompleted {
+        queue: String,
+        animation: String,
+    },
 }

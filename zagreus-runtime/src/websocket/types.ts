@@ -35,6 +35,7 @@ export type SetCustomVariablePayload = {
   value: string;
 };
 export type LogErrorPayload = { message: string; stack: string };
+export type QueuedAnimationCompletedPayload = { queue: string; animation: string };
 
 export interface AnimationSequence {
   name: string;

@@ -5,9 +5,10 @@ use std::sync::Arc;
 use futures::stream::SplitStream;
 use futures::FutureExt;
 use futures::StreamExt;
+use log::__private_api::loc;
 use tokio::sync::RwLock;
 
-use crate::websocket::connection::WebsocketConnection;
+use crate::websocket::connection::{ClientState, WebsocketConnection};
 use crate::websocket::message::InstanceMessage;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
@@ -78,12 +79,22 @@ impl WebsocketServer {
                 Some(message_result) => match message_result {
                     Ok(message) => {
                         match serde_json::from_slice::<InstanceMessage>(&message.into_data()) {
-                            Ok(parsed_message) => {
-                                if let InstanceMessage::LogError { message, stack } = parsed_message
-                                {
+                            Ok(parsed_message) => match parsed_message {
+                                InstanceMessage::LogError { message, stack } => {
                                     error!("Template error occurred: {}\n{}", message, stack)
                                 }
-                            }
+                                InstanceMessage::QueuedAnimationCompleted { queue, animation } => {
+                                    let mut locked_connections = connections.write().await;
+                                    if let Some(connection) = locked_connections.get_mut(&id) {
+                                        connection
+                                            .get_mut_client_state()
+                                            .set_last_executed_animation_in_queue(queue, animation);
+                                    } else {
+                                        error!("Did not find connection with id {id} anymore")
+                                    }
+                                }
+                                _ => {}
+                            },
                             Err(err) => error!("Could not parse message on websocket: {}.", err),
                         }
                     }
@@ -108,17 +119,26 @@ impl WebsocketServer {
         connections.write().await.remove(&id);
     }
 
-    pub async fn send_message_to_instance_clients(
+    pub async fn send_message_to_instance_clients<F>(
         &self,
         instance: &str,
         message: &InstanceMessage<'_>,
-    ) {
+        condition: Option<F>,
+    ) where
+        F: FnOnce(&ClientState) -> bool,
+    {
         let locked_connections = self.connections.read().await;
         let connection_entries = locked_connections.values();
 
         for connection in connection_entries {
             if connection.is_from_instance(instance) {
-                connection.send_message(message);
+                if let Some(condition) = &condition {
+                    if condition(&connection.get_client_state()) {
+                        connection.send_message(message);
+                    }
+                } else {
+                    connection.send_message(message);
+                }
             }
         }
     }

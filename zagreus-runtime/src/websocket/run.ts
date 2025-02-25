@@ -12,6 +12,7 @@ export function runWebsocket(): void {
   const websocketSender = new WebsocketSender(websocket);
 
   installErrorHandler(websocketSender);
+  state.websocketSender = websocketSender;
 
   websocket.messageHandler = new WebsocketHandler(websocketSender);
 

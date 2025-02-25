@@ -1,7 +1,9 @@
 use crate::data::asset::AssetSource;
+use crate::websocket::connection::ClientState;
 use crate::websocket::message::InstanceMessage;
 use crate::WebsocketServer;
 use axum::extract::{Extension, Path};
+use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::Json;
 use std::sync::Arc;
@@ -38,6 +40,7 @@ pub(crate) struct SetCustomVariableDto {
 pub(crate) struct ExecuteAnimationDto {
     name: String,
     queue: Option<String>,
+    last_animation_condition: Option<String>,
 }
 
 pub(crate) async fn set_text(
@@ -49,7 +52,7 @@ pub(crate) async fn set_text(
         id: &payload.id,
         text: &payload.text,
     };
-    send_instance_message(&instance, server, message).await
+    send_instance_message(&instance, &server, message).await
 }
 
 pub(crate) async fn add_class(
@@ -61,7 +64,7 @@ pub(crate) async fn add_class(
         id: &payload.id,
         class: &payload.class,
     };
-    send_instance_message(&instance, server, message).await
+    send_instance_message(&instance, &server, message).await
 }
 
 pub(crate) async fn remove_class(
@@ -73,7 +76,7 @@ pub(crate) async fn remove_class(
         id: &payload.id,
         class: &payload.class,
     };
-    send_instance_message(&instance, server, message).await
+    send_instance_message(&instance, &server, message).await
 }
 
 pub(crate) async fn execute_animation(
@@ -81,14 +84,32 @@ pub(crate) async fn execute_animation(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<ExecuteAnimationDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::ExecuteAnimation {
-        animation_sequence: &payload.name,
-        queue_id: match &payload.queue {
-            None => None,
-            Some(queue_id) => Some(queue_id.as_str()),
+    match payload.last_animation_condition {
+        Some(condition) => match payload.queue {
+            Some(queue) => {
+                let message = InstanceMessage::ExecuteAnimation {
+                    animation_sequence: &payload.name,
+                    queue_id: Some(queue.as_str()),
+                };
+                send_instance_message_with_condition(&instance, &server, message, |state| {
+                    state.is_last_executed_animation_in_queue(&queue, &condition)
+                })
+                .await;
+            }
+            None => {
+                warn!("Queue cannot be null if animation condition is given");
+                return StatusCode::BAD_REQUEST;
+            }
         },
-    };
-    send_instance_message(&instance, server, message).await
+        None => {
+            let message = InstanceMessage::ExecuteAnimation {
+                animation_sequence: &payload.name,
+                queue_id: payload.queue.as_deref(),
+            };
+            send_instance_message(&instance, &server, message).await
+        }
+    }
+    StatusCode::OK
 }
 
 pub(crate) async fn set_image_source(
@@ -101,7 +122,7 @@ pub(crate) async fn set_image_source(
         asset: &payload.asset,
         asset_source: payload.asset_source,
     };
-    send_instance_message(&instance, server, message).await
+    send_instance_message(&instance, &server, message).await
 }
 
 pub(crate) async fn set_custom_variable(
@@ -113,15 +134,26 @@ pub(crate) async fn set_custom_variable(
         name: &payload.name,
         value: &payload.value,
     };
-    send_instance_message(&instance, server, message).await
+    send_instance_message(&instance, &server, message).await
 }
 
 async fn send_instance_message(
     instance: &str,
-    server: Arc<WebsocketServer>,
+    server: &WebsocketServer,
     message: InstanceMessage<'_>,
 ) {
     server
-        .send_message_to_instance_clients(instance, &message)
+        .send_message_to_instance_clients(instance, &message, None)
         .await
+}
+
+async fn send_instance_message_with_condition<F>(
+    instance: &str,
+    server: &WebsocketServer,
+    message: InstanceMessage<'_>,
+    condition: F,
+) where
+    F: FnOnce(&ClientState) -> bool,
+{
+    server.send_message_to_instance_clients(instance, &message, Some(condition))
 }
