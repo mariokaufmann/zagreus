@@ -144,6 +144,10 @@ paths:
                   type: string
                   description: The name of the queue to put the animation into. Animations in the same queue will be executed after each other
                   example: Scoreboard
+                lastAnimationCondition:
+                  type: string
+                  description: The name of the animation that is expected to have been executed last. If this parameter is passed the animation will only be executed if the last executed animation in the queue matches
+                  example: ScoreboardShow
       tags:
         - data
       operationId: executeAnimation

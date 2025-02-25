@@ -1,6 +1,7 @@
 import { AnimationSequence } from "./websocket/types";
 import { registerAnimations, setup } from "./setup";
 import { AnimationQueue } from "./manipulation/animation";
+import { WebsocketSender } from "./websocket/websocket-sender";
 
 declare global {
   interface Window {
@@ -36,6 +37,7 @@ export interface InternalZagreusState {
   host: string;
   port: string;
   secure?: boolean;
+  websocketSender?: WebsocketSender,
   animationSequences: Record<string, AnimationSequence>;
   animationQueues: Record<string, AnimationQueue>;
   errorReporter: ErrorReporter;
@@ -50,6 +52,7 @@ if (!window.zagreus) {
       host: undefined,
       port: undefined,
       secure: false,
+      websocketSender: undefined,
       animationSequences: {},
       animationQueues: {},
       errorReporter: undefined,
