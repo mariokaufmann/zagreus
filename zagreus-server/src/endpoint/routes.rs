@@ -39,7 +39,7 @@ struct SetImageSourceDto {
 async fn map_rewrite_template_url(req: Request<Body>) -> Result<Request<Body>, StatusCode> {
     let uri = req.uri().to_string();
     if uri.starts_with("/static/template/") && !uri.ends_with('/') {
-        let last_part = uri.split('/').last();
+        let last_part = uri.split('/').next_back();
 
         if let Some(last_part) = last_part {
             if !last_part.contains('.') {
