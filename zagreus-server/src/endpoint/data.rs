@@ -1,6 +1,6 @@
 use crate::data::asset::AssetSource;
-use crate::websocket::connection::ClientState;
-use crate::websocket::message::InstanceMessage;
+use crate::endpoint::{send_instance_message, send_instance_message_with_condition};
+use crate::websocket::message::ServerMessage;
 use crate::WebsocketServer;
 use axum::extract::{Extension, Path};
 use axum::http::StatusCode;
@@ -42,19 +42,20 @@ pub(crate) struct ExecuteAnimationDto {
     queue: Option<String>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ExecuteAnimationTransitionDto {
-    from: String,
-    to: Option<String>,
-    default: Option<bool>,
+pub(crate) struct ExecuteAnimationsWithStateDto {
+    queue: String,
+    default_animation: Option<String>,
+    state_name: String,
+    state_animations: Vec<ExecuteAnimationWithStateDto>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct ExecuteAnimationTransitionsDto {
-    queue: String,
-    transitions: Vec<ExecuteAnimationTransitionDto>,
+pub(crate) struct ExecuteAnimationWithStateDto {
+    name: String,
+    state_value: String,
 }
 
 pub(crate) async fn set_text(
@@ -62,7 +63,7 @@ pub(crate) async fn set_text(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<SetTextDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::SetText {
+    let message = ServerMessage::SetText {
         id: &payload.id,
         text: &payload.text,
     };
@@ -74,7 +75,7 @@ pub(crate) async fn add_class(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<ManipulateClassDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::AddClass {
+    let message = ServerMessage::AddClass {
         id: &payload.id,
         class: &payload.class,
     };
@@ -86,7 +87,7 @@ pub(crate) async fn remove_class(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<ManipulateClassDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::RemoveClass {
+    let message = ServerMessage::RemoveClass {
         id: &payload.id,
         class: &payload.class,
     };
@@ -98,7 +99,7 @@ pub(crate) async fn execute_animation(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<ExecuteAnimationDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::ExecuteAnimation {
+    let message = ServerMessage::ExecuteAnimation {
         animation_sequence: &payload.name,
         queue_id: payload.queue.as_deref(),
     };
@@ -106,27 +107,32 @@ pub(crate) async fn execute_animation(
     StatusCode::OK
 }
 
-pub(crate) async fn execute_animation_transition(
+pub(crate) async fn execute_animations_with_state(
     Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
-    Json(payload): Json<ExecuteAnimationTransitionsDto>,
+    Json(payload): Json<ExecuteAnimationsWithStateDto>,
 ) -> impl IntoResponse {
-    for transition in payload.transitions {
-        if let Some(to) = transition.to {
-            let message = InstanceMessage::ExecuteAnimation {
-                animation_sequence: &to,
-                queue_id: Some(&payload.queue),
-            };
-
-            if transition.default.unwrap_or(false) {
-                send_instance_message(&instance, &server, message).await;
-            } else {
-                send_instance_message_with_condition(&instance, &server, message, |state| {
-                    state.is_last_executed_animation_in_queue(&payload.queue, &transition.from)
-                })
-                .await;
-            }
-        }
+    if let Some(default_animation) = &payload.default_animation {
+        let message = ServerMessage::ExecuteAnimation {
+            animation_sequence: default_animation,
+            queue_id: Some(&payload.queue),
+        };
+        send_instance_message_with_condition(&instance, &server, message, |state| {
+            state.get_state(&payload.state_name).is_none()
+        })
+        .await;
+    }
+    for animation in payload.state_animations {
+        let message = ServerMessage::ExecuteAnimation {
+            animation_sequence: &animation.name,
+            queue_id: Some(&payload.queue),
+        };
+        send_instance_message_with_condition(&instance, &server, message, |state| {
+            state
+                .get_state(&payload.state_name)
+                .map_or(false, |value| value == &animation.state_value)
+        })
+        .await;
     }
 
     StatusCode::OK
@@ -137,7 +143,7 @@ pub(crate) async fn set_image_source(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<SetImageSourceDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::SetImageSource {
+    let message = ServerMessage::SetImageSource {
         id: &payload.id,
         asset: &payload.asset,
         asset_source: payload.asset_source,
@@ -150,32 +156,9 @@ pub(crate) async fn set_custom_variable(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<SetCustomVariableDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::SetCustomVariable {
+    let message = ServerMessage::SetCustomVariable {
         name: &payload.name,
         value: &payload.value,
     };
     send_instance_message(&instance, &server, message).await
-}
-
-async fn send_instance_message(
-    instance: &str,
-    server: &WebsocketServer,
-    message: InstanceMessage<'_>,
-) {
-    server
-        .send_message_to_instance_clients(instance, &message)
-        .await
-}
-
-async fn send_instance_message_with_condition<F>(
-    instance: &str,
-    server: &WebsocketServer,
-    message: InstanceMessage<'_>,
-    condition: F,
-) where
-    F: Fn(&ClientState) -> bool,
-{
-    server
-        .send_message_to_instance_clients_with_condition(instance, &message, condition)
-        .await
 }

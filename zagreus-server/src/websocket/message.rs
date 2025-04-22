@@ -6,14 +6,10 @@ use crate::data::config::TemplateElement;
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "tag", content = "payload")]
-pub enum InstanceMessage<'a> {
+pub enum ServerMessage<'a> {
     SetText {
         id: &'a str,
         text: &'a str,
-    },
-    LogError {
-        message: String,
-        stack: String,
     },
     AddClass {
         id: &'a str,
@@ -53,8 +49,22 @@ pub enum InstanceMessage<'a> {
         name: &'a str,
         value: &'a str,
     },
-    QueuedAnimationCompleted {
-        queue: String,
-        animation: String,
+    SetState {
+        name: &'a str,
+        value: &'a str,
+    },
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "tag", content = "payload")]
+pub enum ClientMessage<'a> {
+    #[serde(rename_all = "camelCase")]
+    StateSet {
+        name: &'a str,
+        value: &'a str,
+    },
+    LogError {
+        message: String,
+        stack: String,
     },
 }

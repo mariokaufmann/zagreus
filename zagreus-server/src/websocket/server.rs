@@ -8,7 +8,7 @@ use futures::StreamExt;
 use tokio::sync::RwLock;
 
 use crate::websocket::connection::{ClientState, WebsocketConnection};
-use crate::websocket::message::InstanceMessage;
+use crate::websocket::message::{ClientMessage, ServerMessage};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 type UserConnections =
@@ -77,22 +77,21 @@ impl WebsocketServer {
             match stream.next().await {
                 Some(message_result) => match message_result {
                     Ok(message) => {
-                        match serde_json::from_slice::<InstanceMessage>(&message.into_data()) {
+                        match serde_json::from_slice::<ClientMessage>(&message.into_data()) {
                             Ok(parsed_message) => match parsed_message {
-                                InstanceMessage::LogError { message, stack } => {
+                                ClientMessage::LogError { message, stack } => {
                                     error!("Template error occurred: {}\n{}", message, stack)
                                 }
-                                InstanceMessage::QueuedAnimationCompleted { queue, animation } => {
+                                ClientMessage::StateSet { name, value } => {
                                     let mut locked_connections = connections.write().await;
                                     if let Some(connection) = locked_connections.get_mut(&id) {
                                         connection
                                             .get_mut_client_state()
-                                            .set_last_executed_animation_in_queue(queue, animation);
+                                            .set_state(name.to_string(), value.to_string());
                                     } else {
-                                        error!("Did not find connection with id {id} anymore")
+                                        warn!("Did not find connection with id {id} anymore")
                                     }
                                 }
-                                _ => {}
                             },
                             Err(err) => error!("Could not parse message on websocket: {}.", err),
                         }
@@ -121,7 +120,7 @@ impl WebsocketServer {
     pub async fn send_message_to_instance_clients(
         &self,
         instance: &str,
-        message: &InstanceMessage<'_>,
+        message: &ServerMessage<'_>,
     ) {
         let locked_connections = self.connections.read().await;
         let connection_entries = locked_connections.values();
@@ -136,7 +135,7 @@ impl WebsocketServer {
     pub async fn send_message_to_instance_clients_with_condition<F>(
         &self,
         instance: &str,
-        message: &InstanceMessage<'_>,
+        message: &ServerMessage<'_>,
         condition: F,
     ) where
         F: Fn(&ClientState) -> bool,

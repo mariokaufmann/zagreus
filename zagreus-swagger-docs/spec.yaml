@@ -150,9 +150,9 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/200'
-  '/api/instance/{instanceName}/data/animation/transition':
-    summary: Execute animation transition
-    description: 'Executes the given animation transition for the given queue. This makes it possible to not having to keep track of the animation state of a template. Zagreus will remember the state and apply the right transition for each template'
+  '/api/instance/{instanceName}/data/animation/state':
+    summary: Execute one or more animations if certain states match
+    description: 'Executes the animation(s) if the provided states match. This useful if not all clients connect at the same time and thus are in a different state'
     parameters:
       - $ref: '#/components/parameters/instanceName'
     post:
@@ -163,30 +163,36 @@ paths:
               type: object
               required:
                 - queue
-                - transitions
+                - stateName
+                - stateAnimations
               properties:
                 queue:
                   type: string
                   description: The name of the queue to put the animation into. Animations in the same queue will be executed after each other
                   example: Scoreboard
-                transitions:
+                stateName:
+                  type: string
+                  description: The name of the state to check. If the state is not set, the default animation will be executed
+                  example: ScoreboardVisible
+                defaultAnimation:
+                  type: string
+                  description: The animation to execute if the state is unset
+                stateAnimations:
                   type: array
                   items:
                     type: object
                     required:
-                      - from
+                      - name
+                      - stateValue
                     properties:
-                      from:
+                      name:
                         type: string
-                        description: If the last animation in the queue matches this animation, the 'to' animation will be executed
-                        example: ScoreboardHide
-                      to:
-                        type: string
-                        description: If the last animation in the queue matches the animation in 'to', this animation will be executed. If to is not set, no animation will be executed
+                        description: The name of the animation to execute if the state matches
                         example: ScoreboardShow
-                      default:
-                        type: boolean
-                        description: whether this transition is the default one. The default transition is executed if a client has not executed any animations in the queue yet
+                      stateValue:
+                        type: string
+                        description: The value of the state the should match for the animation to be executed
+                        example: notVisible
       tags:
         - data
       operationId: executeAnimationTransitions
@@ -249,6 +255,35 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/200'
+  '/api/instance/{instanceName}/state':
+    summary: Manage client state in an instance
+    post:
+      description: Sets the state with the given name to the given value
+      parameters:
+        - $ref: '#/components/parameters/instanceName'
+      requestBody:
+        description: The state and value to set
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - value
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+              example:
+                name: ScoreboardVisible
+                value: notVisible
+      tags:
+        - state
+      operationId: setState
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
 components:
   parameters:
     instanceName:
@@ -274,6 +309,8 @@ tags:
     description: Operations for managing assets
   - name: data
     description: Operations for manipulating the data in a template
+  - name: state
+    description: Operations for manipulating the client states
 externalDocs:
   description: Source repository
   url: 'https://github.com/mariokaufmann/zagreus'

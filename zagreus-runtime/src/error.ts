@@ -1,8 +1,8 @@
 import { WebsocketSender } from "./websocket/websocket-sender";
 import {
+  ClientMessage,
   LogErrorPayload,
   TaggedEnumType,
-  TemplateMessage,
 } from "./websocket/types";
 import { ErrorReporter, getInternalZagreusState } from "./runtime";
 
@@ -46,7 +46,7 @@ const reportErrorOnSender = (
   error: Error,
 ): void => {
   console.error(error);
-  const message: TaggedEnumType<TemplateMessage, LogErrorPayload> = {
+  const message: TaggedEnumType<ClientMessage, LogErrorPayload> = {
     tag: "LogError",
     payload: {
       stack: error.stack,

@@ -1,23 +1,19 @@
 use std::collections::HashMap;
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::websocket::message::InstanceMessage;
+use crate::websocket::message::ServerMessage;
 
 pub struct ClientState {
-    last_executed_animations: HashMap<String, String>,
+    states: HashMap<String, String>,
 }
 
 impl ClientState {
-    pub fn is_last_executed_animation_in_queue(&self, queue: &str, animation: &str) -> bool {
-        match self.last_executed_animations.get(queue) {
-            Some(last) => animation.eq(last),
-            // if no animation was executed in that queue we just return true
-            None => true,
-        }
+    pub fn get_state(&self, state: &str) -> Option<&String> {
+        self.states.get(state)
     }
 
-    pub fn set_last_executed_animation_in_queue(&mut self, queue: String, animation: String) {
-        self.last_executed_animations.insert(queue, animation);
+    pub fn set_state(&mut self, state: String, value: String) {
+        self.states.insert(state, value);
     }
 }
 
@@ -33,7 +29,7 @@ impl WebsocketConnection {
         instance: String,
     ) -> WebsocketConnection {
         let client_state = ClientState {
-            last_executed_animations: HashMap::new(),
+            states: HashMap::new(),
         };
         WebsocketConnection {
             message_sender,
@@ -54,7 +50,7 @@ impl WebsocketConnection {
         &mut self.client_state
     }
 
-    pub fn send_message(&self, message: &InstanceMessage) {
+    pub fn send_message(&self, message: &ServerMessage) {
         match serde_json::to_string(message) {
             Ok(serialized_message) => {
                 let ws_message = axum::extract::ws::Message::Text(serialized_message.into());

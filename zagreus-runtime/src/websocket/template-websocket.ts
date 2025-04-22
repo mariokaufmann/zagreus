@@ -1,5 +1,5 @@
 import { WebsocketHandler } from "./websocket-handler";
-import { TaggedEnumType, TemplateMessage } from "./types";
+import { ClientMessage, TaggedEnumType } from "./types";
 
 const reconnectionTimeoutMillis = 2000;
 
@@ -22,7 +22,7 @@ export class TemplateWebsocket {
     return this.websocket.readyState === this.websocket.OPEN;
   }
 
-  sendMessage(message: TaggedEnumType<TemplateMessage>): void {
+  sendMessage(message: TaggedEnumType<ClientMessage>): void {
     const serializedMessage = JSON.stringify(message);
     if (this.websocket) {
       this.websocket.send(serializedMessage);

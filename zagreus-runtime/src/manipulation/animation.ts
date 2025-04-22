@@ -6,7 +6,6 @@ import {
 } from "../websocket/types";
 import { getInternalZagreusState, InternalZagreusState } from "../runtime";
 import { getZagreusElement } from "../utils";
-import { WebsocketSender } from "../websocket/websocket-sender";
 
 export const applyAnimation = (
   sequenceName: string,
@@ -18,7 +17,7 @@ export const applyAnimation = (
     if (queueId) {
       let queue = state.animationQueues[queueId];
       if (!queue) {
-        queue = new AnimationQueue(queueId, state.websocketSender);
+        queue = new AnimationQueue();
         state.animationQueues[queueId] = queue;
       }
       queue.enqueueAnimationSequence(sequence);
@@ -115,10 +114,7 @@ export class AnimationQueue {
   readonly queue: AnimationSequence[] = [];
   currentlyExecutingSequence: AnimationSequence | undefined = undefined;
 
-  constructor(
-    private readonly queueName: string,
-    private readonly websocketSender: WebsocketSender,
-  ) {}
+  constructor() {}
 
   enqueueAnimationSequence(sequence: AnimationSequence) {
     if (!this.currentlyExecutingSequence) {
@@ -142,10 +138,6 @@ export class AnimationQueue {
     const duration = getMaxTimeoutFromSequence(sequence);
     scheduleAnimationSequence(sequence.steps);
     setTimeout(() => {
-      this.websocketSender.sendAnimationCompletedMessage(
-        this.queueName,
-        sequence.name,
-      );
       this.executeNextSequence();
     }, duration);
   }

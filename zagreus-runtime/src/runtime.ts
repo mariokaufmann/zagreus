@@ -37,9 +37,10 @@ export interface InternalZagreusState {
   host: string;
   port: string;
   secure?: boolean;
-  websocketSender?: WebsocketSender,
+  websocketSender?: WebsocketSender;
   animationSequences: Record<string, AnimationSequence>;
   animationQueues: Record<string, AnimationQueue>;
+  states: Record<string, string>;
   errorReporter: ErrorReporter;
 }
 
@@ -55,6 +56,7 @@ if (!window.zagreus) {
       websocketSender: undefined,
       animationSequences: {},
       animationQueues: {},
+      states: {},
       errorReporter: undefined,
     },
   };
