@@ -128,9 +128,7 @@ pub(crate) async fn execute_animations_with_state(
             queue_id: Some(&payload.queue),
         };
         send_instance_message_with_condition(&instance, &server, message, |state| {
-            state
-                .get_state(&payload.state_name)
-                .map_or(false, |value| value == &animation.state_value)
+            state.get_state(&payload.state_name) == Some(&animation.state_value)
         })
         .await;
     }

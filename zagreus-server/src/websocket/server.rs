@@ -144,10 +144,8 @@ impl WebsocketServer {
         let connection_entries = locked_connections.values();
 
         for connection in connection_entries {
-            if connection.is_from_instance(instance) {
-                if condition(&connection.get_client_state()) {
-                    connection.send_message(message);
-                }
+            if connection.is_from_instance(instance) && condition(connection.get_client_state()) {
+                connection.send_message(message);
             }
         }
     }
