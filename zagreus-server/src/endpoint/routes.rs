@@ -140,7 +140,10 @@ pub fn get_router(
                 "/data/custom-variable",
                 axum::routing::post(data::set_custom_variable),
             )
-            .route("/state", axum::routing::post(state::set_state))
+            .route(
+                "/state",
+                axum::routing::get(state::get_state).post(state::set_state),
+            )
             .layer(axum::extract::Extension(ws_server)),
     );
     router = router.merge(manipulate_templates_router);

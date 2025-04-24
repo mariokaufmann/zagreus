@@ -149,4 +149,18 @@ impl WebsocketServer {
             }
         }
     }
+
+    pub async fn get_client_states<F, O>(&self, instance: &str, mapping: F) -> Vec<O>
+    where
+        F: Fn(&ClientState) -> O,
+    {
+        let locked_connections = self.connections.read().await;
+        let connection_entries = locked_connections.values();
+
+        connection_entries
+            .filter(|connection| connection.is_from_instance(instance))
+            .map(|connection| connection.get_client_state())
+            .map(mapping)
+            .collect()
+    }
 }

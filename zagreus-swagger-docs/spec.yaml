@@ -257,6 +257,29 @@ paths:
           $ref: '#/components/responses/200'
   '/api/instance/{instanceName}/state':
     summary: Manage client state in an instance
+    get:
+      description: Gets the values for the state with the given name
+      parameters:
+        - $ref: '#/components/parameters/instanceName'
+        - name: name
+          in: query
+          description: The name of the state to get
+          required: true
+          schema:
+            type: string
+            example: ScoreboardVisible
+      tags:
+        - state
+      operationId: getState
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+          description: State retrieved successfully
     post:
       description: Sets the state with the given name to the given value
       parameters:
