@@ -51,7 +51,7 @@ pub enum ServerMessage<'a> {
     },
     SetState {
         name: &'a str,
-        value: &'a str,
+        value: Option<&'a str>,
     },
 }
 
@@ -61,7 +61,7 @@ pub enum ClientMessage<'a> {
     #[serde(rename_all = "camelCase")]
     StateSet {
         name: &'a str,
-        value: &'a str,
+        value: Option<&'a str>,
     },
     LogError {
         message: String,

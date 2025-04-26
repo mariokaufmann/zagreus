@@ -57,7 +57,7 @@ impl WebsocketServer {
             }
         }));
 
-        let connection = WebsocketConnection::new(sender_tx, String::from(template_name));
+        let connection = WebsocketConnection::new(id, sender_tx, String::from(template_name));
         self.connections.write().await.insert(id, connection);
 
         // user messages and disconnect handler
@@ -85,9 +85,10 @@ impl WebsocketServer {
                                 ClientMessage::StateSet { name, value } => {
                                     let mut locked_connections = connections.write().await;
                                     if let Some(connection) = locked_connections.get_mut(&id) {
-                                        connection
-                                            .get_mut_client_state()
-                                            .set_state(name.to_string(), value.to_string());
+                                        connection.get_mut_client_state().set_state(
+                                            name.to_string(),
+                                            value.map(|v| v.to_string()),
+                                        );
                                     } else {
                                         warn!("Did not find connection with id {id} anymore")
                                     }
@@ -132,27 +133,25 @@ impl WebsocketServer {
         }
     }
 
-    pub async fn send_message_to_instance_clients_with_condition<F>(
+    pub async fn send_message_to_instance_client(
         &self,
         instance: &str,
+        client_id: usize,
         message: &ServerMessage<'_>,
-        condition: F,
-    ) where
-        F: Fn(&ClientState) -> bool,
-    {
+    ) {
         let locked_connections = self.connections.read().await;
         let connection_entries = locked_connections.values();
 
         for connection in connection_entries {
-            if connection.is_from_instance(instance) && condition(connection.get_client_state()) {
+            if connection.client_id == client_id && connection.is_from_instance(instance) {
                 connection.send_message(message);
             }
         }
     }
 
-    pub async fn get_client_states<F, O>(&self, instance: &str, mapping: F) -> Vec<O>
+    pub async fn iterate_client_states<F>(&self, instance: &str, mut consumer: F)
     where
-        F: Fn(&ClientState) -> O,
+        F: FnMut(&ClientState),
     {
         let locked_connections = self.connections.read().await;
         let connection_entries = locked_connections.values();
@@ -160,7 +159,6 @@ impl WebsocketServer {
         connection_entries
             .filter(|connection| connection.is_from_instance(instance))
             .map(|connection| connection.get_client_state())
-            .map(mapping)
-            .collect()
+            .for_each(|state| consumer(state));
     }
 }

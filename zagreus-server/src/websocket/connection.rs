@@ -4,6 +4,7 @@ use tokio::sync::mpsc::UnboundedSender;
 use crate::websocket::message::ServerMessage;
 
 pub struct ClientState {
+    pub client_id: usize,
     states: HashMap<String, String>,
 }
 
@@ -12,8 +13,12 @@ impl ClientState {
         self.states.get(state)
     }
 
-    pub fn set_state(&mut self, state: String, value: String) {
-        self.states.insert(state, value);
+    pub fn set_state(&mut self, state: String, value: Option<String>) {
+        if let Some(value) = value {
+            self.states.insert(state, value);
+        } else {
+            self.states.remove(&state);
+        }
     }
 }
 
@@ -21,20 +26,24 @@ pub struct WebsocketConnection {
     message_sender: UnboundedSender<Result<axum::extract::ws::Message, axum::Error>>,
     instance: String,
     client_state: ClientState,
+    pub client_id: usize,
 }
 
 impl WebsocketConnection {
     pub fn new(
+        client_id: usize,
         message_sender: UnboundedSender<Result<axum::extract::ws::Message, axum::Error>>,
         instance: String,
     ) -> WebsocketConnection {
         let client_state = ClientState {
+            client_id,
             states: HashMap::new(),
         };
         WebsocketConnection {
             message_sender,
             instance,
             client_state,
+            client_id,
         }
     }
 

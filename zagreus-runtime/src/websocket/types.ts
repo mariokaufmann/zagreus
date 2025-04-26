@@ -21,7 +21,7 @@ export type ClientMessage = "LogError" | "StateSet";
 
 export type AssetSource = "template" | "zagreus";
 export type SetTextPayload = { id: string; text: string };
-export type SetStatePayload = { name: string; value: string };
+export type SetStatePayload = { name: string; value?: string };
 export type ManipulateClassPayload = { id: string; class: string };
 export type ExecuteAnimationPayload = {
   animationSequence: string;
@@ -37,7 +37,7 @@ export type SetCustomVariablePayload = {
   value: string;
 };
 export type LogErrorPayload = { message: string; stack: string };
-export type StateSetPayload = { name: string; value: string };
+export type StateSetPayload = { name: string; value?: string };
 
 export interface AnimationSequence {
   name: string;

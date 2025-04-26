@@ -59,11 +59,16 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - id
+                - text
               properties:
                 id:
                   type: string
                 text:
                   type: string
+                client:
+                  type: number
               example:
                 id: ScoreboardTimeText
                 text: '12:15'
@@ -84,11 +89,16 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - id
+                - class
               properties:
                 id:
                   type: string
                 class:
                   type: string
+                client:
+                  type: number
               example:
                 id: Scoreboard
                 class: 'active-element'
@@ -109,11 +119,16 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - id
+                - class
               properties:
                 id:
                   type: string
                 class:
                   type: string
+                client:
+                  type: number
               example:
                 id: Scoreboard
                 class: 'active-element'
@@ -134,6 +149,8 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - name
               properties:
                 name:
                   type: string
@@ -150,55 +167,6 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/200'
-  '/api/instance/{instanceName}/data/animation/state':
-    summary: Execute one or more animations if certain states match
-    description: 'Executes the animation(s) if the provided states match. This useful if not all clients connect at the same time and thus are in a different state'
-    parameters:
-      - $ref: '#/components/parameters/instanceName'
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - queue
-                - stateName
-                - stateAnimations
-              properties:
-                queue:
-                  type: string
-                  description: The name of the queue to put the animation into. Animations in the same queue will be executed after each other
-                  example: Scoreboard
-                stateName:
-                  type: string
-                  description: The name of the state to check. If the state is not set, the default animation will be executed
-                  example: ScoreboardVisible
-                defaultAnimation:
-                  type: string
-                  description: The animation to execute if the state is unset
-                stateAnimations:
-                  type: array
-                  items:
-                    type: object
-                    required:
-                      - name
-                      - stateValue
-                    properties:
-                      name:
-                        type: string
-                        description: The name of the animation to execute if the state matches
-                        example: ScoreboardShow
-                      stateValue:
-                        type: string
-                        description: The value of the state the should match for the animation to be executed
-                        example: notVisible
-      tags:
-        - data
-      operationId: executeAnimationTransitions
-      responses:
-        '200':
-          $ref: '#/components/responses/200'
   '/api/instance/{instanceName}/data/image':
     summary: Set source of image element
     description: 'Searches for the image element with the given id and sets its source to the given asset. If the asset source is zagreus, the image will be loaded from the zagreus server (see asset upload), otherwise from where the template itself is served'
@@ -210,6 +178,10 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - id
+                - asset
+                - assetSource
               properties:
                 id:
                   type: string
@@ -220,6 +192,8 @@ paths:
                   enum:
                     - template
                     - zagreus
+                client:
+                  type: number
               example:
                 id: ScoreboardTeamImage
                 asset: 'logo.png'
@@ -241,11 +215,16 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - name
+                - value
               properties:
                 name:
                   type: string
                 value:
                   type: string
+                client:
+                  type: number
               example:
                 name: "--logo-color"
                 value: '#00FF00'
@@ -276,12 +255,30 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
+                type: object
+                required:
+                  - clients_set
+                  - clients_unset
+                properties:
+                  clientsUnset:
+                    type: array
+                    items:
+                      type: number
+                  clientSet:
+                    type: object
+                    required:
+                      - value
+                      - clients
+                    properties:
+                      value:
+                        type: string
+                      clients:
+                        type: array
+                        items:
+                          type: number
           description: State retrieved successfully
     post:
-      description: Sets the state with the given name to the given value
+      description: Sets the state with the given name to the given value for all connected clients on that instance
       parameters:
         - $ref: '#/components/parameters/instanceName'
       requestBody:
@@ -292,7 +289,6 @@ paths:
               type: object
               required:
                 - name
-                - value
               properties:
                 name:
                   type: string

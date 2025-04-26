@@ -14,7 +14,7 @@ export class WebsocketSender {
     }
   }
 
-  sendStateSetMessage(name: string, value: string): void {
+  sendStateSetMessage(name: string, value?: string): void {
     const message: TaggedEnumType<ClientMessage, StateSetPayload> = {
       tag: "StateSet",
       payload: {

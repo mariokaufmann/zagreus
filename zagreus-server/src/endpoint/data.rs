@@ -1,5 +1,4 @@
 use crate::data::asset::AssetSource;
-use crate::endpoint::{send_instance_message, send_instance_message_with_condition};
 use crate::websocket::message::ServerMessage;
 use crate::WebsocketServer;
 use axum::extract::{Extension, Path};
@@ -12,12 +11,14 @@ use std::sync::Arc;
 pub(crate) struct SetTextDto {
     id: String,
     text: String,
+    client: Option<usize>,
 }
 
 #[derive(Deserialize, Serialize)]
 pub(crate) struct ManipulateClassDto {
     id: String,
     class: String,
+    client: Option<usize>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -26,6 +27,7 @@ pub(crate) struct SetImageSourceDto {
     id: String,
     asset: String,
     asset_source: AssetSource,
+    client: Option<usize>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -33,6 +35,7 @@ pub(crate) struct SetImageSourceDto {
 pub(crate) struct SetCustomVariableDto {
     name: String,
     value: String,
+    client: Option<usize>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -40,22 +43,7 @@ pub(crate) struct SetCustomVariableDto {
 pub(crate) struct ExecuteAnimationDto {
     name: String,
     queue: Option<String>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct ExecuteAnimationsWithStateDto {
-    queue: String,
-    default_animation: Option<String>,
-    state_name: String,
-    state_animations: Vec<ExecuteAnimationWithStateDto>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct ExecuteAnimationWithStateDto {
-    name: String,
-    state_value: String,
+    client: Option<usize>,
 }
 
 pub(crate) async fn set_text(
@@ -67,7 +55,8 @@ pub(crate) async fn set_text(
         id: &payload.id,
         text: &payload.text,
     };
-    send_instance_message(&instance, &server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
 pub(crate) async fn add_class(
@@ -79,7 +68,8 @@ pub(crate) async fn add_class(
         id: &payload.id,
         class: &payload.class,
     };
-    send_instance_message(&instance, &server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
 pub(crate) async fn remove_class(
@@ -91,7 +81,8 @@ pub(crate) async fn remove_class(
         id: &payload.id,
         class: &payload.class,
     };
-    send_instance_message(&instance, &server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
 pub(crate) async fn execute_animation(
@@ -103,36 +94,7 @@ pub(crate) async fn execute_animation(
         animation_sequence: &payload.name,
         queue_id: payload.queue.as_deref(),
     };
-    send_instance_message(&instance, &server, message).await;
-    StatusCode::OK
-}
-
-pub(crate) async fn execute_animations_with_state(
-    Path(instance): Path<String>,
-    Extension(server): Extension<Arc<WebsocketServer>>,
-    Json(payload): Json<ExecuteAnimationsWithStateDto>,
-) -> impl IntoResponse {
-    if let Some(default_animation) = &payload.default_animation {
-        let message = ServerMessage::ExecuteAnimation {
-            animation_sequence: default_animation,
-            queue_id: Some(&payload.queue),
-        };
-        send_instance_message_with_condition(&instance, &server, message, |state| {
-            state.get_state(&payload.state_name).is_none()
-        })
-        .await;
-    }
-    for animation in payload.state_animations {
-        let message = ServerMessage::ExecuteAnimation {
-            animation_sequence: &animation.name,
-            queue_id: Some(&payload.queue),
-        };
-        send_instance_message_with_condition(&instance, &server, message, |state| {
-            state.get_state(&payload.state_name) == Some(&animation.state_value)
-        })
-        .await;
-    }
-
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
     StatusCode::OK
 }
 
@@ -146,7 +108,8 @@ pub(crate) async fn set_image_source(
         asset: &payload.asset,
         asset_source: payload.asset_source,
     };
-    send_instance_message(&instance, &server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
 pub(crate) async fn set_custom_variable(
@@ -158,5 +121,23 @@ pub(crate) async fn set_custom_variable(
         name: &payload.name,
         value: &payload.value,
     };
-    send_instance_message(&instance, &server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
+}
+
+async fn send_message_with_optional_client(
+    instance: &str,
+    server: &WebsocketServer,
+    message: ServerMessage<'_>,
+    client: Option<usize>,
+) {
+    if let Some(client_id) = client {
+        server
+            .send_message_to_instance_client(instance, client_id, &message)
+            .await;
+    } else {
+        server
+            .send_message_to_instance_clients(instance, &message)
+            .await;
+    }
 }
