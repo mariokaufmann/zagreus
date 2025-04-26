@@ -149,7 +149,7 @@ impl WebsocketServer {
         }
     }
 
-    pub async fn iterate_client_states<F>(&self, instance: &str, mut consumer: F)
+    pub async fn iterate_client_states<F>(&self, instance: &str, consumer: F)
     where
         F: FnMut(&ClientState),
     {
@@ -159,6 +159,6 @@ impl WebsocketServer {
         connection_entries
             .filter(|connection| connection.is_from_instance(instance))
             .map(|connection| connection.get_client_state())
-            .for_each(|state| consumer(state));
+            .for_each(consumer);
     }
 }

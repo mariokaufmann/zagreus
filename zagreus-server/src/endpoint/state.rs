@@ -38,7 +38,7 @@ pub(crate) async fn get_state(
             if let Some(state_value) = state.get_state(&params.name) {
                 grouped_clients
                     .entry(state_value.to_string())
-                    .or_insert_with(HashSet::new)
+                    .or_default()
                     .insert(state.client_id);
             } else {
                 clients_unset.push(state.client_id);
@@ -72,7 +72,7 @@ pub(crate) async fn set_state(
 ) -> impl IntoResponse {
     let message = ServerMessage::SetState {
         name: &payload.name,
-        value: payload.value.as_ref().map(|v| v.as_str()),
+        value: payload.value.as_deref(),
     };
     server
         .send_message_to_instance_clients(&instance, &message)
