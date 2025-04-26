@@ -1,7 +1,8 @@
 use crate::data::asset::AssetSource;
-use crate::websocket::message::InstanceMessage;
+use crate::websocket::message::ServerMessage;
 use crate::WebsocketServer;
 use axum::extract::{Extension, Path};
+use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::Json;
 use std::sync::Arc;
@@ -10,12 +11,14 @@ use std::sync::Arc;
 pub(crate) struct SetTextDto {
     id: String,
     text: String,
+    client: Option<usize>,
 }
 
 #[derive(Deserialize, Serialize)]
 pub(crate) struct ManipulateClassDto {
     id: String,
     class: String,
+    client: Option<usize>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -24,6 +27,7 @@ pub(crate) struct SetImageSourceDto {
     id: String,
     asset: String,
     asset_source: AssetSource,
+    client: Option<usize>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -31,6 +35,7 @@ pub(crate) struct SetImageSourceDto {
 pub(crate) struct SetCustomVariableDto {
     name: String,
     value: String,
+    client: Option<usize>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -38,6 +43,7 @@ pub(crate) struct SetCustomVariableDto {
 pub(crate) struct ExecuteAnimationDto {
     name: String,
     queue: Option<String>,
+    client: Option<usize>,
 }
 
 pub(crate) async fn set_text(
@@ -45,11 +51,12 @@ pub(crate) async fn set_text(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<SetTextDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::SetText {
+    let message = ServerMessage::SetText {
         id: &payload.id,
         text: &payload.text,
     };
-    send_instance_message(&instance, server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
 pub(crate) async fn add_class(
@@ -57,11 +64,12 @@ pub(crate) async fn add_class(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<ManipulateClassDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::AddClass {
+    let message = ServerMessage::AddClass {
         id: &payload.id,
         class: &payload.class,
     };
-    send_instance_message(&instance, server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
 pub(crate) async fn remove_class(
@@ -69,11 +77,12 @@ pub(crate) async fn remove_class(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<ManipulateClassDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::RemoveClass {
+    let message = ServerMessage::RemoveClass {
         id: &payload.id,
         class: &payload.class,
     };
-    send_instance_message(&instance, server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
 pub(crate) async fn execute_animation(
@@ -81,14 +90,12 @@ pub(crate) async fn execute_animation(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<ExecuteAnimationDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::ExecuteAnimation {
+    let message = ServerMessage::ExecuteAnimation {
         animation_sequence: &payload.name,
-        queue_id: match &payload.queue {
-            None => None,
-            Some(queue_id) => Some(queue_id.as_str()),
-        },
+        queue_id: payload.queue.as_deref(),
     };
-    send_instance_message(&instance, server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
 pub(crate) async fn set_image_source(
@@ -96,12 +103,13 @@ pub(crate) async fn set_image_source(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<SetImageSourceDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::SetImageSource {
+    let message = ServerMessage::SetImageSource {
         id: &payload.id,
         asset: &payload.asset,
         asset_source: payload.asset_source,
     };
-    send_instance_message(&instance, server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
 pub(crate) async fn set_custom_variable(
@@ -109,19 +117,27 @@ pub(crate) async fn set_custom_variable(
     Extension(server): Extension<Arc<WebsocketServer>>,
     Json(payload): Json<SetCustomVariableDto>,
 ) -> impl IntoResponse {
-    let message = InstanceMessage::SetCustomVariable {
+    let message = ServerMessage::SetCustomVariable {
         name: &payload.name,
         value: &payload.value,
     };
-    send_instance_message(&instance, server, message).await
+    send_message_with_optional_client(&instance, &server, message, payload.client).await;
+    StatusCode::OK
 }
 
-async fn send_instance_message(
+async fn send_message_with_optional_client(
     instance: &str,
-    server: Arc<WebsocketServer>,
-    message: InstanceMessage<'_>,
+    server: &WebsocketServer,
+    message: ServerMessage<'_>,
+    client: Option<usize>,
 ) {
-    server
-        .send_message_to_instance_clients(instance, &message)
-        .await
+    if let Some(client_id) = client {
+        server
+            .send_message_to_instance_client(instance, client_id, &message)
+            .await;
+    } else {
+        server
+            .send_message_to_instance_clients(instance, &message)
+            .await;
+    }
 }

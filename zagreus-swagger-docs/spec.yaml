@@ -59,11 +59,16 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - id
+                - text
               properties:
                 id:
                   type: string
                 text:
                   type: string
+                client:
+                  type: number
               example:
                 id: ScoreboardTimeText
                 text: '12:15'
@@ -84,11 +89,16 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - id
+                - class
               properties:
                 id:
                   type: string
                 class:
                   type: string
+                client:
+                  type: number
               example:
                 id: Scoreboard
                 class: 'active-element'
@@ -109,11 +119,16 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - id
+                - class
               properties:
                 id:
                   type: string
                 class:
                   type: string
+                client:
+                  type: number
               example:
                 id: Scoreboard
                 class: 'active-element'
@@ -134,6 +149,8 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - name
               properties:
                 name:
                   type: string
@@ -161,6 +178,10 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - id
+                - asset
+                - assetSource
               properties:
                 id:
                   type: string
@@ -171,6 +192,8 @@ paths:
                   enum:
                     - template
                     - zagreus
+                client:
+                  type: number
               example:
                 id: ScoreboardTeamImage
                 asset: 'logo.png'
@@ -192,17 +215,91 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - name
+                - value
               properties:
                 name:
                   type: string
                 value:
                   type: string
+                client:
+                  type: number
               example:
                 name: "--logo-color"
                 value: '#00FF00'
       tags:
         - data
       operationId: setCustomVariable
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+  '/api/instance/{instanceName}/state':
+    summary: Manage client state in an instance
+    get:
+      description: Gets the values for the state with the given name
+      parameters:
+        - $ref: '#/components/parameters/instanceName'
+        - name: name
+          in: query
+          description: The name of the state to get
+          required: true
+          schema:
+            type: string
+            example: ScoreboardVisible
+      tags:
+        - state
+      operationId: getState
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - clients_set
+                  - clients_unset
+                properties:
+                  clientsUnset:
+                    type: array
+                    items:
+                      type: number
+                  clientSet:
+                    type: object
+                    required:
+                      - value
+                      - clients
+                    properties:
+                      value:
+                        type: string
+                      clients:
+                        type: array
+                        items:
+                          type: number
+          description: State retrieved successfully
+    post:
+      description: Sets the state with the given name to the given value for all connected clients on that instance
+      parameters:
+        - $ref: '#/components/parameters/instanceName'
+      requestBody:
+        description: The state and value to set
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+              example:
+                name: ScoreboardVisible
+                value: notVisible
+      tags:
+        - state
+      operationId: setState
       responses:
         '200':
           $ref: '#/components/responses/200'
@@ -231,7 +328,9 @@ tags:
     description: Operations for managing assets
   - name: data
     description: Operations for manipulating the data in a template
+  - name: state
+    description: Operations for manipulating the client states
 externalDocs:
   description: Source repository
   url: 'https://github.com/mariokaufmann/zagreus'
-security: []
+security: [ ]

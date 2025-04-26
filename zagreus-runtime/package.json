@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "copyScript": "copyfiles \"dist/zagreus-runtime.js*\" ../zagreus-server/ --flat",
-    "build": "esbuild src/runtime.ts --bundle --sourcemap --minify --target=es6 --outfile=dist/zagreus-runtime.js && npm run copyScript",
+    "build": "tsc && esbuild src/runtime.ts --bundle --sourcemap --minify --target=es6 --outfile=dist/zagreus-runtime.js && npm run copyScript",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
     "lint": "npm run prettier:check"

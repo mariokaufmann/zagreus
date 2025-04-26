@@ -114,6 +114,8 @@ export class AnimationQueue {
   readonly queue: AnimationSequence[] = [];
   currentlyExecutingSequence: AnimationSequence | undefined = undefined;
 
+  constructor() {}
+
   enqueueAnimationSequence(sequence: AnimationSequence) {
     if (!this.currentlyExecutingSequence) {
       this.executeSequence(sequence);
@@ -135,6 +137,8 @@ export class AnimationQueue {
     this.currentlyExecutingSequence = sequence;
     const duration = getMaxTimeoutFromSequence(sequence);
     scheduleAnimationSequence(sequence.steps);
-    setTimeout(() => this.executeNextSequence(), duration);
+    setTimeout(() => {
+      this.executeNextSequence();
+    }, duration);
   }
 }

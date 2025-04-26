@@ -1,10 +1,10 @@
 import { TemplateWebsocket } from "./template-websocket";
-import { TaggedEnumType, TemplateMessage } from "./types";
+import { ClientMessage, StateSetPayload, TaggedEnumType } from "./types";
 
 export class WebsocketSender {
   constructor(private websocket: TemplateWebsocket) {}
 
-  sendMessage(message: TaggedEnumType<TemplateMessage>): void {
+  sendMessage(message: TaggedEnumType<ClientMessage>): void {
     if (this.websocket.isOpen()) {
       this.websocket.sendMessage(message);
     } else {
@@ -12,5 +12,16 @@ export class WebsocketSender {
         `Cannot send message ${message.tag} as websocket is not open.`,
       );
     }
+  }
+
+  sendStateSetMessage(name: string, value?: string): void {
+    const message: TaggedEnumType<ClientMessage, StateSetPayload> = {
+      tag: "StateSet",
+      payload: {
+        name,
+        value,
+      },
+    };
+    this.sendMessage(message);
   }
 }

@@ -11,7 +11,7 @@ use crate::config::ZagreusServerConfig;
 use crate::controller::ServerController;
 use crate::endpoint;
 use crate::endpoint::websocket::ws_handler;
-use crate::endpoint::{data, get_server_version};
+use crate::endpoint::{data, get_server_version, state};
 use crate::fs::get_assets_folder;
 use crate::websocket::server::WebsocketServer;
 
@@ -135,6 +135,10 @@ pub fn get_router(
             .route(
                 "/data/custom-variable",
                 axum::routing::post(data::set_custom_variable),
+            )
+            .route(
+                "/state",
+                axum::routing::get(state::get_state).post(state::set_state),
             )
             .layer(axum::extract::Extension(ws_server)),
     );
