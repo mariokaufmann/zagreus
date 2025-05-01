@@ -1,10 +1,10 @@
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
-use futures::stream::SplitStream;
 use futures::FutureExt;
 use futures::StreamExt;
+use futures::stream::SplitStream;
 use tokio::sync::RwLock;
 
 use crate::websocket::connection::{ClientState, WebsocketConnection};

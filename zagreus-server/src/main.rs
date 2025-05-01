@@ -9,9 +9,9 @@ use anyhow::Context;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
-use crate::cli::{get_command, ZagreusServerCommand};
-use crate::config::loader::ConfigurationManager;
+use crate::cli::{ZagreusServerCommand, get_command};
 use crate::config::ZagreusServerConfig;
+use crate::config::loader::ConfigurationManager;
 use crate::controller::ServerController;
 use crate::websocket::server::WebsocketServer;
 
