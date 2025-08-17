@@ -1,8 +1,8 @@
-use axum::Router;
 use axum::body::Body;
 use axum::error_handling::HandleErrorLayer;
 use axum::http::uri::InvalidUri;
 use axum::http::{Request, StatusCode, Uri};
+use axum::Router;
 use std::sync::Arc;
 use tower::ServiceBuilder;
 use tower_http::services::ServeDir;
@@ -41,19 +41,19 @@ async fn map_rewrite_template_url(req: Request<Body>) -> Result<Request<Body>, S
     if uri.starts_with("/static/template/") && !uri.ends_with('/') {
         let last_part = uri.split('/').next_back();
 
-        if let Some(last_part) = last_part {
-            if !last_part.contains('.') {
-                let (mut parts, body) = req.into_parts();
-                let new_uri: Result<Uri, InvalidUri> = format!("{uri}/").parse();
-                match new_uri {
-                    Ok(new_uri) => {
-                        parts.uri = new_uri;
-                        return Ok(Request::from_parts(parts, body));
-                    }
-                    Err(invalid_uri) => {
-                        error!("URI was invalid: {}.", invalid_uri);
-                        return Err(StatusCode::BAD_REQUEST);
-                    }
+        if let Some(last_part) = last_part
+            && !last_part.contains('.')
+        {
+            let (mut parts, body) = req.into_parts();
+            let new_uri: Result<Uri, InvalidUri> = format!("{uri}/").parse();
+            match new_uri {
+                Ok(new_uri) => {
+                    parts.uri = new_uri;
+                    return Ok(Request::from_parts(parts, body));
+                }
+                Err(invalid_uri) => {
+                    error!("URI was invalid: {}.", invalid_uri);
+                    return Err(StatusCode::BAD_REQUEST);
                 }
             }
         }
