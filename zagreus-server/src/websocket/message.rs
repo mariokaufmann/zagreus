@@ -21,12 +21,12 @@ pub enum ServerMessage<'a> {
     },
     LoadAnimations {
         #[serde(borrow)]
-        animations: Cow<'a, Vec<AnimationSequence>>,
+        animations: Cow<'a, [AnimationSequence]>,
     },
     #[serde(rename_all = "camelCase")]
     LoadElements {
         #[serde(borrow)]
-        elements: Cow<'a, Vec<TemplateElement>>,
+        elements: Cow<'a, [TemplateElement]>,
     },
     #[serde(rename_all = "camelCase")]
     ExecuteAnimation {
@@ -36,7 +36,7 @@ pub enum ServerMessage<'a> {
     #[serde(rename_all = "camelCase")]
     OnLoad {
         #[serde(borrow)]
-        animation_sequences: Cow<'a, Vec<String>>,
+        animation_sequences: Cow<'a, [String]>,
     },
     #[serde(rename_all = "camelCase")]
     SetImageSource {

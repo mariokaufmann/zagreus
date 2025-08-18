@@ -84,10 +84,10 @@ async fn get_asset_data(
             }
         }
     }
-    if let Some(asset_name) = asset_name {
-        if let Some(asset_data) = asset_data {
-            return Ok((asset_name, asset_data));
-        }
+    if let Some(asset_name) = asset_name
+        && let Some(asset_data) = asset_data
+    {
+        return Ok((asset_name, asset_data));
     }
     Err(anyhow!("Multipart request did not have expected format."))
 }
