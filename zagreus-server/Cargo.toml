@@ -26,5 +26,5 @@ default-features = false
 features = ["console_appender", "rolling_file_appender", "fixed_window_roller", "size_trigger", "compound_policy", "json_encoder"]
 
 [dev-dependencies]
-tokio-tungstenite = "0.26.0"
-tungstenite = "0.26.0"
+tokio-tungstenite = "0.27.0"
+tungstenite = "0.27.0"

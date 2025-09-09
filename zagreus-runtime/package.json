@@ -13,9 +13,9 @@
   "author": "Mario Kaufmann <mario.kaufmann@bluemail.ch>",
   "license": "ISC",
   "devDependencies": {
-    "esbuild": "0.25.3",
-    "prettier": "3.5.3",
-    "typescript": "5.8.3",
+    "esbuild": "0.25.9",
+    "prettier": "3.6.2",
+    "typescript": "5.9.2",
     "copyfiles": "2.4.1"
   }
 }
