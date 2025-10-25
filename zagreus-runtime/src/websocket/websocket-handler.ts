@@ -38,7 +38,18 @@ const templateMessageHandlers: EnumTypeHandler<ServerMessage, WebsocketSender> =
       setCustomVariable(payload.name, payload.value);
     },
     SetState: (payload: SetStatePayload, sender) => {
-      getInternalZagreusState().states[payload.name] = payload.value;
+      const internalState = getInternalZagreusState();
+      if (!internalState.states[payload.name]) {
+        internalState.states[payload.name] = {
+          value: payload.value,
+          changedListeners: [],
+        };
+      } else {
+        internalState.states[payload.name].value = payload.value;
+      }
+      internalState.states[payload.name].changedListeners.forEach((listener) =>
+        listener(payload.value),
+      );
       sender.sendStateSetMessage(payload.name, payload.value);
     },
   };
