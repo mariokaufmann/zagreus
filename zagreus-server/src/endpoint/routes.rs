@@ -15,24 +15,6 @@ use crate::endpoint::{data, get_server_version, state};
 use crate::fs::get_assets_folder;
 use crate::websocket::server::WebsocketServer;
 
-#[derive(Deserialize, Serialize)]
-struct SetTextDto {
-    id: String,
-    text: String,
-}
-
-#[derive(Deserialize, Serialize)]
-struct ManipulateClassDto {
-    id: String,
-    class: String,
-}
-
-#[derive(Deserialize, Serialize)]
-struct SetImageSourceDto {
-    id: String,
-    asset: String,
-}
-
 // e.g. rewrite /static/template/my-template to /static/template/my-template/
 // TODO parse url better (what if there are multiple dots in the asset name?)
 // TODO still necessary?

@@ -1,5 +1,5 @@
 import { AnimationSequence } from "./websocket/types";
-import { registerAnimations, setup } from "./setup";
+import { registerAnimations, registerStateListener, setup } from "./setup";
 import { AnimationQueue } from "./manipulation/animation";
 import { WebsocketSender } from "./websocket/websocket-sender";
 
@@ -10,6 +10,7 @@ declare global {
 }
 
 export type ErrorReporter = (error: Error) => void;
+export type StateChangeListener = (stateValue: string) => void;
 
 export interface ZagreusContainerSetupArguments {
   name: string;
@@ -29,7 +30,16 @@ export interface ZagreusSetupArguments {
 export interface ZagreusState {
   setup: (args: ZagreusSetupArguments) => void;
   registerAnimations: (...animation: AnimationSequence[]) => void;
+  registerStateListener: (
+    stateName: string,
+    listener: StateChangeListener,
+  ) => void;
   _internal: InternalZagreusState;
+}
+
+export interface StateVariable {
+  value: string;
+  changedListeners: StateChangeListener[];
 }
 
 export interface InternalZagreusState {
@@ -40,13 +50,14 @@ export interface InternalZagreusState {
   websocketSender?: WebsocketSender;
   animationSequences: Record<string, AnimationSequence>;
   animationQueues: Record<string, AnimationQueue>;
-  states: Record<string, string>;
+  states: Record<string, StateVariable>;
   errorReporter: ErrorReporter;
 }
 
 if (!window.zagreus) {
   window.zagreus = {
     setup: setup,
+    registerStateListener: registerStateListener,
     registerAnimations: registerAnimations,
     _internal: {
       instance: undefined,

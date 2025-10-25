@@ -10,7 +10,7 @@
     "prettier:write": "prettier --write .",
     "lint": "npm run prettier:check"
   },
-  "author": "Mario Kaufmann <mario.kaufmann@bluemail.ch>",
+  "author": "Mario Kaufmann <mail@mariokaufmann.ch>",
   "license": "ISC",
   "devDependencies": {
     "esbuild": "0.25.9",

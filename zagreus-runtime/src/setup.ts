@@ -1,5 +1,6 @@
 import {
   getInternalZagreusState,
+  StateChangeListener,
   ZagreusContainerSetupArguments,
   ZagreusSetupArguments,
 } from "./runtime";
@@ -77,4 +78,15 @@ export function registerAnimations(...animations: AnimationSequence[]) {
     .forEach(
       (sequence) => (state.animationSequences[sequence.name] = sequence),
     );
+}
+
+export function registerStateListener(
+  stateName: string,
+  listener: StateChangeListener,
+) {
+  const state = getInternalZagreusState();
+  if (!state.states[stateName]) {
+    state.states[stateName] = { value: "", changedListeners: [] };
+  }
+  state.states[stateName].changedListeners.push(listener);
 }
