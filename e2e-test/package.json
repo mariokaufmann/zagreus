@@ -12,6 +12,6 @@
   "devDependencies": {
     "cypress": "14.5.4",
     "cypress-log-to-output": "1.1.2",
-    "typescript": "5.9.2"
+    "typescript": "5.9.3"
   }
 }
