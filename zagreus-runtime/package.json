@@ -13,8 +13,8 @@
   "author": "Mario Kaufmann <mail@mariokaufmann.ch>",
   "license": "ISC",
   "devDependencies": {
-    "esbuild": "0.25.11",
-    "prettier": "3.6.2",
+    "esbuild": "0.27.1",
+    "prettier": "3.7.4",
     "typescript": "5.9.3",
     "copyfiles": "2.4.1"
   }
