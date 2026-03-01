@@ -3,7 +3,7 @@
   "version": "0.0.9",
   "description": "",
   "scripts": {
-    "build": "copyfiles spec.yaml \"node_modules/swagger-ui-dist/*\" index.html ../zagreus-server/swagger-docs/ --flat"
+    "build": "copyfiles \"node_modules/swagger-ui-dist/*\" index.html ../zagreus-server/swagger-docs/ --flat"
   },
   "author": "",
   "license": "ISC",
