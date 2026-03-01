@@ -6,22 +6,23 @@ use axum::extract::{Extension, Path};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use std::sync::Arc;
+use utoipa::ToSchema;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 pub(crate) struct SetTextDto {
     id: String,
     text: String,
     client: Option<usize>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 pub(crate) struct ManipulateClassDto {
     id: String,
     class: String,
     client: Option<usize>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct SetImageSourceDto {
     id: String,
@@ -30,7 +31,7 @@ pub(crate) struct SetImageSourceDto {
     client: Option<usize>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct SetCustomVariableDto {
     name: String,
@@ -38,7 +39,7 @@ pub(crate) struct SetCustomVariableDto {
     client: Option<usize>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ExecuteAnimationDto {
     name: String,
@@ -46,6 +47,19 @@ pub(crate) struct ExecuteAnimationDto {
     client: Option<usize>,
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/instance/{instance}/data/text",
+    tag = "Data",
+    summary = "Set text content",
+    params(
+        ("instance" = String, Path, description = "Template instance name")
+    ),
+    request_body = SetTextDto,
+    responses(
+        (status = 200, description = "Text updated"),
+    )
+)]
 pub(crate) async fn set_text(
     Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
@@ -59,6 +73,19 @@ pub(crate) async fn set_text(
     StatusCode::OK
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/instance/{instance}/data/class/add",
+    tag = "Data",
+    summary = "Add CSS class",
+    params(
+        ("instance" = String, Path, description = "Template instance name")
+    ),
+    request_body = ManipulateClassDto,
+    responses(
+        (status = 200, description = "Class added"),
+    )
+)]
 pub(crate) async fn add_class(
     Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
@@ -72,6 +99,19 @@ pub(crate) async fn add_class(
     StatusCode::OK
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/instance/{instance}/data/class/remove",
+    tag = "Data",
+    summary = "Remove CSS class",
+    params(
+        ("instance" = String, Path, description = "Template instance name")
+    ),
+    request_body = ManipulateClassDto,
+    responses(
+        (status = 200, description = "Class removed"),
+    )
+)]
 pub(crate) async fn remove_class(
     Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
@@ -85,6 +125,19 @@ pub(crate) async fn remove_class(
     StatusCode::OK
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/instance/{instance}/data/animation",
+    tag = "Data",
+    summary = "Execute animation",
+    params(
+        ("instance" = String, Path, description = "Template instance name")
+    ),
+    request_body = ExecuteAnimationDto,
+    responses(
+        (status = 200, description = "Animation command sent"),
+    )
+)]
 pub(crate) async fn execute_animation(
     Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
@@ -98,6 +151,19 @@ pub(crate) async fn execute_animation(
     StatusCode::OK
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/instance/{instance}/data/image",
+    tag = "Data",
+    summary = "Set image source",
+    params(
+        ("instance" = String, Path, description = "Template instance name")
+    ),
+    request_body = SetImageSourceDto,
+    responses(
+        (status = 200, description = "Image source updated"),
+    )
+)]
 pub(crate) async fn set_image_source(
     Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,
@@ -112,6 +178,19 @@ pub(crate) async fn set_image_source(
     StatusCode::OK
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/instance/{instance}/data/custom-variable",
+    tag = "Data",
+    summary = "Set CSS custom variable",
+    params(
+        ("instance" = String, Path, description = "Template instance name")
+    ),
+    request_body = SetCustomVariableDto,
+    responses(
+        (status = 200, description = "Custom variable updated"),
+    )
+)]
 pub(crate) async fn set_custom_variable(
     Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,

@@ -9,15 +9,41 @@ use axum::response::IntoResponse;
 use serde_json::json;
 use sha2::Digest;
 use sha2::Sha256;
+use utoipa::ToSchema;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 pub(crate) struct UploadAssetResponseDto {
     name: String,
+}
+
+/// Schema helper for multipart form data accepted by `upload_asset`.
+#[derive(Deserialize, ToSchema)]
+#[allow(unused)]
+pub(crate) struct UploadAssetRequestDto {
+    name: String,
+    #[schema(format = Binary, content_media_type = "application/octet-stream", value_type = String)]
+    file: String,
 }
 
 const ASSET_NAME_FIELD: &str = "name";
 const ASSET_DATA_FIELD: &str = "file";
 
+#[utoipa::path(
+    post,
+    path = "/api/asset",
+    tag = "Asset",
+    summary = "Upload an asset",
+    request_body(
+        content = UploadAssetRequestDto,
+        description = "Multipart form data containing `name` and `file` fields",
+        content_type = "multipart/form-data"
+    ),
+    responses(
+        (status = 200, description = "Asset uploaded", body = UploadAssetResponseDto),
+        (status = 400, description = "Asset name invalid", body = String),
+        (status = 500, description = "Upload failed", body = String),
+    )
+)]
 pub(crate) async fn upload_asset(
     Extension(assets_folder): Extension<PathBuf>,
     multipart: axum::extract::Multipart,

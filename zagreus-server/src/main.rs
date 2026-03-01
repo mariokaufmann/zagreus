@@ -48,7 +48,7 @@ async fn start_with_config(configuration: ZagreusServerConfig) -> anyhow::Result
     info!("Starting zagreus server...");
     let server_port = configuration.server_port;
     info!(
-        "API docs are available at http://localhost:{}/static/swagger-docs/?url=spec.yaml",
+        "API docs are available at http://localhost:{}/static/swagger-docs/?url=/api/openapi.yaml",
         server_port
     );
     let ws_server = Arc::new(WebsocketServer::new());
