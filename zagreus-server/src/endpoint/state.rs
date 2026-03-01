@@ -6,15 +6,16 @@ use axum::response::IntoResponse;
 use axum::{Extension, Json};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
+use utoipa::ToSchema;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct GetStateDto {
     clients_unset: Vec<usize>,
     clients_set: Vec<GetStateItemDto>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct GetStateItemDto {
     clients: HashSet<usize>,
@@ -26,6 +27,19 @@ pub(crate) struct GetStateQueryParams {
     name: String,
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/instance/{instance}/state",
+    tag = "State",
+    summary = "Get state values for connected clients",
+    params(
+        ("instance" = String, Path, description = "Template instance name"),
+        ("name" = String, Query, description = "State name to resolve")
+    ),
+    responses(
+        (status = 200, description = "State retrieved", body = GetStateDto),
+    )
+)]
 pub(crate) async fn get_state(
     Path(instance): Path<String>,
     params: Query<GetStateQueryParams>,
@@ -58,13 +72,26 @@ pub(crate) async fn get_state(
     })
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct SetStateDto {
     name: String,
     value: Option<String>,
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/instance/{instance}/state",
+    tag = "State",
+    summary = "Set state for all clients",
+    params(
+        ("instance" = String, Path, description = "Template instance name")
+    ),
+    request_body = SetStateDto,
+    responses(
+        (status = 200, description = "State update sent"),
+    )
+)]
 pub(crate) async fn set_state(
     Path(instance): Path<String>,
     Extension(server): Extension<Arc<WebsocketServer>>,

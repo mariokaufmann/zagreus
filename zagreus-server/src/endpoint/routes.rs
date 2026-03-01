@@ -6,6 +6,7 @@ use axum::http::{Request, StatusCode, Uri};
 use std::sync::Arc;
 use tower::ServiceBuilder;
 use tower_http::services::ServeDir;
+use utoipa::OpenApi;
 
 use crate::config::ZagreusServerConfig;
 use crate::controller::ServerController;
@@ -48,7 +49,21 @@ pub fn get_router(
     ws_server: Arc<WebsocketServer>,
     server_controller: Arc<ServerController>,
 ) -> anyhow::Result<Router> {
+    let openapi = endpoint::openapi::ApiDoc::openapi();
+
     let mut router = Router::new().route("/api/version", axum::routing::get(get_server_version));
+
+    let openapi_router = Router::new()
+        .route(
+            "/api/openapi.json",
+            axum::routing::get(endpoint::openapi::get_openapi_json),
+        )
+        .route(
+            "/api/openapi.yaml",
+            axum::routing::get(endpoint::openapi::get_openapi_yaml),
+        )
+        .layer(axum::extract::Extension(openapi));
+    router = router.merge(openapi_router);
 
     let assets_folder = get_assets_folder(&configuration.data_folder)?;
     let assets_router = Router::new().nest_service(
