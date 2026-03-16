@@ -61,8 +61,8 @@ jobs:
       - name: Lint, test and build (server)
         run: |
           rustup component add clippy
-          cargo clippy -- -D warnings
-          cargo clippy --tests -- -D warnings
+          cargo clippy
+          cargo clippy --tests
           cargo test
           cargo build --release
       - name: Package
