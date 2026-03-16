@@ -1,4 +1,5 @@
 #![deny(clippy::all)]
+#![deny(warnings)]
 
 #[macro_use]
 extern crate log;
