@@ -15,7 +15,7 @@
   "devDependencies": {
     "esbuild": "0.28.1",
     "prettier": "3.8.4",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "copyfiles": "2.4.1"
   }
 }
