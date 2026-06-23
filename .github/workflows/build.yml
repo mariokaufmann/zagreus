@@ -88,7 +88,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Docker build
         if: ${{ matrix.label == 'ubuntu-latest' }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: docker
           push: ${{ inputs.push }}
