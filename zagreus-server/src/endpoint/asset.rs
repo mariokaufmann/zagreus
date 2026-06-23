@@ -124,7 +124,8 @@ async fn write_asset_file(
     asset_bytes: Bytes,
 ) -> anyhow::Result<String> {
     let hash = Sha256::digest(&asset_bytes);
-    let saved_asset_name = format!("{:x}.{extension}", hash);
+    let hash_hex: String = hash.iter().map(|b| format!("{b:02x}")).collect();
+    let saved_asset_name = format!("{hash_hex}.{extension}");
 
     let mut asset_file_path = assets_folder.to_owned();
     asset_file_path.push(&saved_asset_name);
