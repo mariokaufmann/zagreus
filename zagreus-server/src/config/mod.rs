@@ -14,7 +14,7 @@ fn get_default_data_folder() -> PathBuf {
                 match std::fs::create_dir_all(&folder) {
                     Ok(()) => folder,
                     Err(err) => {
-                        error!("Could not create folder {:?}: {}.", &folder, err);
+                        error!("Could not create folder {:?}: {}.", folder, err);
                         PathBuf::new()
                     }
                 }
