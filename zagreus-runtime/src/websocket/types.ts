@@ -59,9 +59,6 @@ export interface Animation {
 }
 
 export type AnimationDirection =
-  | "normal"
-  | "reverse"
-  | "alternate"
-  | "alternate-reverse";
+  "normal" | "reverse" | "alternate" | "alternate-reverse";
 
 export type AnimationIterationCount = "infinite" | number;
