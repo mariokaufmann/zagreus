@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "rootDir": "./src/",
-    "strict": false,
+    "strict": true,
     "noImplicitAny": true,
     "module": "ES6",
     "target": "ES2016",

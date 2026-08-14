@@ -88,6 +88,9 @@ export const getMaxTimeoutFromSequences = (sequences: string[]): number => {
   let maxTimeout = 0;
   sequences.forEach((sequenceName) => {
     const sequence = findAnimationSequence(sequenceName, state);
+    if (!sequence) {
+      return;
+    }
     const timeout = getMaxTimeoutFromSequence(sequence);
     maxTimeout = Math.max(maxTimeout, timeout);
   });
