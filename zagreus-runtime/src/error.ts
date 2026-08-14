@@ -49,7 +49,7 @@ const reportErrorOnSender = (
   const message: TaggedEnumType<ClientMessage, LogErrorPayload> = {
     tag: "LogError",
     payload: {
-      stack: error.stack,
+      stack: error.stack ?? "",
       message: error.message,
     },
   };

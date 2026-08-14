@@ -60,15 +60,16 @@ if (!window.zagreus) {
     registerStateListener: registerStateListener,
     registerAnimations: registerAnimations,
     _internal: {
-      instance: undefined,
-      host: undefined,
-      port: undefined,
+      // Placeholders until setup() and installErrorHandler() populate them.
+      instance: "",
+      host: "",
+      port: "",
       secure: false,
       websocketSender: undefined,
       animationSequences: {},
       animationQueues: {},
       states: {},
-      errorReporter: undefined,
+      errorReporter: () => undefined,
     },
   };
 }
