@@ -13,7 +13,7 @@
   "author": "Mario Kaufmann <mail@mariokaufmann.ch>",
   "license": "ISC",
   "devDependencies": {
-    "esbuild": "0.28.1",
+    "esbuild": "0.28.2",
     "prettier": "3.9.6",
     "typescript": "7.0.2",
     "copyfiles": "2.4.1"
