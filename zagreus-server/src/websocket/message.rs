@@ -57,14 +57,33 @@ pub enum ServerMessage<'a> {
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "tag", content = "payload")]
-pub enum ClientMessage<'a> {
+pub enum ClientMessage {
+    // Owned, a borrowed str cannot hold a value with JSON escapes.
     #[serde(rename_all = "camelCase")]
     StateSet {
-        name: &'a str,
-        value: Option<&'a str>,
+        name: String,
+        value: Option<String>,
     },
     LogError {
         message: String,
         stack: String,
     },
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_state_set_with_escaped_value() {
+        let message =
+            r#"{"tag":"StateSet","payload":{"name":"PERSON","value":"{\"name\":\"Jane\"}"}}"#;
+        match serde_json::from_str::<ClientMessage>(message).unwrap() {
+            ClientMessage::StateSet { name, value } => {
+                assert_eq!(name, "PERSON");
+                assert_eq!(value.as_deref(), Some(r#"{"name":"Jane"}"#));
+            }
+            ClientMessage::LogError { .. } => panic!("expected StateSet"),
+        }
+    }
 }

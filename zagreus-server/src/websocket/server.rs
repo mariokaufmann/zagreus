@@ -85,10 +85,7 @@ impl WebsocketServer {
                                 ClientMessage::StateSet { name, value } => {
                                     let mut locked_connections = connections.write().await;
                                     if let Some(connection) = locked_connections.get_mut(&id) {
-                                        connection.get_mut_client_state().set_state(
-                                            name.to_string(),
-                                            value.map(|v| v.to_string()),
-                                        );
+                                        connection.get_mut_client_state().set_state(name, value);
                                     } else {
                                         warn!("Did not find connection with id {id} anymore")
                                     }
