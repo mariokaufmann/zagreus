@@ -25,7 +25,11 @@ mod fs;
 mod logger;
 mod websocket;
 
-const ZAGREUS_VERSION: &str = env!("CARGO_PKG_VERSION");
+// The release version when the CI build sets it, e.g. `1.0.1`, else the crate version.
+const ZAGREUS_VERSION: &str = match option_env!("ZAGREUS_VERSION") {
+    Some(version) => version,
+    None => env!("CARGO_PKG_VERSION"),
+};
 
 const APPLICATION_NAME: &str = "zagreus-server";
 const CONFIG_FILE_NAME: &str = "config.json";

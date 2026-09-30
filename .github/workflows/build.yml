@@ -59,6 +59,9 @@ jobs:
           npm run build
         working-directory: ./zagreus-swagger-docs
       - name: Lint, test and build (server)
+        env:
+          # Reported by /api/version: the release tag, or latest and latest-pr for other builds.
+          ZAGREUS_VERSION: ${{ inputs.version }}
         run: |
           rustup component add clippy
           cargo clippy
