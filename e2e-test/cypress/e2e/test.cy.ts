@@ -56,6 +56,20 @@ describe("E2E test", () => {
     );
     getElement("LowerThirdRightAlignedText").should("be.visible");
 
+    // state, a cleared state must count as unset again
+    const stateUrl = "http://localhost:8080/api/instance/e2e/state";
+    cy.request("POST", stateUrl, { name: "visible", value: "true" });
+    cy.request(`${stateUrl}?name=visible`)
+      .its("body.clientsSet.0.value")
+      .should("equal", "true");
+    cy.request("POST", stateUrl, { name: "visible", value: null });
+    cy.request(`${stateUrl}?name=visible`)
+      .its("body")
+      .should((body) => {
+        expect(body.clientsSet).to.be.empty;
+        expect(body.clientsUnset).to.have.length(1);
+      });
+
     // image manipulation
     cy.request("POST", "http://localhost:8080/api/instance/e2e/data/image", {
       id: "LowerThirdLogo",

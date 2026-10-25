@@ -39,7 +39,7 @@ const templateMessageHandlers: EnumTypeHandler<ServerMessage, WebsocketSender> =
     },
     SetState: (payload: SetStatePayload, sender) => {
       const internalState = getInternalZagreusState();
-      // The server may send a null value; treat it as the empty state value,
+      // Listeners get "" for a cleared (null) state, the server gets null back so the state counts as unset.
       const value = payload.value ?? "";
       if (!internalState.states[payload.name]) {
         internalState.states[payload.name] = {
@@ -52,7 +52,7 @@ const templateMessageHandlers: EnumTypeHandler<ServerMessage, WebsocketSender> =
       internalState.states[payload.name].changedListeners.forEach((listener) =>
         listener(value),
       );
-      sender.sendStateSetMessage(payload.name, value);
+      sender.sendStateSetMessage(payload.name, payload.value ?? null);
     },
   };
 
