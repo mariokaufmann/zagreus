@@ -2,6 +2,22 @@ function getElement(name: string) {
   return cy.get(`[data-zag="${name}"]`);
 }
 
+// Templates hide graphics by animating them out of frame, which visibility checks don't see.
+function shouldBeInFrame(name: string, inFrame: boolean) {
+  getElement("zagreus-container").then((container) => {
+    const frame = container[0].getBoundingClientRect();
+    getElement(name).should((element) => {
+      const box = element[0].getBoundingClientRect();
+      const isInFrame =
+        box.top >= frame.top &&
+        box.bottom <= frame.bottom &&
+        box.left >= frame.left &&
+        box.right <= frame.right;
+      expect(isInFrame, `${name} in frame`).to.equal(inFrame);
+    });
+  });
+}
+
 function setText(name: string, oldText: string, newText: string) {
   getElement(name).should("have.text", oldText);
   cy.request("POST", "http://localhost:8080/api/instance/e2e/data/text", {
@@ -20,7 +36,7 @@ describe("E2E test", () => {
     getElement("zagreus-container").should("not.have.class", "zagreus-hidden");
 
     // show animation
-    getElement("LowerThird").should("not.be.visible");
+    shouldBeInFrame("LowerThird", false);
     cy.request(
       "POST",
       "http://localhost:8080/api/instance/e2e/data/animation",{
@@ -28,7 +44,7 @@ describe("E2E test", () => {
         queue: "LowerThird"
       }
     );
-    getElement("LowerThird").should("be.visible");
+    shouldBeInFrame("LowerThird", true);
 
     // text manipulation
     setText("LowerThirdTitle", "Title", "New title");
